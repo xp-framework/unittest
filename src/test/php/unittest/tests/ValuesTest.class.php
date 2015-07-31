@@ -104,7 +104,7 @@ class ValuesTest extends \unittest\TestCase {
     $test= newinstance('unittest.TestCase', ['fixture'], '{
       public $values= [];
 
-      #[@test, @values("net.xp_framework.unittest.tests.ValuesTest::range")]
+      #[@test, @values("unittest.tests.ValuesTest::range")]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -118,7 +118,7 @@ class ValuesTest extends \unittest\TestCase {
     $test= newinstance('unittest.TestCase', ['fixture'], '{
       public $values= [];
 
-      #[@test, @values("net\\\\xp_framework\\\\unittest\\\\tests\\\\ValuesTest::range")]
+      #[@test, @values("unittest\\\\tests\\\\ValuesTest::range")]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -132,7 +132,7 @@ class ValuesTest extends \unittest\TestCase {
     $test= newinstance('unittest.TestCase', ['fixture'], '{
       public $values= [];
 
-      #[@test, @values(source= "net.xp_framework.unittest.tests.ValuesTest::range", args= [1, 10])]
+      #[@test, @values(source= "unittest.tests.ValuesTest::range", args= [1, 10])]
       public function fixture($value) {
         $this->values[]= $value;
       }

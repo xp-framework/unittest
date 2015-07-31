@@ -182,7 +182,7 @@ class VerifyThatTest extends \unittest\TestCase {
   #[@test]
   public function with_static_method_on_other_class_returning_true() {
     $this->assertSucceeds(newinstance('unittest.TestCase', ['fixture'], '{
-      #[@test, @action(new \unittest\actions\VerifyThat("net.xp_framework.unittest.tests.VerifyThatTest::returnTrue"))]
+      #[@test, @action(new \unittest\actions\VerifyThat("unittest.tests.VerifyThatTest::returnTrue"))]
       public function fixture() { }
     }'));
   }
@@ -209,8 +209,8 @@ class VerifyThatTest extends \unittest\TestCase {
 
   #[@test]
   public function with_non_existant_method_on_class() {
-    $this->assertSkipped(['net.xp_framework.unittest.tests.VerifyThatTest::non_existant_method'], newinstance('unittest.TestCase', ['fixture'], '{
-      #[@test, @action(new \unittest\actions\VerifyThat("net.xp_framework.unittest.tests.VerifyThatTest::non_existant_method"))]
+    $this->assertSkipped(['unittest.tests.VerifyThatTest::non_existant_method'], newinstance('unittest.TestCase', ['fixture'], '{
+      #[@test, @action(new \unittest\actions\VerifyThat("unittest.tests.VerifyThatTest::non_existant_method"))]
       public function fixture() {
         throw new \lang\IllegalStateException("Should not be reached");
       }

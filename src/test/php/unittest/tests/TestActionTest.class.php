@@ -24,7 +24,7 @@ class TestActionTest extends TestCase {
   public function beforeTest_and_afterTest_invocation_order() {
     $test= newinstance('unittest.TestCase', ['fixture'], [
       'run' => [],
-      '#[@test, @action(new \net\xp_framework\unittest\tests\RecordActionInvocation("run"))] fixture' => function() {
+      '#[@test, @action(new \unittest\tests\RecordActionInvocation("run"))] fixture' => function() {
         $this->run[]= 'test';
       }
     ]);
@@ -39,7 +39,7 @@ class TestActionTest extends TestCase {
       'setUp' => function() {
         $this->run[]= 'setup';
       },
-      '#[@test, @action(new \net\xp_framework\unittest\tests\RecordActionInvocation("run"))] fixture' => function() {
+      '#[@test, @action(new \unittest\tests\RecordActionInvocation("run"))] fixture' => function() {
         $this->run[]= 'test';
       }
     ]);
@@ -54,7 +54,7 @@ class TestActionTest extends TestCase {
       'tearDown' => function() {
         $this->run[]= 'teardown';
       },
-      '#[@test, @action(new \net\xp_framework\unittest\tests\RecordActionInvocation("run"))] fixture' => function() {
+      '#[@test, @action(new \unittest\tests\RecordActionInvocation("run"))] fixture' => function() {
         $this->run[]= 'test';
       }
     ]);
@@ -64,12 +64,12 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function beforeTest_can_skip_test() {
-    ClassLoader::defineClass('net.xp_framework.unittest.tests.SkipThisTest', 'lang.Object', ['unittest.TestAction'], [
+    ClassLoader::defineClass('unittest.tests.SkipThisTest', 'lang.Object', ['unittest.TestAction'], [
       'beforeTest' => function(TestCase $t) { throw new PrerequisitesNotMetError('Skip'); },
       'afterTest' => function(TestCase $t) { /* NOOP */ }
     ]);
     $test= newinstance('unittest.TestCase', ['fixture'], [
-      '#[@test, @action(new \net\xp_framework\unittest\tests\SkipThisTest())] fixture' => function() {
+      '#[@test, @action(new \unittest\tests\SkipThisTest())] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -79,7 +79,7 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function invocation_order_with_class_annotation() {
-    $this->suite->addTestClass(XPClass::forName('net.xp_framework.unittest.tests.TestWithAction'));
+    $this->suite->addTestClass(XPClass::forName('unittest.tests.TestWithAction'));
     $this->suite->run();
     $this->assertEquals(
       ['before', 'one', 'after', 'before', 'two', 'after'],
@@ -89,7 +89,7 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function test_action_with_arguments() {
-    ClassLoader::defineClass('net.xp_framework.unittest.tests.PlatformVerification', 'lang.Object', ['unittest.TestAction'], '{
+    ClassLoader::defineClass('unittest.tests.PlatformVerification', 'lang.Object', ['unittest.TestAction'], '{
       protected $platform;
 
       public function __construct($platform) {
@@ -107,7 +107,7 @@ class TestActionTest extends TestCase {
       }
     }');
     $test= newinstance('unittest.TestCase', ['fixture'], [
-      '#[@test, @action(new \net\xp_framework\unittest\tests\PlatformVerification("Test"))] fixture' => function() {
+      '#[@test, @action(new \unittest\tests\PlatformVerification("Test"))] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -122,8 +122,8 @@ class TestActionTest extends TestCase {
       public $one= [], $two= [];
 
       #[@test, @action([
-      #  new \net\xp_framework\unittest\tests\RecordActionInvocation("one"),
-      #  new \net\xp_framework\unittest\tests\RecordActionInvocation("two")
+      #  new \unittest\tests\RecordActionInvocation("one"),
+      #  new \unittest\tests\RecordActionInvocation("two")
       #])]
       public function fixture() {
       }
@@ -137,7 +137,7 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function afterTest_can_raise_AssertionFailedErrors() {
-    ClassLoader::defineClass('net.xp_framework.unittest.tests.FailOnTearDown', 'lang.Object', ['unittest.TestAction'], '{
+    ClassLoader::defineClass('unittest.tests.FailOnTearDown', 'lang.Object', ['unittest.TestAction'], '{
       public function beforeTest(\unittest\TestCase $t) {
         // NOOP
       }
@@ -147,7 +147,7 @@ class TestActionTest extends TestCase {
       }
     }');
     $test= newinstance('unittest.TestCase', ['fixture'], [
-      '#[@test, @action(new \net\xp_framework\unittest\tests\FailOnTearDown())] fixture' => function() {
+      '#[@test, @action(new \unittest\tests\FailOnTearDown())] fixture' => function() {
         // NOOP
       }
     ]);
@@ -157,7 +157,7 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function all_afterTest_exceptions_are_chained_into_one() {
-    ClassLoader::defineClass('net.xp_framework.unittest.tests.FailOnTearDownWith', 'lang.Object', ['unittest.TestAction'], '{
+    ClassLoader::defineClass('unittest.tests.FailOnTearDownWith', 'lang.Object', ['unittest.TestAction'], '{
       protected $message;
 
       public function __construct($message) {
@@ -174,8 +174,8 @@ class TestActionTest extends TestCase {
     }');
     $test= newinstance('unittest.TestCase', ['fixture'], '{
       #[@test, @action([
-      #  new \net\xp_framework\unittest\tests\FailOnTearDownWith("First"),
-      #  new \net\xp_framework\unittest\tests\FailOnTearDownWith("Second")
+      #  new \unittest\tests\FailOnTearDownWith("First"),
+      #  new \unittest\tests\FailOnTearDownWith("Second")
       #])]
       public function fixture() {
         // NOOP
