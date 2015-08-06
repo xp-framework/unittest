@@ -110,6 +110,7 @@ class CalculatorTest extends \unittest\TestCase {
 Further reading
 ---------------
 
+* [XP RFC #0283: Unittest closure actions](https://github.com/xp-framework/rfc/issues/283)
 * [XP RFC #0272: Unittest actions](https://github.com/xp-framework/rfc/issues/272)
 * [XP RFC #0267: Unittest parameterization](https://github.com/xp-framework/rfc/issues/267)
 * [XP RFC #0188: Test outcome](https://github.com/xp-framework/rfc/issues/188)
