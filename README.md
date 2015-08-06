@@ -92,6 +92,21 @@ class CalculatorTest extends \unittest\TestCase {
 }
 ```
 
+Parameterization
+-----------------
+The `@values` annotation can be used to run a test with a variety of values which are passed as parameters.
+
+```php
+class CalculatorTest extends \unittest\TestCase {
+
+  #[@test, @expect(IllegalArgumentException::class), @values([1, 0, -1])]
+  public function cannot_divide_by_zero($dividend) {
+    (new Calculator())->divide($dividend, 0);
+  }
+}
+```
+
+
 Further reading
 ---------------
 
