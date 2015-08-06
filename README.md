@@ -95,7 +95,12 @@ class CalculatorTest extends \unittest\TestCase {
 Further reading
 ---------------
 
+* [XP RFC #0272: Unittest actions](https://github.com/xp-framework/rfc/issues/272)
+* [XP RFC #0267: Unittest parameterization](https://github.com/xp-framework/rfc/issues/267)
+* [XP RFC #0188: Test outcome](https://github.com/xp-framework/rfc/issues/188)
+* [XP RFC #0187: @expect withMessage](https://github.com/xp-framework/rfc/issues/187)
 * [XP RFC #0150: Before and after methods for test cases](https://github.com/xp-framework/rfc/issues/150)
 * [XP RFC #0145: Make unittests strict](https://github.com/xp-framework/rfc/issues/145)
 * [XP RFC #0059: Timeouts for unittests](https://github.com/xp-framework/rfc/issues/59)
+* [XP RFC #0032: Add annotations for Unittest API](https://github.com/xp-framework/rfc/issues/32)
 * [XP RFC #0020: Metadata for unittests](https://github.com/xp-framework/rfc/issues/20)
