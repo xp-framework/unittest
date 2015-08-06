@@ -59,12 +59,12 @@ In order to run a method before and after every test, overwrite the base class' 
 class CalculatorTest extends \unittest\TestCase {
   private $fixture;
 
-  /* @return void */
+  /** @return void */
   public function setUp() {
     $this->fixture= new Calculator();
   }
 
-  /* @return void */
+  /** @return void */
   public function tearDown() {
     unset($this->fixture);
   }
