@@ -49,6 +49,8 @@ public void assertNull(var $actual, [string $error= "==="])
 public void assertInstanceOf(var $type, var $actual, [string $error= "instanceof"])
 ```
 
+If you need more than that, you can use [xp-forge/assert](https://github.com/xp-forge/assert) on top of this library.
+
 Setup and teardown
 ------------------
 In order to run a method before and after every test, overwrite the base class' `setUp()` and `tearDown()` methods:
