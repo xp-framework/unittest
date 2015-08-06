@@ -78,6 +78,20 @@ class CalculatorTest extends \unittest\TestCase {
 
 *Note: The `unset` above isn't really necessary, a fresh instance of the testcase class is created before every run and disposed thereafter, thus PHP's garbage collection takes care of freeing all members.*
 
+Expected exceptions
+-------------------
+The `@expect` annotation is a shorthand for catching exceptions and verifying their type manually.
+
+```php
+class CalculatorTest extends \unittest\TestCase {
+
+  #[@test, @expect(IllegalArgumentException::class)]
+  public function cannot_divide_by_zero() {
+    (new Calculator())->divide(1, 0);
+  }
+}
+```
+
 Further reading
 ---------------
 
