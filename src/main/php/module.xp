@@ -1,0 +1,10 @@
+<?php namespace unittest;
+
+use lang\ClassLoader;
+
+module xp-framework/unittest {
+
+  public function initialize() {
+    ClassLoader::registerLoader($this->classLoader(), true);
+  }
+}
