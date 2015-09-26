@@ -1,5 +1,8 @@
 <?php namespace unittest\tests;
 
+use unittest\TestCase;
+use unittest\TestResult;
+use unittest\TestPrerequisitesNotMet;
 use lang\Error;
 use lang\MethodNotImplementedException;
 use util\NoSuchElementException;
@@ -15,7 +18,7 @@ use lang\ClassLoader;
  *
  * @see    xp://unittest.TestSuite
  */
-class SuiteTest extends \unittest\TestCase {
+class SuiteTest extends TestCase {
   private $suite;
     
   /** @return void */
@@ -105,12 +108,12 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test, @expect(MethodNotImplementedException::class)]
   public function addInvalidTest() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['nonExistant'], '{}'));
+    $this->suite->addTest(newinstance(TestCase::class, ['nonExistant'], '{}'));
   }
 
   #[@test, @expect(MethodNotImplementedException::class)]
   public function runInvalidTest() {
-    $this->suite->runTest(newinstance('unittest.TestCase', ['nonExistant'], '{}'));
+    $this->suite->runTest(newinstance(TestCase::class, ['nonExistant'], '{}'));
   }
 
   #[@test]
@@ -130,8 +133,8 @@ class SuiteTest extends \unittest\TestCase {
     ]);
     $this->suite->addTestClass($class);
     $this->assertEquals(2, $this->suite->numTests());
-    $this->assertInstanceOf('unittest.TestCase', $this->suite->testAt(0));
-    $this->assertInstanceOf('unittest.TestCase', $this->suite->testAt(1));
+    $this->assertInstanceOf(TestCase::class, $this->suite->testAt(0));
+    $this->assertInstanceOf(TestCase::class, $this->suite->testAt(1));
   }
 
   #[@test]
@@ -178,10 +181,10 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function runningASingleSucceedingTest() {
-    $r= $this->suite->runTest(newinstance('unittest.TestCase', ['fixture'], [
+    $r= $this->suite->runTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(true); }
     ]));
-    $this->assertInstanceOf('unittest.TestResult', $r);
+    $this->assertInstanceOf(TestResult::class, $r);
     $this->assertEquals(1, $r->count(), 'count');
     $this->assertEquals(1, $r->runCount(), 'runCount');
     $this->assertEquals(1, $r->successCount(), 'successCount');
@@ -191,10 +194,10 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function runningASingleFailingTest() {
-    $r= $this->suite->runTest(newinstance('unittest.TestCase', ['fixture'], [
+    $r= $this->suite->runTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(false); }
     ]));
-    $this->assertInstanceOf('unittest.TestResult', $r);
+    $this->assertInstanceOf(TestResult::class, $r);
     $this->assertEquals(1, $r->count(), 'count');
     $this->assertEquals(1, $r->runCount(), 'runCount');
     $this->assertEquals(0, $r->successCount(), 'successCount');
@@ -204,21 +207,21 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function runMultipleTests() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(false); }
     ]));
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(true); }
     ]));
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'setUp' => function() { throw new PrerequisitesNotMetError('Skip'); },
       '#[@test] fixture' => function() { $this->assertTrue(false); }
     ]));
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test, @ignore] fixture' => function() { /* Empty */ }
     ]));
     $r= $this->suite->run();
-    $this->assertInstanceOf('unittest.TestResult', $r);
+    $this->assertInstanceOf(TestResult::class, $r);
     $this->assertEquals(4, $r->count(), 'count');
     $this->assertEquals(2, $r->runCount(), 'runCount');
     $this->assertEquals(1, $r->successCount(), 'successCount');
@@ -238,7 +241,7 @@ class SuiteTest extends \unittest\TestCase {
   public function runInvokesBeforeClassMultipleClasses() {
     $class= $this->classWithBeforeClass($this->name);
     $this->suite->addTest($class->newInstance('fixture'));
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { /* Empty */ }
     ]));
     $this->suite->addTest($class->newInstance('fixture'));
@@ -255,7 +258,7 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function beforeClassRaisesAPrerequisitesNotMet() {
-    $t= newinstance('unittest.TestCase', ['irrelevant'], '{
+    $t= newinstance(TestCase::class, ['irrelevant'], '{
       #[@beforeClass]
       public static function raise() {
         throw new \unittest\PrerequisitesNotMetError("Cannot run");
@@ -269,14 +272,14 @@ class SuiteTest extends \unittest\TestCase {
     $this->suite->addTest($t);
     $r= $this->suite->run();
     $this->assertEquals(1, $r->skipCount(), 'skipCount');
-    $this->assertInstanceOf('unittest.TestPrerequisitesNotMet', $r->outcomeOf($t));
-    $this->assertInstanceOf('unittest.PrerequisitesNotMetError', $r->outcomeOf($t)->reason);
+    $this->assertInstanceOf(TestPrerequisitesNotMet::class, $r->outcomeOf($t));
+    $this->assertInstanceOf(PrerequisitesNotMetError::class, $r->outcomeOf($t)->reason);
     $this->assertEquals('Cannot run', $r->outcomeOf($t)->reason->getMessage());
   }    
 
   #[@test]
   public function beforeClassRaisesAnException() {
-    $t= newinstance('unittest.TestCase', ['irrelevant'], '{
+    $t= newinstance(TestCase::class, ['irrelevant'], '{
       #[@beforeClass]
       public static function raise() {
         throw new \lang\IllegalStateException("Skip");
@@ -290,8 +293,8 @@ class SuiteTest extends \unittest\TestCase {
     $this->suite->addTest($t);
     $r= $this->suite->run();
     $this->assertEquals(1, $r->skipCount(), 'skipCount');
-    $this->assertInstanceOf('unittest.TestPrerequisitesNotMet', $r->outcomeOf($t));
-    $this->assertInstanceOf('unittest.PrerequisitesNotMetError', $r->outcomeOf($t)->reason);
+    $this->assertInstanceOf(TestPrerequisitesNotMet::class, $r->outcomeOf($t));
+    $this->assertInstanceOf(PrerequisitesNotMetError::class, $r->outcomeOf($t)->reason);
     $this->assertEquals('Exception in beforeClass method raise', $r->outcomeOf($t)->reason->getMessage());
   }    
 
@@ -312,18 +315,18 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function warningsMakeTestFail() {
-    $test= newinstance('unittest.TestCase', ['fixture'], [
+    $test= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { trigger_error('Test error'); }
     ]);
     $this->assertEquals(
-      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 316, occured once)'],
+      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 319, occured once)'],
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason
     );
   }
 
   #[@test]
   public function exceptionsMakeTestFail() {
-    $test= newinstance('unittest.TestCase', ['fixture'], [
+    $test= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { throw new IllegalArgumentException('Test'); }
     ]);
     $this->assertInstanceOf(
@@ -334,24 +337,24 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function expectedExceptionsWithWarningsMakeTestFail() {
-    $test= newinstance('unittest.TestCase', ['fixture'], [
+    $test= newinstance(TestCase::class, ['fixture'], [
       '#[@test, @expect("lang.IllegalArgumentException")] fixture' => function() {
         trigger_error('Test error');
         throw new IllegalArgumentException('Test');
       }
     ]);
     $this->assertEquals(
-      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 339, occured once)'],
+      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 342, occured once)'],
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason
     );
   }
   
   #[@test]
   public function warningsDontAffectSucceedingTests() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { trigger_error('Test error'); }
     ]));
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(true); }
     ]));
     $r= $this->suite->run();
@@ -361,10 +364,10 @@ class SuiteTest extends \unittest\TestCase {
  
   #[@test]
   public function warningsFromFailuresDontAffectSucceedingTests() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { trigger_error('Test error'); $this->assertTrue(false); }
     ]));
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(true); }
     ]));
     $r= $this->suite->run();
@@ -374,11 +377,11 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function warningsFromSetupDontAffectSucceedingTests() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'setUp' => function() { trigger_error('Error'); },
       '#[@test] fixture' => function() { /* Empty */ }
     ]));
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(true); }
     ]));
     $r= $this->suite->run();
@@ -387,7 +390,7 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function expectedException() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test, @expect("lang.IllegalArgumentException")] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
@@ -398,7 +401,7 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function subclassOfExpectedException() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test, @expect("lang.XPException")] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
@@ -409,7 +412,7 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function expectedExceptionNotThrown() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test, @expect("lang.IllegalArgumentException")] fixture' => function() {
         throw new FormatException('Test');
       }
@@ -424,7 +427,7 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function catchExpectedWithMessage() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test, @expect(class= "lang.IllegalArgumentException", withMessage= "Test")] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
@@ -435,7 +438,7 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function catchExpectedWithMismatchingMessage() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test, @expect(class= "lang.IllegalArgumentException", withMessage= "Hello")] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
@@ -450,7 +453,7 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function catchExpectedWithPatternMessage() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test, @expect(class= "lang.IllegalArgumentException", withMessage= "/[tT]est/")] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
@@ -461,7 +464,7 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function catchExceptionsDuringSetUpOfTestDontBringDownTestSuite() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'setUp' => function() { throw new IllegalArgumentException('In setup'); },
       'fixture' => function() { /* Intentionally empty */ }
     ]));
@@ -471,7 +474,7 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function doFail() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->fail('Test'); }
     ]));
     $r= $this->suite->run();
@@ -480,7 +483,7 @@ class SuiteTest extends \unittest\TestCase {
 
   #[@test]
   public function doSkip() {
-    $this->suite->addTest(newinstance('unittest.TestCase', ['fixture'], [
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->skip('Test'); }
     ]));
     $r= $this->suite->run();
