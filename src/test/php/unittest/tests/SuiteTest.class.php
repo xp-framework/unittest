@@ -18,7 +18,7 @@ use lang\ClassLoader;
  *
  * @see    xp://unittest.TestSuite
  */
-class SuiteTest extends \unittest\TestCase {
+class SuiteTest extends TestCase {
   private $suite;
     
   /** @return void */

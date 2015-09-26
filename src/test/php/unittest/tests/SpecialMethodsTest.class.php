@@ -8,7 +8,7 @@ use unittest\TestSuite;
  *
  * @see      xp://unittest.TestSuite
  */
-class SpecialMethodsTest extends \unittest\TestCase {
+class SpecialMethodsTest extends TestCase {
   protected $suite= null;
     
   /**

@@ -8,7 +8,7 @@ use unittest\TestSuite;
  *
  * @see    xp://unittest.TestSuite
  */
-class LimitTest extends \unittest\TestCase {
+class LimitTest extends TestCase {
   private $suite;
     
   /** @return void */

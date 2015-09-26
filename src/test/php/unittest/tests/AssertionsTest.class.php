@@ -11,7 +11,7 @@ use net\xp_framework\unittest\Name;
 /**
  * Test assertion methods
  */
-class AssertionsTest extends \unittest\TestCase {
+class AssertionsTest extends TestCase {
 
   #[@test]
   public function trueIsTrue() {

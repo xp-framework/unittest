@@ -8,7 +8,7 @@ use unittest\TestSuite;
 /**
  * Test VerifyThat class
  */
-class VerifyThatTest extends \unittest\TestCase {
+class VerifyThatTest extends TestCase {
   protected $suite= null;
 
   /**

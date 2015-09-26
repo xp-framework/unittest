@@ -10,7 +10,7 @@ use unittest\TestSuite;
  *
  * @see   xp://unittest.TestSuite
  */
-abstract class BeforeAndAfterClassTest extends \unittest\TestCase {
+abstract class BeforeAndAfterClassTest extends TestCase {
   protected $suite= null;
     
   /**

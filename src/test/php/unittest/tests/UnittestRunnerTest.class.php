@@ -11,7 +11,7 @@ use lang\ClassLoader;
  *
  * @see  xp://xp.unittest.Runner
  */
-class UnittestRunnerTest extends \unittest\TestCase {
+class UnittestRunnerTest extends TestCase {
   private $runner, $out, $err;
 
   /**

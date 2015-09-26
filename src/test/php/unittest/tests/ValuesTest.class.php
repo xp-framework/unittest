@@ -11,7 +11,7 @@ use unittest\TestSuite;
  * @see  https://github.com/xp-framework/xp-framework/issues/313
  * @see  https://github.com/xp-framework/xp-framework/issues/298
  */
-class ValuesTest extends \unittest\TestCase {
+class ValuesTest extends TestCase {
   protected $suite= null;
     
   /**
