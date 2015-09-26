@@ -1,5 +1,6 @@
 <?php namespace unittest\tests;
 
+use unittest\TestCase;
 use unittest\TestSuite;
 
 /**
@@ -23,7 +24,7 @@ class SpecialMethodsTest extends \unittest\TestCase {
    * @return  unittest.TestCase
    */
   protected function setUpCase() {
-    return newinstance('unittest.TestCase', ['setUp'], '{
+    return newinstance(TestCase::class, ['setUp'], '{
       #[@test]
       public function setUp() { }
     }');
@@ -31,7 +32,7 @@ class SpecialMethodsTest extends \unittest\TestCase {
 
   #[@test]
   public function stateUnchanged() {
-    $test= newinstance('unittest.TestCase', ['irrelevant'], '{
+    $test= newinstance(TestCase::class, ['irrelevant'], '{
       #[@test]
       public function irrelevant() { }
 
@@ -63,7 +64,7 @@ class SpecialMethodsTest extends \unittest\TestCase {
    * @return  unittest.TestCase
    */
   protected function tearDownCase() {
-    return newinstance('unittest.TestCase', ['tearDown'], '{
+    return newinstance(TestCase::class, ['tearDown'], '{
       #[@test]
       public function tearDown() { }
     }');
@@ -75,7 +76,7 @@ class SpecialMethodsTest extends \unittest\TestCase {
    * @return  unittest.TestCase
    */
   protected function getNameCase() {
-    return newinstance('unittest.TestCase', ['getName'], '{
+    return newinstance(TestCase::class, ['getName'], '{
       #[@test]
       public function getName($compound= FALSE) { }
     }');

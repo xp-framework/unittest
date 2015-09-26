@@ -1,5 +1,6 @@
 <?php namespace unittest\tests;
  
+use unittest\TestCase;
 use lang\types\ArrayList;
 use unittest\TestSuite;
 
@@ -33,7 +34,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function inline_value_source() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       #[@test, @values([1, 2, 3])]
@@ -47,7 +48,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function local_value_source() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       public function values() {
@@ -65,7 +66,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function local_value_source_with_args() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       public function range($lo= 1, $hi= 3) {
@@ -83,7 +84,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function local_value_source_without_args() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       public function range($lo= 1, $hi= 3) {
@@ -101,7 +102,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function external_value_source_fully_qualified_class() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       #[@test, @values("unittest.tests.ValuesTest::range")]
@@ -115,7 +116,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function external_value_source_unqualified_class() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       #[@test, @values("unittest\\\\tests\\\\ValuesTest::range")]
@@ -129,7 +130,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function external_value_source_provider_and_args() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       #[@test, @values(source= "unittest.tests.ValuesTest::range", args= [1, 10])]
@@ -143,7 +144,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function local_value_source_with_self() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       public static function range() {
@@ -161,7 +162,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function all_variants_succeed() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       #[@test, @values([1, 2, 3])]
       public function fixture($value) {
         $this->assertTrue(TRUE);
@@ -173,7 +174,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function all_variants_fail() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       #[@test, @values([1, 2, 3])]
       public function fixture($value) {
         $this->assertTrue(FALSE);
@@ -185,7 +186,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function all_variants_skipped() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public function setUp() {
         throw new PrerequisitesNotMetError("Not ready yet");
       }
@@ -201,7 +202,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function some_variants_succeed_some_fail() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       #[@test, @values([1, 2, 3])]
       public function fixture($value) {
         $this->assertEquals(0, $value % 2);
@@ -214,7 +215,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function supplying_values_for_multiple_parameters() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       #[@test, @values([[1, 2], [3, 4], [5, 6]])]
@@ -229,7 +230,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function using_traversable_in_values() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       public function values() {
@@ -247,7 +248,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function using_this_in_value_provider() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       public function values() {
@@ -265,7 +266,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function protected_local_values_method() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       protected function values() {
@@ -283,7 +284,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function private_local_values_method() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
       private function values() {
@@ -301,7 +302,7 @@ class ValuesTest extends \unittest\TestCase {
 
   #[@test]
   public function values_with_expect() {
-    $test= newinstance('unittest.TestCase', ['not_at_number'], '{
+    $test= newinstance(TestCase::class, ['not_at_number'], '{
       #[@test, @values(["a"]), @expect("lang.FormatException")]
       public function not_at_number($value) {
         throw new \lang\FormatException("Not a number: ".$value);

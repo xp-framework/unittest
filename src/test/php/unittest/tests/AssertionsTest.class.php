@@ -1,5 +1,8 @@
 <?php namespace unittest\tests;
  
+use lang\Object;
+use unittest\TestCase;
+use lang\Generic;
 use unittest\AssertionFailedError;
 use lang\types\Integer;
 use lang\types\ArrayList;
@@ -57,7 +60,7 @@ class AssertionsTest extends \unittest\TestCase {
 
   #[@test]
   public function equalsMethodIsInvoked() {
-    $instance= newinstance('lang.Object', [], '{
+    $instance= newinstance(Object::class, [], '{
       public $equalsInvoked= 0;
 
       public function equals($other) {
@@ -142,7 +145,7 @@ class AssertionsTest extends \unittest\TestCase {
 
   #[@test]
   public function thisIsAnInstanceOfTestCase() {
-    $this->assertInstanceOf('unittest.TestCase', $this);
+    $this->assertInstanceOf(TestCase::class, $this);
   }
 
   #[@test]
@@ -152,43 +155,43 @@ class AssertionsTest extends \unittest\TestCase {
 
   #[@test]
   public function thisIsAnInstanceOfObject() {
-    $this->assertInstanceOf('lang.Object', $this);
+    $this->assertInstanceOf(Object::class, $this);
   }    
 
   #[@test]
   public function objectIsAnInstanceOfObject() {
-    $this->assertInstanceOf('lang.Object', new \lang\Object());
+    $this->assertInstanceOf(Object::class, new \lang\Object());
   }    
 
   #[@test, @expect(AssertionFailedError::class)]
   public function objectIsNotAnInstanceOfString() {
-    $this->assertInstanceOf('lang.types.Integer', new \lang\Object());
+    $this->assertInstanceOf(Integer::class, new \lang\Object());
   }    
 
   #[@test, @expect(AssertionFailedError::class)]
   public function zeroIsNotAnInstanceOfGeneric() {
-    $this->assertInstanceOf('lang.Generic', 0);
+    $this->assertInstanceOf(Generic::class, 0);
   }    
 
   #[@test, @expect(AssertionFailedError::class)]
   public function nullIsNotAnInstanceOfGeneric() {
-    $this->assertInstanceOf('lang.Generic', null);
+    $this->assertInstanceOf(Generic::class, null);
   }    
 
   /** @deprecated */
   #[@test, @expect(AssertionFailedError::class)]
   public function xpNullIsNotAnInstanceOfGeneric() {
-    $this->assertInstanceOf('lang.Generic', \xp::null());
+    $this->assertInstanceOf(Generic::class, \xp::null());
   }    
 
   #[@test, @expect(AssertionFailedError::class)]
   public function thisIsNotAnInstanceOfString() {
-    $this->assertInstanceOf('lang.types.Integer', $this);
+    $this->assertInstanceOf(Integer::class, $this);
   }    
 
   #[@test]
   public function thisIsAnInstanceOfGeneric() {
-    $this->assertInstanceOf('lang.Generic', $this);
+    $this->assertInstanceOf(Generic::class, $this);
   }    
 
   #[@test]
