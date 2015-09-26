@@ -1,5 +1,12 @@
 <?php namespace unittest\tests;
 
+use unittest\TestExpectationMet;
+use unittest\TestResult;
+use unittest\TestAssertionFailed;
+use unittest\TestError;
+use unittest\TestWarning;
+use unittest\TestPrerequisitesNotMet;
+use unittest\TestNotRun;
 use unittest\TestCase;
 use unittest\TestSuite;
 use unittest\PrerequisitesNotMetError;
@@ -115,80 +122,80 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
 
   #[@test]
   public function notifiedOnSuccess() {
-    $case= newinstance('unittest.TestCase', ['fixture'], [
+    $case= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(true); }
     ]);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
     $this->assertEquals($case, $this->invocations['testStarted'][0]);
-    $this->assertInstanceOf('unittest.TestExpectationMet', $this->invocations['testSucceeded'][0]);
+    $this->assertInstanceOf(TestExpectationMet::class, $this->invocations['testSucceeded'][0]);
     $this->assertEquals($this->suite, $this->invocations['testRunFinished'][0]);
-    $this->assertInstanceOf('unittest.TestResult', $this->invocations['testRunFinished'][1]);
+    $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
   }    
 
   #[@test]
   public function notifiedOnFailure() {
-    $case= newinstance('unittest.TestCase', ['fixture'], [
+    $case= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(false); }
     ]);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
     $this->assertEquals($case, $this->invocations['testStarted'][0]);
-    $this->assertInstanceOf('unittest.TestAssertionFailed', $this->invocations['testFailed'][0]);
+    $this->assertInstanceOf(TestAssertionFailed::class, $this->invocations['testFailed'][0]);
     $this->assertEquals($this->suite, $this->invocations['testRunFinished'][0]);
-    $this->assertInstanceOf('unittest.TestResult', $this->invocations['testRunFinished'][1]);
+    $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
   }    
 
   #[@test]
   public function notifiedOnException() {
-    $case= newinstance('unittest.TestCase', ['fixture'], [
+    $case= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { throw new IllegalArgumentException('Test'); }
     ]);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
     $this->assertEquals($case, $this->invocations['testStarted'][0]);
-    $this->assertInstanceOf('unittest.TestError', $this->invocations['testError'][0]);
+    $this->assertInstanceOf(TestError::class, $this->invocations['testError'][0]);
     $this->assertEquals($this->suite, $this->invocations['testRunFinished'][0]);
-    $this->assertInstanceOf('unittest.TestResult', $this->invocations['testRunFinished'][1]);
+    $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
   }    
 
   #[@test]
   public function notifiedOnError() {
-    $case= newinstance('unittest.TestCase', ['fixture'], [
+    $case= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { trigger_error('Test error'); }
     ]);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
     $this->assertEquals($case, $this->invocations['testStarted'][0]);
-    $this->assertInstanceOf('unittest.TestWarning', $this->invocations['testWarning'][0]);
+    $this->assertInstanceOf(TestWarning::class, $this->invocations['testWarning'][0]);
     $this->assertEquals($this->suite, $this->invocations['testRunFinished'][0]);
-    $this->assertInstanceOf('unittest.TestResult', $this->invocations['testRunFinished'][1]);
+    $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
   }    
 
   #[@test]
   public function notifiedOnSkipped() {
-    $case= newinstance('unittest.TestCase', ['fixture'], [
+    $case= newinstance(TestCase::class, ['fixture'], [
       'setUp' => function() { throw new PrerequisitesNotMetError('SKIP', null, $this->name); },
       '#[@test] fixture' => function() { /* Intentionally empty */ }
     ]);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
     $this->assertEquals($case, $this->invocations['testStarted'][0]);
-    $this->assertInstanceOf('unittest.TestPrerequisitesNotMet', $this->invocations['testSkipped'][0]);
+    $this->assertInstanceOf(TestPrerequisitesNotMet::class, $this->invocations['testSkipped'][0]);
     $this->assertEquals($this->suite, $this->invocations['testRunFinished'][0]);
-    $this->assertInstanceOf('unittest.TestResult', $this->invocations['testRunFinished'][1]);
+    $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
   }    
 
   #[@test]
   public function notifiedOnIgnored() {
-    $case= newinstance('unittest.TestCase', ['fixture'], [
+    $case= newinstance(TestCase::class, ['fixture'], [
       '#[@test, @ignore] fixture' => function() { /* Intentionally empty */ }
     ]);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
     $this->assertEquals($case, $this->invocations['testStarted'][0]);
-    $this->assertInstanceOf('unittest.TestNotRun', $this->invocations['testNotRun'][0]);
+    $this->assertInstanceOf(TestNotRun::class, $this->invocations['testNotRun'][0]);
     $this->assertEquals($this->suite, $this->invocations['testRunFinished'][0]);
-    $this->assertInstanceOf('unittest.TestResult', $this->invocations['testRunFinished'][1]);
+    $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
   }    
 }

@@ -1,5 +1,6 @@
 <?php namespace unittest\tests;
 
+use unittest\TestPrerequisitesNotMet;
 use lang\ClassLoader;
 use lang\XPClass;
 use lang\IllegalStateException;
@@ -22,7 +23,7 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function beforeTest_and_afterTest_invocation_order() {
-    $test= newinstance('unittest.TestCase', ['fixture'], [
+    $test= newinstance(TestCase::class, ['fixture'], [
       'run' => [],
       '#[@test, @action(new \unittest\tests\RecordActionInvocation("run"))] fixture' => function() {
         $this->run[]= 'test';
@@ -34,7 +35,7 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function beforeTest_is_invoked_before_setUp() {
-    $test= newinstance('unittest.TestCase', ['fixture'], [
+    $test= newinstance(TestCase::class, ['fixture'], [
       'run' => [],
       'setUp' => function() {
         $this->run[]= 'setup';
@@ -49,7 +50,7 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function afterTest_is_invoked_after_tearDown() {
-    $test= newinstance('unittest.TestCase', ['fixture'], [
+    $test= newinstance(TestCase::class, ['fixture'], [
       'run' => [],
       'tearDown' => function() {
         $this->run[]= 'teardown';
@@ -68,7 +69,7 @@ class TestActionTest extends TestCase {
       'beforeTest' => function(TestCase $t) { throw new PrerequisitesNotMetError('Skip'); },
       'afterTest' => function(TestCase $t) { /* NOOP */ }
     ]);
-    $test= newinstance('unittest.TestCase', ['fixture'], [
+    $test= newinstance(TestCase::class, ['fixture'], [
       '#[@test, @action(new \unittest\tests\SkipThisTest())] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
@@ -106,19 +107,19 @@ class TestActionTest extends TestCase {
         // NOOP
       }
     }');
-    $test= newinstance('unittest.TestCase', ['fixture'], [
+    $test= newinstance(TestCase::class, ['fixture'], [
       '#[@test, @action(new \unittest\tests\PlatformVerification("Test"))] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
     $outcome= $this->suite->runTest($test)->outcomeOf($test);
-    $this->assertInstanceOf('unittest.TestPrerequisitesNotMet', $outcome);
+    $this->assertInstanceOf(TestPrerequisitesNotMet::class, $outcome);
     $this->assertEquals(['Test'], $outcome->reason->prerequisites);
   }
 
   #[@test]
   public function multiple_actions() {
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       public $one= [], $two= [];
 
       #[@test, @action([
@@ -146,7 +147,7 @@ class TestActionTest extends TestCase {
         throw new \unittest\AssertionFailedError("Skip");
       }
     }');
-    $test= newinstance('unittest.TestCase', ['fixture'], [
+    $test= newinstance(TestCase::class, ['fixture'], [
       '#[@test, @action(new \unittest\tests\FailOnTearDown())] fixture' => function() {
         // NOOP
       }
@@ -172,7 +173,7 @@ class TestActionTest extends TestCase {
         throw new \unittest\AssertionFailedError($this->message);
       }
     }');
-    $test= newinstance('unittest.TestCase', ['fixture'], '{
+    $test= newinstance(TestCase::class, ['fixture'], '{
       #[@test, @action([
       #  new \unittest\tests\FailOnTearDownWith("First"),
       #  new \unittest\tests\FailOnTearDownWith("Second")

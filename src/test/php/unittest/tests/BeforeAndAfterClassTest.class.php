@@ -1,5 +1,8 @@
 <?php namespace unittest\tests;
 
+use unittest\TestCase;
+use unittest\TestSkipped;
+use unittest\PrerequisitesNotMetError;
 use unittest\TestSuite;
 
 /**
@@ -7,7 +10,7 @@ use unittest\TestSuite;
  *
  * @see   xp://unittest.TestSuite
  */
-abstract class BeforeAndAfterClassTest extends \unittest\TestCase {
+abstract class BeforeAndAfterClassTest extends TestCase {
   protected $suite= null;
     
   /**
@@ -27,7 +30,7 @@ abstract class BeforeAndAfterClassTest extends \unittest\TestCase {
 
   #[@test]
   public function beforeClassMethodIsExecuted() {
-    $t= newinstance('unittest.TestCase', ['fixture'], '{
+    $t= newinstance(TestCase::class, ['fixture'], '{
       public static $initialized= false;
 
       #[@beforeClass]
@@ -44,7 +47,7 @@ abstract class BeforeAndAfterClassTest extends \unittest\TestCase {
 
   #[@test]
   public function exceptionInBeforeClassSkipsTest() {
-    $t= newinstance('unittest.TestCase', ['fixture'], '{
+    $t= newinstance(TestCase::class, ['fixture'], '{
 
       #[@beforeClass]
       public static function prepareTestData() {
@@ -57,14 +60,14 @@ abstract class BeforeAndAfterClassTest extends \unittest\TestCase {
       }
     }');
     $r= $this->suite->runTest($t)->outComeOf($t);
-    $this->assertInstanceOf('unittest.TestSkipped', $r);
-    $this->assertInstanceOf('unittest.PrerequisitesNotMetError', $r->reason);
+    $this->assertInstanceOf(TestSkipped::class, $r);
+    $this->assertInstanceOf(PrerequisitesNotMetError::class, $r->reason);
     $this->assertEquals('Exception in beforeClass method prepareTestData', $r->reason->getMessage());
   }
 
   #[@test]
   public function failedPrerequisiteInBeforeClassSkipsTest() {
-    $t= newinstance('unittest.TestCase', ['fixture'], '{
+    $t= newinstance(TestCase::class, ['fixture'], '{
 
       #[@beforeClass]
       public static function prepareTestData() {
@@ -77,14 +80,14 @@ abstract class BeforeAndAfterClassTest extends \unittest\TestCase {
       }
     }');
     $r= $this->suite->runTest($t)->outComeOf($t);
-    $this->assertInstanceOf('unittest.TestSkipped', $r);
-    $this->assertInstanceOf('unittest.PrerequisitesNotMetError', $r->reason);
+    $this->assertInstanceOf(TestSkipped::class, $r);
+    $this->assertInstanceOf(PrerequisitesNotMetError::class, $r->reason);
     $this->assertEquals('Test data not available', $r->reason->getMessage());
   }
 
   #[@test]
   public function afterClassMethodIsExecuted() {
-    $t= newinstance('unittest.TestCase', ['fixture'], '{
+    $t= newinstance(TestCase::class, ['fixture'], '{
       public static $finalized= FALSE;
 
       #[@afterClass]
@@ -101,7 +104,7 @@ abstract class BeforeAndAfterClassTest extends \unittest\TestCase {
 
   #[@test]
   public function allBeforeClassMethodsAreExecuted() {
-    $t= newinstance('unittest.TestCase', ['fixture'], '{
+    $t= newinstance(TestCase::class, ['fixture'], '{
       public static $initialized= [];
 
       #[@beforeClass]
@@ -123,7 +126,7 @@ abstract class BeforeAndAfterClassTest extends \unittest\TestCase {
 
   #[@test]
   public function allAfterClassMethodsAreExecuted() {
-    $t= newinstance('unittest.TestCase', ['fixture'], '{
+    $t= newinstance(TestCase::class, ['fixture'], '{
       public static $finalized= [];
 
       #[@beforeClass]
@@ -145,7 +148,7 @@ abstract class BeforeAndAfterClassTest extends \unittest\TestCase {
 
   #[@test]
   public function afterClassMethodIsNotExecutedWhenPrerequisitesFail() {
-    $t= newinstance('unittest.TestCase', ['fixture'], '{
+    $t= newinstance(TestCase::class, ['fixture'], '{
       public static $finalized= FALSE;
 
       #[@beforeClass]

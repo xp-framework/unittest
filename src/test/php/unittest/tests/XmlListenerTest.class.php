@@ -1,5 +1,6 @@
 <?php namespace unittest\tests;
 
+use xml\Node;
 use unittest\TestSuite;
 use unittest\PrerequisitesNotMetError;
 use unittest\XmlTestListener;
@@ -65,7 +66,7 @@ class XmlListenerTest extends \unittest\TestCase {
    * @throws  unittest.AssertionFailedError
    */
   protected function assertSuiteNode($name, $attr, $suite) {
-    $this->assertInstanceOf('xml.Node', $suite);
+    $this->assertInstanceOf(Node::class, $suite);
     $this->assertEquals('testsuite', $suite->getName());
     $this->assertEquals($name, $suite->getAttribute('name'));
     
@@ -82,7 +83,7 @@ class XmlListenerTest extends \unittest\TestCase {
    * @throws  unittest.AssertionFailedError
    */
   protected function assertCaseNode($attr, $suite) {
-    $this->assertInstanceOf('xml.Node', $suite);
+    $this->assertInstanceOf(Node::class, $suite);
     $this->assertEquals('testcase', $suite->getName());
     
     foreach ($attr as $key => $value) {
@@ -150,7 +151,7 @@ class XmlListenerTest extends \unittest\TestCase {
         $this->assertNotEquals(null, $case->getAttribute('time'));
 
         with ($failure= @$case->nodeAt(0)); {
-          $this->assertInstanceOf('xml.Node', $failure);
+          $this->assertInstanceOf(Node::class, $failure);
           $this->assertEquals('failure', $failure->getName());
           $this->assertNotEquals(null, $failure->getAttribute('message'));
           $this->assertNotEquals(null, $failure->getContent());
@@ -176,7 +177,7 @@ class XmlListenerTest extends \unittest\TestCase {
         $this->assertNotEquals(null, $case->getAttribute('time'));
 
         with ($failure= @$case->nodeAt(0)); {
-          $this->assertInstanceOf('xml.Node', $failure);
+          $this->assertInstanceOf(Node::class, $failure);
           $this->assertEquals('error', $failure->getName());
           $this->assertNotEquals(null, $failure->getAttribute('message'));
           $this->assertNotEquals(null, $failure->getContent());
@@ -202,7 +203,7 @@ class XmlListenerTest extends \unittest\TestCase {
         $this->assertNotEquals(null, $case->getAttribute('time'));
 
         with ($failure= @$case->nodeAt(0)); {
-          $this->assertInstanceOf('xml.Node', $failure);
+          $this->assertInstanceOf(Node::class, $failure);
           $this->assertEquals('error', $failure->getName());
           $this->assertNotEquals(null, $failure->getAttribute('message'));
           $this->assertNotEquals(null, $failure->getContent());

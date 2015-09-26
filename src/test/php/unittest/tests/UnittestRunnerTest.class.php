@@ -1,5 +1,6 @@
 <?php namespace unittest\tests;
 
+use unittest\TestCase;
 use xp\unittest\Runner;
 use io\streams\MemoryInputStream;
 use io\streams\MemoryOutputStream;
@@ -10,7 +11,7 @@ use lang\ClassLoader;
  *
  * @see  xp://xp.unittest.Runner
  */
-class UnittestRunnerTest extends \unittest\TestCase {
+class UnittestRunnerTest extends TestCase {
   private $runner, $out, $err;
 
   /**
@@ -100,7 +101,7 @@ class UnittestRunnerTest extends \unittest\TestCase {
 
   #[@test]
   public function runEmptyTest() {
-    $command= newinstance('unittest.TestCase', [$this->name]);
+    $command= newinstance(TestCase::class, [$this->name]);
     $return= $this->runner->run([nameof($command)]);
     $this->assertEquals(3, $return);
     $this->assertOnStream($this->err, '*** Warning: No tests found in');
@@ -117,7 +118,7 @@ class UnittestRunnerTest extends \unittest\TestCase {
 
   #[@test]
   public function runSucceedingTest() {
-    $command= newinstance('unittest.TestCase', ['succeeds'], [
+    $command= newinstance(TestCase::class, ['succeeds'], [
       '#[@test] succeeds' => function() { $this->assertTrue(true); }
     ]);
     $return= $this->runner->run([nameof($command)]);
@@ -128,7 +129,7 @@ class UnittestRunnerTest extends \unittest\TestCase {
 
   #[@test]
   public function runColoredTest($setting= '--color=on') {
-    $command= newinstance('unittest.TestCase', ['succeeds'], [
+    $command= newinstance(TestCase::class, ['succeeds'], [
       '#[@test] succeeds' => function() { $this->assertTrue(true); }
     ]);
     $return= $this->runner->run([$setting, nameof($command)]);
@@ -155,7 +156,7 @@ class UnittestRunnerTest extends \unittest\TestCase {
 
   #[@test]
   public function runUnsupportedColorSettingTestFails() {
-    $command= newinstance('unittest.TestCase', ['succeeds'], [
+    $command= newinstance(TestCase::class, ['succeeds'], [
       '#[@test] succeeds' => function() { $this->assertTrue(true); }
     ]);
     $return= $this->runner->run(['--color=anything', nameof($command)]);
@@ -165,7 +166,7 @@ class UnittestRunnerTest extends \unittest\TestCase {
 
   #[@test]
   public function runFailingTest() {
-    $command= newinstance('unittest.TestCase', ['fails'], [
+    $command= newinstance(TestCase::class, ['fails'], [
       '#[@test] fails' => function() { $this->assertTrue(false); }
     ]);
     $return= $this->runner->run([nameof($command)]);
@@ -205,7 +206,7 @@ class UnittestRunnerTest extends \unittest\TestCase {
 
   #[@test]
   public function runSingleTest() {
-    $command= newinstance('unittest.TestCase', ['succeeds'], [
+    $command= newinstance(TestCase::class, ['succeeds'], [
       '#[@test] succeeds' => function() { $this->assertTrue(true); }
     ]);
     $return= $this->runner->run([nameof($command).'::succeeds']);
@@ -215,7 +216,7 @@ class UnittestRunnerTest extends \unittest\TestCase {
 
   #[@test]
   public function runSingleTestWrongSpec() {
-    $command= newinstance('unittest.TestCase', ['succeeds'], [
+    $command= newinstance(TestCase::class, ['succeeds'], [
       '#[@test] succeeds' => function() { $this->assertTrue(true); }
     ]);
     $return= $this->runner->run([nameof($command).'::succeed']);
