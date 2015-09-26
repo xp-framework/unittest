@@ -3,6 +3,11 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 6.5.0 / 2015-09-27
+
+* **Heads up: Bumped minimum PHP version required to PHP 5.5**. See PR #4
+  (@thekid)
+
 ## 6.4.2 / 2015-08-06
 
 * MFH: Fixed `unittest.XmlTestListener::uriFor()` raising exceptions - @thekid
