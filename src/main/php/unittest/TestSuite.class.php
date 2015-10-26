@@ -69,7 +69,6 @@ class TestSuite extends \lang\Object {
       throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
     }
 
-    $ignored= [];
     $numBefore= $this->numTests();
     $className= $class->getName();
     $tests= $this->tests;
@@ -77,7 +76,6 @@ class TestSuite extends \lang\Object {
     if (!isset($this->order[$className])) $this->order[$className]= [];
     foreach ($class->getMethods() as $m) {
       if (!$m->hasAnnotation('test')) continue;
-      if ($m->hasAnnotation('ignore')) $ignored[]= $m;
       
       // Verify no special method, e.g. setUp() or tearDown() is overwritten.
       if ($base->hasMethod($m->getName())) {
@@ -103,7 +101,7 @@ class TestSuite extends \lang\Object {
       throw new NoSuchElementException('No tests found in '.$class->getName());
     }
 
-    return $ignored;
+    return $class;
   }
   
   /**

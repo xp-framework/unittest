@@ -117,12 +117,12 @@ class SuiteTest extends TestCase {
   }
 
   #[@test]
-  public function adding_a_testclass_returns_ignored_methods() {
-    $class= ClassLoader::defineClass($this->name, 'unittest.TestCase', [], [
-      '#[@test, @ignore] ignored' => function() { }
-    ]);
-    $ignored= $this->suite->addTestClass($class);
-    $this->assertEquals([$class->getMethod('ignored')], $ignored);
+  public function adding_a_testclass_returns_added_class() {
+    $class= ClassLoader::defineClass($this->name, 'unittest.TestCase', [], '{
+      #[@test]
+      public function fixture() { }
+    }');
+    $this->assertEquals($class, $this->suite->addTestClass($class));
   }
 
   #[@test]
