@@ -194,17 +194,12 @@ class TestSuite extends \lang\Object {
     // "self::method" -> static method of the test class, and "method" 
     // -> the run test's instance method
     if (false === ($p= strpos($source, '::'))) {
-      return $test->getClass()->getMethod($source)->setAccessible(true)->invoke($test, $args);
-    }
-    $ref= substr($source, 0, $p);
-    if ('self' === $ref) {
-      $class= $test->getClass();
-    } else if (strstr($ref, '.')) {
-      $class= XPClass::forName($ref);
+      return (new TypeMirror(typeof($test)))->method($source)->invoke($test, $args);
     } else {
-      $class= new XPClass($ref);
+      $ref= substr($source, 0, $p);
+      $mirror= new TypeMirror('self' === $ref ? typeof($test) : $ref);
+      return $mirror->method(substr($source, $p+ 2))->invoke(null, $args);
     }
-    return $class->getMethod(substr($source, $p+ 2))->invoke(null, $args);
   }
 
   /**
