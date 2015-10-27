@@ -9,7 +9,7 @@ Unittests
 [![Supports HHVM 3.4+](https://raw.githubusercontent.com/xp-framework/web/master/static/hhvm-3_4plus.png)](http://hhvm.com/)
 [![Latest Stable Version](https://poser.pugx.org/xp-framework/unittest/version.png)](https://packagist.org/packages/xp-framework/unittest)
 
-Unittests for the XP Framework.
+Unittests for the XP Framework
 
 Writing a test
 --------------

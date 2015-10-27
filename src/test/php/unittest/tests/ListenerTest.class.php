@@ -10,8 +10,6 @@ use unittest\TestNotRun;
 use unittest\TestCase;
 use unittest\TestSuite;
 use unittest\PrerequisitesNotMetError;
-use util\collections\HashTable;
-use lang\types\ArrayList;
 use lang\IllegalArgumentException;
 
 /**
@@ -24,7 +22,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
     
   /** @return void */
   public function setUp() {
-    $this->invocations= create('new util.collections.HashTable<string, lang.types.ArrayList>()');
+    $this->invocations= [];
     $this->suite= new TestSuite();
     $this->suite->addListener($this);
   }
@@ -42,7 +40,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    * @param   unittest.TestCase failure
    */
   public function testStarted(TestCase $case) {
-    $this->invocations[__FUNCTION__]= new ArrayList($case);
+    $this->invocations[__FUNCTION__]= [$case];
   }
 
   /**
@@ -51,7 +49,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    * @param   unittest.TestFailure failure
    */
   public function testFailed(\unittest\TestFailure $failure) {
-    $this->invocations[__FUNCTION__]= new ArrayList($failure);
+    $this->invocations[__FUNCTION__]= [$failure];
   }
 
   /**
@@ -60,7 +58,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    * @param   unittest.TestFailure error
    */
   public function testError(\unittest\TestError $error) {
-    $this->invocations[__FUNCTION__]= new ArrayList($error);
+    $this->invocations[__FUNCTION__]= [$error];
   }
 
   /**
@@ -69,7 +67,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    * @param   unittest.TestWarning warning
    */
   public function testWarning(\unittest\TestWarning $warning) {
-    $this->invocations[__FUNCTION__]= new ArrayList($warning);
+    $this->invocations[__FUNCTION__]= [$warning];
   }
 
   /**
@@ -78,7 +76,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    * @param   unittest.TestSuccess success
    */
   public function testSucceeded(\unittest\TestSuccess $success) {
-    $this->invocations[__FUNCTION__]= new ArrayList($success);
+    $this->invocations[__FUNCTION__]= [$success];
   }
 
   /**
@@ -88,7 +86,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    * @param   unittest.TestSkipped skipped
    */
   public function testSkipped(\unittest\TestSkipped $skipped) {
-    $this->invocations[__FUNCTION__]= new ArrayList($skipped);
+    $this->invocations[__FUNCTION__]= [$skipped];
   }
 
   /**
@@ -98,7 +96,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    * @param   unittest.TestSkipped ignore
    */
   public function testNotRun(\unittest\TestSkipped $ignore) {
-    $this->invocations[__FUNCTION__]= new ArrayList($ignore);
+    $this->invocations[__FUNCTION__]= [$ignore];
   }
 
   /**
@@ -107,7 +105,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    * @param   unittest.TestSuite suite
    */
   public function testRunStarted(TestSuite $suite) {
-    $this->invocations[__FUNCTION__]= new ArrayList($suite);
+    $this->invocations[__FUNCTION__]= [$suite];
   }
 
   /**
@@ -117,7 +115,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    * @param   unittest.TestResult result
    */
   public function testRunFinished(TestSuite $suite, \unittest\TestResult $result) {
-    $this->invocations[__FUNCTION__]= new ArrayList($suite, $result);
+    $this->invocations[__FUNCTION__]= [$suite, $result];
   }
 
   #[@test]
