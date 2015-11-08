@@ -14,7 +14,7 @@ use lang\XPClass;
 class XmlTestListener extends \lang\Object implements TestListener {
   public $out= null;
   protected $tree= null;
-  protected $classes= null;
+  protected $classes= [];
   
   /**
    * Constructor
@@ -24,7 +24,6 @@ class XmlTestListener extends \lang\Object implements TestListener {
   public function __construct(OutputStreamWriter $out) {
     $this->out= $out;
     $this->tree= new Tree('testsuites');
-    $this->classes= create('new util.collections.HashTable<lang.XPClass, xml.Node>()');
   }
 
   /**
@@ -87,8 +86,8 @@ class XmlTestListener extends \lang\Object implements TestListener {
    * @return  xml.Node
    */
   protected function testNode(TestCase $case) {
-    $class= $case->getClass();
-    if (!$this->classes->containsKey($class)) {
+    $class= nameof($case);
+    if (!isset($this->classes[$class])) {
       $this->classes[$class]= $this->tree->addChild(new \xml\Node('testsuite', null, [
         'name'       => $class->getName(),
         'file'       => $this->uriFor($class),
