@@ -34,7 +34,7 @@ class AssertionsTest extends TestCase {
   }
 
   #[@test]
-  public function NullIsNull() {
+  public function nullIsNull() {
     $this->assertNull(null);
   }
 
@@ -176,12 +176,6 @@ class AssertionsTest extends TestCase {
   #[@test, @expect(AssertionFailedError::class)]
   public function nullIsNotAnInstanceOfGeneric() {
     $this->assertInstanceOf(Generic::class, null);
-  }    
-
-  /** @deprecated */
-  #[@test, @expect(AssertionFailedError::class)]
-  public function xpNullIsNotAnInstanceOfGeneric() {
-    $this->assertInstanceOf(Generic::class, \xp::null());
   }    
 
   #[@test, @expect(AssertionFailedError::class)]
