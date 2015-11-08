@@ -3,6 +3,9 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 6.6.0 / 2015-11-08
+
+* Fixed forward compatibility with XP 6.6.0 - @thekid
 * Changed `TestSuite::addTestClass()` to return class added instead of
   list of ignored test methods. The latter is dependant on the internal
   implementation and also not used anywhere.
