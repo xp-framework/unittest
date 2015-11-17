@@ -7,7 +7,8 @@ use lang\IllegalStateException;
 use lang\IllegalArgumentException;
 use lang\XPClass;
 use lang\Throwable;
-use lang\reflect\TargetInvocationException;
+use lang\mirrors\TargetInvocationException;
+use lang\mirrors\TypeMirror;
 
 /**
  * Test suite
@@ -22,6 +23,21 @@ class TestSuite extends \lang\Object {
   protected $order= [];
   protected $listeners= [];
 
+  private static $BASE, $TESTS, $BEFORECLASS, $AFTERCLASS;
+
+  static function __static() {
+    self::$BASE= new TypeMirror('unittest.TestCase');
+    self::$TESTS= newinstance('util.Filter', [], '{
+      public function accept($m) { return $m->annotations()->provides("test"); }
+    }');
+    self::$BEFORECLASS= newinstance('util.Filter', [], '{
+      public function accept($m) { return $m->annotations()->provides("beforeClass"); }
+    }');
+    self::$AFTERCLASS= newinstance('util.Filter', [], '{
+      public function accept($m) { return $m->annotations()->provides("afterClass"); }
+    }');
+  }
+
   /**
    * Add a test
    *
@@ -32,19 +48,19 @@ class TestSuite extends \lang\Object {
    * @throws  lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function addTest(TestCase $test) {
-    if (!$test->getClass()->hasMethod($test->name)) {
+    $mirror= new TypeMirror(typeof($test));
+    if (!$mirror->methods()->provides($test->name)) {
       throw new MethodNotImplementedException('Test method does not exist', $test->name);
     }
-    $className= nameof($test);
+    $className= $mirror->name();
     
     // Verify no special method, e.g. setUp() or tearDown() is overwritten.
-    $base= XPClass::forName('unittest.TestCase');
-    if ($base->hasMethod($test->name)) {
+    if (self::$BASE->methods()->provides($test->name)) {
       throw new IllegalStateException(sprintf(
         'Cannot override %s::%s with test method in %s',
-        $base->getName(),
+        self::$BASE->name(),
         $test->name,
-        $test->getClass()->getMethod($test->name)->getDeclaringClass()->getName()
+        $mirror->method($test->name)->declaredIn()->name()
       ));
     }
     
@@ -59,38 +75,39 @@ class TestSuite extends \lang\Object {
    *
    * @param   lang.XPClass<unittest.TestCase> class
    * @param   var[] arguments default [] arguments to pass to test case constructor
-   * @return  lang.reflect.Method[] ignored test methods
+   * @return  lang.XPClass<unittest.TestCase> class
    * @throws  lang.IllegalArgumentException in case given argument is not a testcase class
    * @throws  util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function addTestClass($class, $arguments= []) {
-    $base= XPClass::forName('unittest.TestCase');
-    if (!$class->isSubclassOf($base)) {
+    $mirror= new TypeMirror($class);
+    if (!$mirror->isSubtypeOf(self::$BASE)) {
       throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
     }
 
+    $ignored= [];
     $numBefore= $this->numTests();
-    $className= $class->getName();
+    $className= $mirror->name();
     $tests= $this->tests;
     $order= $this->order;
     if (!isset($this->order[$className])) $this->order[$className]= [];
-    foreach ($class->getMethods() as $m) {
-      if (!$m->hasAnnotation('test')) continue;
+
+    foreach ($mirror->methods()->all(self::$TESTS) as $m) {
       
       // Verify no special method, e.g. setUp() or tearDown() is overwritten.
-      if ($base->hasMethod($m->getName())) {
+      if (self::$BASE->methods()->provides($m->name())) {
         $this->tests= $tests;
         $this->order= $order;
         throw new IllegalStateException(sprintf(
           'Cannot override %s::%s with test method in %s',
-          $base->getName(),
-          $m->getName(),
-          $m->getDeclaringClass()->getName()
+          self::$BASE->name(),
+          $m->name(),
+          $m->declaredIn()->name()
         ));
       }
 
       $this->tests[]= $class->getConstructor()->newInstance(array_merge(
-        (array)$m->getName(true),
+        (array)$m->name(),
         $arguments
       ));
       $this->order[$className][]= sizeof($this->tests)- 1;
@@ -98,7 +115,7 @@ class TestSuite extends \lang\Object {
 
     if ($numBefore === $this->numTests()) {
       if (empty($this->order[$className])) unset($this->order[$className]);
-      throw new NoSuchElementException('No tests found in '.$class->getName());
+      throw new NoSuchElementException('No tests found in '.$mirror->name());
     }
 
     return $class;
@@ -183,17 +200,12 @@ class TestSuite extends \lang\Object {
     // "self::method" -> static method of the test class, and "method" 
     // -> the run test's instance method
     if (false === ($p= strpos($source, '::'))) {
-      return $test->getClass()->getMethod($source)->setAccessible(true)->invoke($test, $args);
-    }
-    $ref= substr($source, 0, $p);
-    if ('self' === $ref) {
-      $class= $test->getClass();
-    } else if (strstr($ref, '.')) {
-      $class= XPClass::forName($ref);
+      return (new TypeMirror(typeof($test)))->method($source)->invoke($test, $args);
     } else {
-      $class= new XPClass($ref);
+      $ref= substr($source, 0, $p);
+      $mirror= new TypeMirror('self' === $ref ? typeof($test) : $ref);
+      return $mirror->method(substr($source, $p+ 2))->invoke(null, $args);
     }
-    return $class->getMethod(substr($source, $p+ 2))->invoke(null, $args);
   }
 
   /**
@@ -205,8 +217,9 @@ class TestSuite extends \lang\Object {
    */
   protected function actionsFor($annotatable, $impl) {
     $r= [];
-    if ($annotatable->hasAnnotation('action')) {
-      $action= $annotatable->getAnnotation('action');
+    $annotations= $annotatable->annotations();
+    if ($annotations->provides('action')) {
+      $action= $annotations->named('action')->value();
       $type= XPClass::forName($impl);
       if (is_array($action)) {
         foreach ($action as $a) {
@@ -227,43 +240,42 @@ class TestSuite extends \lang\Object {
    * @throws  lang.MethodNotImplementedException
    */
   protected function runInternal($test, $result) {
-    $class= $test->getClass();
-    $method= $class->getMethod($test->name);
+    $mirror= new TypeMirror(typeof($test));
+    $method= $mirror->method($test->name);
+    $annotations= $method->annotations();
     $this->notifyListeners('testStarted', [$test]);
     
     // Check for @ignore
-    if ($method->hasAnnotation('ignore')) {
+    if ($annotations->provides('ignore')) {
       $this->notifyListeners('testNotRun', [
-        $result->set($test, new TestNotRun($test, $method->getAnnotation('ignore')))
+        $result->set($test, new TestNotRun($test, $annotations->named('ignore')->value()))
       ]);
       return;
     }
 
     // Check for @expect
     $expected= null;
-    if ($method->hasAnnotation('expect', 'class')) {
-      $message= $method->getAnnotation('expect', 'withMessage');
-      if ('/' === $message{0}) {
-        $pattern= $message;
+    if ($annotations->provides('expect')) {
+      $expect= $annotations->named('expect')->value();
+      if (!isset($expect['withMessage'])) {
+        $expected= [XPClass::forName($expect), null];
+      } else if ('/' === $expect['withMessage']{0}) {
+        $expected= [XPClass::forName($expect['class']), $expect['withMessage']];
       } else {
-        $pattern= '/'.preg_quote($message, '/').'/';
+        $expected= [XPClass::forName($expect['class']), '/'.preg_quote($expect['withMessage'], '/').'/'];
       }
-      $expected= [XPClass::forName($method->getAnnotation('expect', 'class')), $pattern];
-    } else if ($method->hasAnnotation('expect')) {
-      $expected= [XPClass::forName($method->getAnnotation('expect')), null];
     }
     
     // Check for @limit
     $eta= 0;
-    if ($method->hasAnnotation('limit')) {
-      $eta= $method->getAnnotation('limit', 'time');
+    if ($annotations->provides('limit')) {
+      $eta= $annotations->named('limit')->value()['time'];
     }
 
     // Check for @values
-    if ($method->hasAnnotation('values')) {
-      $annotation= $method->getAnnotation('values');
+    if ($annotations->provides('values')) {
       $variation= true;
-      $values= $this->valuesFor($test, $annotation);
+      $values= $this->valuesFor($test, $annotations->named('values')->value());
     } else {
       $variation= false;
       $values= [[]];
@@ -271,7 +283,7 @@ class TestSuite extends \lang\Object {
 
     // Check for @actions, initialize setUp and tearDown call chains
     $actions= array_merge(
-      $this->actionsFor($class, 'unittest.TestAction'),
+      $this->actionsFor($mirror, 'unittest.TestAction'),
       $this->actionsFor($method, 'unittest.TestAction')
     );
     $setUp= function($test) use($actions) {
@@ -473,8 +485,9 @@ class TestSuite extends \lang\Object {
    * @param  lang.XPClass class
    */
   protected function beforeClass($class) {
-    foreach ($class->getMethods() as $m) {
-      if (!$m->hasAnnotation('beforeClass')) continue;
+    $mirror= new TypeMirror($class);
+    foreach ($mirror->methods()->all(self::$BEFORECLASS) as $m) {
+      if (!$m->annotations()->provides('beforeClass')) continue;
       try {
         $m->invoke(null, []);
       } catch (TargetInvocationException $e) {
@@ -482,11 +495,11 @@ class TestSuite extends \lang\Object {
         if ($cause instanceof PrerequisitesNotMetError) {
           throw $cause;
         } else {
-          throw new PrerequisitesNotMetError('Exception in beforeClass method '.$m->getName(), $cause);
+          throw new PrerequisitesNotMetError('Exception in beforeClass method '.$m->name(), $cause);
         }
       }
     }
-    foreach ($this->actionsFor($class, 'unittest.TestClassAction') as $action) {
+    foreach ($this->actionsFor($mirror, 'unittest.TestClassAction') as $action) {
       $action->beforeTestClass($class);
     }
   }
@@ -498,11 +511,11 @@ class TestSuite extends \lang\Object {
    * @param  lang.XPClass class
    */
   protected function afterClass($class) {
-    foreach ($this->actionsFor($class, 'unittest.TestClassAction') as $action) {
+    $mirror= new TypeMirror($class);
+    foreach ($this->actionsFor($mirror, 'unittest.TestClassAction') as $action) {
       $action->afterTestClass($class);
     }
-    foreach ($class->getMethods() as $m) {
-      if (!$m->hasAnnotation('afterClass')) continue;
+    foreach ($mirror->methods()->all(self::$AFTERCLASS) as $m) {
       try {
         $m->invoke(null, []);
       } catch (TargetInvocationException $ignored) { }
