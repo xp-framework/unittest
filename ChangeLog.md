@@ -3,7 +3,7 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
-## 6.7.0 / 2015-12-11
+## 6.6.1 / 2015-12-11
 
 * Removed dependency on util.collections - @thekid
 
