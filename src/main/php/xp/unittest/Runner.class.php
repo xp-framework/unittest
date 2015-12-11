@@ -19,7 +19,6 @@ use unittest\TestSuite;
 use unittest\ColorizingListener;
 use util\Properties;
 use util\NoSuchElementException;
-use util\collections\Vector;
 use util\cmd\Console;
 use xp\unittest\sources\ClassFileSource;
 use xp\unittest\sources\ClassSource;
@@ -67,7 +66,7 @@ use xp\unittest\sources\PropertySource;
  *
  * @test  xp://net.xp_framework.unittest.tests.UnittestRunnerTest
  */
-class Runner extends \lang\Object {
+class Runner {
   protected $in, $out, $err;
 
   private static $cmap= [
@@ -228,7 +227,7 @@ class Runner extends \lang\Object {
     $suite= new TestSuite();
 
     // Parse arguments
-    $sources= new Vector();
+    $sources= [];
     $listener= TestListeners::$DEFAULT;
     $arguments= [];
     $colors= null;
@@ -246,9 +245,9 @@ class Runner extends \lang\Object {
         } else if ('-e' == $args[$i]) {
           $arg= ++$i < $s ? $args[$i] : '-';
           if ('-' === $arg) {
-            $sources->add(new EvaluationSource(Streams::readAll($this->in->getStream())));
+            $sources[]= new EvaluationSource(Streams::readAll($this->in->getStream()));
           } else {
-            $sources->add(new EvaluationSource($this->arg($args, $i, 'e')));
+            $sources[]= new EvaluationSource($this->arg($args, $i, 'e'));
           }
         } else if ('-l' == $args[$i]) {
           $arg= $this->arg($args, ++$i, 'l');
@@ -312,19 +311,19 @@ class Runner extends \lang\Object {
           }
           $colors= self::$cmap[$remainder];
         } else if (strstr($args[$i], '.ini')) {
-          $sources->add(new PropertySource(new Properties($args[$i])));
+          $sources[]= new PropertySource(new Properties($args[$i]));
         } else if (strstr($args[$i], \xp::CLASS_FILE_EXT)) {
-          $sources->add(new ClassFileSource(new File($args[$i])));
+          $sources[]= new ClassFileSource(new File($args[$i]));
         } else if (strstr($args[$i], '.**')) {
-          $sources->add(new PackageSource(Package::forName(substr($args[$i], 0, -3)), true));
+          $sources[]= new PackageSource(Package::forName(substr($args[$i], 0, -3)), true);
         } else if (strstr($args[$i], '.*')) {
-          $sources->add(new PackageSource(Package::forName(substr($args[$i], 0, -2))));
+          $sources[]= new PackageSource(Package::forName(substr($args[$i], 0, -2)));
         } else if (false !== ($p= strpos($args[$i], '::'))) {
-          $sources->add(new ClassSource(XPClass::forName(substr($args[$i], 0, $p)), substr($args[$i], $p+ 2)));
+          $sources[]= new ClassSource(XPClass::forName(substr($args[$i], 0, $p)), substr($args[$i], $p+ 2));
         } else if (is_dir($args[$i])) {
-          $sources->add(new FolderSource(new Folder($args[$i])));
+          $sources[]= new FolderSource(new Folder($args[$i]));
         } else {
-          $sources->add(new ClassSource(XPClass::forName($args[$i])));
+          $sources[]= new ClassSource(XPClass::forName($args[$i]));
         }
       }
     } catch (Throwable $e) {
@@ -333,7 +332,7 @@ class Runner extends \lang\Object {
       return 2;
     }
     
-    if ($sources->isEmpty()) {
+    if (empty($sources)) {
       $this->err->writeLine('*** No tests specified');
       return 2;
     }

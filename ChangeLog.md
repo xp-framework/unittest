@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 6.7.0 / 2015-12-11
+
+* Removed dependency on util.collections - @thekid
+
 ## 6.6.0 / 2015-11-08
 
 * Fixed forward compatibility with XP 6.6.0 - @thekid
