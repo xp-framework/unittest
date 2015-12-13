@@ -3,6 +3,11 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+* Changed test case execution to catch PHP5 and PHP7 base exceptions
+  from test setup and teardown and make them fail tests.
+  See https://github.com/xp-framework/xp-framework/pull/382
+  (@thekid)
+
 ## 6.6.2 / 2015-12-13
 
 * Added dependency on io.collections - @thekid

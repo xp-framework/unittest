@@ -7,6 +7,7 @@ use lang\IllegalStateException;
 use lang\IllegalArgumentException;
 use lang\XPClass;
 use lang\Throwable;
+use lang\Error;
 use lang\reflect\TargetInvocationException;
 
 /**
@@ -301,27 +302,30 @@ class TestSuite extends \lang\Object {
       $timer->start();
 
       // Setup test
+      $error= null;
       try {
         $setUp($test);
-      } catch (PrerequisitesNotMetError $e) {
+      } catch (PrerequisitesNotMetError $skipped) {
         $timer->stop();
-        $this->notifyListeners('testSkipped', [
-          $result->setSkipped($t, $e, $timer->elapsedTime())
-        ]);
+        $this->notifyListeners('testSkipped', [$result->setSkipped($t, $skipped, $timer->elapsedTime())]);
         \xp::gc();
         continue;
-      } catch (AssertionFailedError $e) {
+      } catch (AssertionFailedError $failed) {
         $timer->stop();
-        $this->notifyListeners('testFailed', [
-          $result->setFailed($t, $e, $timer->elapsedTime())
-        ]);
+        $this->notifyListeners('testFailed', [$result->setFailed($t, $failed, $timer->elapsedTime())]);
         \xp::gc();
         continue;
-      } catch (Throwable $x) {
+      } catch (Throwable $error) {
+        // NOOP
+      } catch (\Exception $base) {
+        $error= new Error($base->getMessage());
+      } catch (\Throwable $base) {
+        $error= new Error($base->getMessage());
+      }
+
+      if ($error) {
         $timer->stop();
-        $this->notifyListeners('testFailed', [
-          $result->set($t, new TestError($t, $x, $timer->elapsedTime()))
-        ]);
+        $this->notifyListeners('testError', [$result->set($t, new TestError($t, $error, $timer->elapsedTime()))]);
         \xp::gc();
         continue;
       }
@@ -330,12 +334,20 @@ class TestSuite extends \lang\Object {
       $e= null;
       try {
         $method->invoke($test, is_array($args) ? $args : [$args]);
-        $tearDown($test);
       } catch (TargetInvocationException $x) {
-        $tearDown($test);
         $e= $x->getCause();
-      } catch (Throwable $e) {
-        // Exception inside teardown
+      }
+
+      // Tear down test
+      try {
+        $tearDown($test);
+      } catch (Throwable $base) {
+        $e && $base->setCause($e);
+        $e= $base;
+      } catch (\Exception $base) {
+        $e= new Error($base->getMessage(), $e);
+      } catch (\Throwable $base) {
+        $e= new Error($base->getMessage(), $e);
       }
       $timer->stop();
 

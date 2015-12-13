@@ -512,13 +512,44 @@ class SuiteTest extends TestCase {
     $this->assertEquals(1, $r->failureCount());
   }
 
-  #[@test]
-  public function throwing_any_other_exception_from_setUp_fails_test() {
+  #[@test, @values([IllegalArgumentException::class, 'Exception'])]
+  public function throwing_any_other_exception_from_setUp_fails_test($e) {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      'setUp' => function() { throw new IllegalArgumentException('Test'); },
+      'setUp' => function() use($e) { throw new $e('Fail'); },
       '#[@test] fixture' => function() { $this->assertTrue(false); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(1, $r->failureCount());
+  }
+
+  #[@test]
+  public function throwing_AssertionFailedError_from_tearDown_fails_succeeding_test() {
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
+      'tearDown' => function() { throw new AssertionFailedError('Fail'); },
+      '#[@test] fixture' => function() { $this->assertTrue(true); }
+    ]));
+    $r= $this->suite->run();
+    $this->assertEquals(1, $r->failureCount());
+  }
+
+  #[@test, @values([IllegalArgumentException::class, 'Exception'])]
+  public function throwing_any_other_exception_from_tearDown_fails_succeeding_test($e) {
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
+      'tearDown' => function() use($e) { throw new $e('Fail'); },
+      '#[@test] fixture' => function() { $this->assertTrue(true); }
+    ]));
+    $r= $this->suite->run();
+    $this->assertEquals(1, $r->failureCount());
+  }
+
+  #[@test, @values([IllegalArgumentException::class, 'Exception'])]
+  public function throwing_any_other_exception_from_tearDown_fails_failing_test($e) {
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
+      'tearDown' => function() use($e) { throw new $e('Fail'); },
+      '#[@test] fixture' => function() { $this->fail('Failing'); }
+    ]));
+    $r= $this->suite->run();
+    $this->assertEquals(1, $r->failureCount());
+    \util\cmd\Console::writeLine($r);
   }
 }
