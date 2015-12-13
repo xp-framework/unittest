@@ -296,37 +296,33 @@ class TestSuite extends \lang\Object {
     };
 
     $timer= new Timer();
+    $report= function($type, $outcome, $arg) use($result, $timer, &$t) {
+      $timer->stop();
+      \xp::gc();
+      $this->notifyListeners($type, [$result->set($t, new $outcome($t, $arg, $timer->elapsedTime()))]);
+    };
     foreach ($values as $args) {
       $t= $variation ? new TestVariation($test, $args) : $test;
       \xp::gc();
       $timer->start();
 
       // Setup test
-      $error= null;
       try {
         $setUp($test);
       } catch (PrerequisitesNotMetError $skipped) {
-        $timer->stop();
-        $this->notifyListeners('testSkipped', [$result->setSkipped($t, $skipped, $timer->elapsedTime())]);
-        \xp::gc();
+        $report('testSkipped', TestPrerequisitesNotMet::class, $skipped);
         continue;
       } catch (AssertionFailedError $failed) {
-        $timer->stop();
-        $this->notifyListeners('testFailed', [$result->setFailed($t, $failed, $timer->elapsedTime())]);
-        \xp::gc();
+        $report('testFailed', TestAssertionFailed::class, $failed);
         continue;
       } catch (Throwable $error) {
-        // NOOP
+        $report('testError', TestError::class, $error);
+        continue;
       } catch (\Exception $base) {
-        $error= new Error($base->getMessage());
+        $report('testError', TestError::class, new Error($base->getMessage()));
+        continue;
       } catch (\Throwable $base) {
-        $error= new Error($base->getMessage());
-      }
-
-      if ($error) {
-        $timer->stop();
-        $this->notifyListeners('testError', [$result->set($t, new TestError($t, $error, $timer->elapsedTime()))]);
-        \xp::gc();
+        $report('testError', TestError::class, new Error($base->getMessage()));
         continue;
       }
 
@@ -354,88 +350,49 @@ class TestSuite extends \lang\Object {
       if ($e) {
         if ($expected && $expected[0]->isInstance($e)) {
           if ($eta && $timer->elapsedTime() > $eta) {
-            $this->notifyListeners('testFailed', [
-              $result->setFailed(
-                $t,
-                new AssertionFailedError(new FormattedMessage(
-                  'Test runtime of %.3f seconds longer than eta of %.3f seconds',
-                  [$timer->elapsedTime(), $eta]
-                )),
-                $timer->elapsedTime()
-              )
-            ]);
+            $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
+              'Test runtime of %.3f seconds longer than eta of %.3f seconds',
+              [$timer->elapsedTime(), $eta]
+            )));
           } else if ($expected[1] && !preg_match($expected[1], $e->getMessage())) {
-            $this->notifyListeners('testFailed', [
-              $result->setFailed(
-                $t,
-                new AssertionFailedError(new FormattedMessage(
-                  'Expected %s\'s message "%s" differs from expected %s',
-                  [nameof($e), $e->getMessage(), $expected[1]]
-                )),
-                $timer->elapsedTime()
-              )
-            ]);
+            $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
+              'Expected %s\'s message "%s" differs from expected %s',
+              [nameof($e), $e->getMessage(), $expected[1]]
+            )));
           } else if (sizeof(\xp::$errors) > 0) {
-            $this->notifyListeners('testWarning', [
-              $result->set($t, new TestWarning($t, $this->formatErrors(\xp::$errors), $timer->elapsedTime()))
-            ]);
+            $report('testWarning', TestWarning::class, $this->formatErrors(\xp::$errors));
           } else {
-            $this->notifyListeners('testSucceeded', [
-              $result->setSucceeded($t, $timer->elapsedTime())
-            ]);
+            $this->notifyListeners('testSucceeded', [$result->setSucceeded($t, $timer->elapsedTime())]);
+            \xp::gc();
           }
         } else if ($expected && !$expected[0]->isInstance($e)) {
-          $this->notifyListeners('testFailed', [
-            $result->setFailed(
-              $t,
-              new AssertionFailedError(new FormattedMessage(
-                'Caught %s instead of expected %s',
-                [$e->compoundMessage(), $expected[0]->getName()]
-              )),
-              $timer->elapsedTime()
-            )
-          ]);
+          $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
+            'Caught %s instead of expected %s',
+            [$e->compoundMessage(), $expected[0]->getName()]
+          )));
         } else if ($e instanceof AssertionFailedError) {
-          $this->notifyListeners('testFailed', [
-            $result->setFailed($t, $e, $timer->elapsedTime())
-          ]);
+          $report('testFailed', TestAssertionFailed::class, $e);
         } else if ($e instanceof PrerequisitesNotMetError) {
-          $this->notifyListeners('testSkipped', [
-            $result->setSkipped($t, $e, $timer->elapsedTime())
-          ]);
+          $report('testSkipped', TestPrerequisitesNotMet::class, $e);
         } else {
-          $this->notifyListeners('testError', [
-            $result->set($t, new TestError($t, $e, $timer->elapsedTime()))
-          ]);
+          $report('testError', TestError::class, $e);
         }
-        \xp::gc();
-        continue;
       } else if ($expected) {
-        $this->notifyListeners('testFailed', [
-          $result->setFailed(
-            $t,
-            new AssertionFailedError(new FormattedMessage('Expected %s not caught', [$expected[0]->getName()])),
-            $timer->elapsedTime()
-          )
-        ]);
+        $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
+          'Expected %s not caught',
+          [$expected[0]->getName()]
+        )));
       } else if (sizeof(\xp::$errors) > 0) {
-        $this->notifyListeners('testWarning', [
-          $result->set($t, new TestWarning($t, $this->formatErrors(\xp::$errors), $timer->elapsedTime()))
-        ]);
+        $report('testWarning', TestWarning::class, $this->formatErrors(\xp::$errors));
       } else if ($eta && $timer->elapsedTime() > $eta) {
-        $this->notifyListeners('testFailed', [
-          $result->setFailed(
-            $t,
-            new AssertionFailedError('Timeout', sprintf('%.3f', $timer->elapsedTime()), sprintf('%.3f', $eta)), 
-            $timer->elapsedTime()
-          )
-        ]);
+        $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
+          'Test runtime of %.3f seconds longer than eta of %.3f seconds',
+          [$timer->elapsedTime(), $eta]
+        )));
       } else {
-        $this->notifyListeners('testSucceeded', [
-          $result->setSucceeded($t, $timer->elapsedTime())
-        ]);
+        $this->notifyListeners('testSucceeded', [$result->setSucceeded($t, $timer->elapsedTime())]);
+        \xp::gc();
       }
-      \xp::gc();
     }
   }
   

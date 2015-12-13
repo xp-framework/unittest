@@ -550,6 +550,5 @@ class SuiteTest extends TestCase {
     ]));
     $r= $this->suite->run();
     $this->assertEquals(1, $r->failureCount());
-    \util\cmd\Console::writeLine($r);
   }
 }
