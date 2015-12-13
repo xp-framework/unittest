@@ -5,7 +5,7 @@ use unittest\TestCase;
 /**
  * This class is used in the TestActionTest 
  */
-class RecordActionInvocation extends \lang\Object implements \unittest\TestAction {
+class RecordActionInvocation implements \unittest\TestAction {
   protected $field= null;
 
   /**

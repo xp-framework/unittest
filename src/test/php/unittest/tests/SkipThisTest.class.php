@@ -7,7 +7,7 @@ use lang\IllegalStateException;
 /**
  * This class is used in the TestActionTest 
  */
-class SkipThisTest extends \lang\Object implements \unittest\TestAction {
+class SkipThisTest implements \unittest\TestAction {
 
   /**
    * Before test: Update field

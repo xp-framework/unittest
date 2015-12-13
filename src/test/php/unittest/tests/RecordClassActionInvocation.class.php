@@ -5,7 +5,7 @@ use lang\XPClass;
 /**
  * This class is used in the TestClassActionTest 
  */
-class RecordClassActionInvocation extends \lang\Object implements \unittest\TestClassAction {
+class RecordClassActionInvocation implements \unittest\TestClassAction {
   protected $field= null;
 
   /**
