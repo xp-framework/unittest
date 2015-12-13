@@ -3,6 +3,8 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+* Changed `fail()` to also work without actual and expected parameters
+  (@thekid)
 * Changed test case execution to catch PHP5 and PHP7 base exceptions
   from test setup and teardown and make them fail tests.
   See https://github.com/xp-framework/xp-framework/pull/382

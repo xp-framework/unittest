@@ -37,8 +37,12 @@ class TestCase extends \lang\Object {
    * @param   var expect
    * @return  void
    */
-  public function fail($reason, $actual, $expect) {
-    throw new AssertionFailedError(new ComparisonFailedMessage($reason, $expect, $actual));
+  public function fail($reason, $actual= null, $expect= null) {
+    if (1 === func_num_args()) {
+      throw new AssertionFailedError($reason);
+    } else {
+      throw new AssertionFailedError(new ComparisonFailedMessage($reason, $expect, $actual));
+    }
   }
 
   /**

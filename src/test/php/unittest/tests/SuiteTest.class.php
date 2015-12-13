@@ -475,21 +475,39 @@ class SuiteTest extends TestCase {
   }
 
   #[@test]
-  public function doFail() {
+  public function fail_with_reason_only() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->fail('Test'); }
     ]));
     $r= $this->suite->run();
-    $this->assertEquals(1, $r->failureCount());
+    $this->assertEquals(
+      [1, 'Test'],
+      [$r->failureCount(), $r->outcomeOf($this->suite->testAt(0))->reason->getMessage()]
+    );
   }
 
   #[@test]
-  public function doSkip() {
+  public function fail_with_actual_and_expected() {
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
+      '#[@test] fixture' => function() { $this->fail('Not equal', 'a', 'b'); }
+    ]));
+    $r= $this->suite->run();
+    $this->assertEquals(
+      [1, 'expected ["b"] but was ["a"] using: \'Not equal\''],
+      [$r->failureCount(), $r->outcomeOf($this->suite->testAt(0))->reason->getMessage()]
+    );
+  }
+
+  #[@test]
+  public function skip_with_reason() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->skip('Test'); }
     ]));
     $r= $this->suite->run();
-    $this->assertEquals(1, $r->skipCount());
+    $this->assertEquals(
+      [1, 'Test'],
+      [$r->skipCount(), $r->outcomeOf($this->suite->testAt(0))->reason->getMessage()]
+    );
   }
 
   #[@test]
