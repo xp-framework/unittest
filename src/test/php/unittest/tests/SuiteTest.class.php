@@ -4,6 +4,7 @@ use unittest\TestCase;
 use unittest\TestResult;
 use unittest\TestPrerequisitesNotMet;
 use lang\Error;
+use lang\Object;
 use lang\MethodNotImplementedException;
 use util\NoSuchElementException;
 use unittest\TestSuite;
@@ -34,7 +35,7 @@ class SuiteTest extends TestCase {
    * @return lang.XPClass
    */
   private function classWithBeforeClass($name) {
-    return ClassLoader::defineClass($name, 'unittest.TestCase', [], '{
+    return ClassLoader::defineClass($name, TestCase::class, [], '{
       public static $before= false;
 
       #[@beforeClass]
@@ -55,7 +56,7 @@ class SuiteTest extends TestCase {
    * @return lang.XPClass
    */
   private function classWithAfterClass($name) {
-    return ClassLoader::defineClass($name, 'unittest.TestCase', [], '{
+    return ClassLoader::defineClass($name, TestCase::class, [], '{
       public static $after= false;
 
       #[@afterClass]
@@ -88,22 +89,22 @@ class SuiteTest extends TestCase {
 
   #[@test, @expect(IllegalArgumentException::class), @action(new RuntimeVersion('<7.0.0-dev'))]
   public function addNonTest() {
-    $this->suite->addTest(new \lang\Object());
+    $this->suite->addTest(new Object());
   }
 
   #[@test, @expect(Error::class), @action(new RuntimeVersion('>=7.0.0-dev'))]
   public function addNonTest7() {
-    $this->suite->addTest(new \lang\Object());
+    $this->suite->addTest(new Object());
   }
 
   #[@test, @expect(IllegalArgumentException::class), @action(new RuntimeVersion('<7.0.0-dev'))]
   public function runNonTest() {
-    $this->suite->runTest(new \lang\Object());
+    $this->suite->runTest(new Object());
   }
 
   #[@test, @expect(Error::class), @action(new RuntimeVersion('>=7.0.0-dev'))]
   public function runNonTest7() {
-    $this->suite->runTest(new \lang\Object());
+    $this->suite->runTest(new Object());
   }
 
   #[@test, @expect(MethodNotImplementedException::class)]
@@ -319,7 +320,7 @@ class SuiteTest extends TestCase {
       '#[@test] fixture' => function() { trigger_error('Test error'); }
     ]);
     $this->assertEquals(
-      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 319, occured once)'],
+      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 320, occured once)'],
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason
     );
   }
@@ -344,7 +345,7 @@ class SuiteTest extends TestCase {
       }
     ]);
     $this->assertEquals(
-      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 342, occured once)'],
+      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 343, occured once)'],
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason
     );
   }
