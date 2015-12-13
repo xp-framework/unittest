@@ -106,6 +106,33 @@ class CalculatorTest extends \unittest\TestCase {
 }
 ```
 
+Actions
+-------
+To execute code before and after tests, test actions can be used. The unittest library comes with the following built-in actions:
+
+* `unittest.actions.ExtensionAvailable(string $extension)` - Verifies a given PHP extension is loaded.
+* `unittest.actions.IsPlatform(string $platform)` - Verifies tests are running on a given platform via case-insensitive match on `PHP_OS`. Prefix with `!` to invert.
+* `unittest.actions.RuntimeVersion(string $version)` - Verifies tests are running on a given PHP runtime. See [version_compare](http://php.net/version_compare) for valid syntax.
+* `unittest.actions.VerifyThat(function(): var|string $callable)` - Runs the given function, verifying it neither raises an exception nor return a false value.
+
+```php
+class FileSystemTest extends \unittest\TestCase {
+
+  #[@test, @action(new IsPlatform('!WIN'))
+  public function not_run_on_windows() {
+    // ...
+  }
+
+  #[@test, @action(new VerifyThat(function() {
+  #  return file_exists("/$Recycle.Bin")
+  #}))
+  public function run_when_recycle_bin_exists() {
+    // ...
+  }
+}
+```
+
+Multiple actions can be run around a test by passing an array to the *@action* annotation.
 
 Further reading
 ---------------
