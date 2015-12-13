@@ -124,7 +124,7 @@ class FileSystemTest extends \unittest\TestCase {
   }
 
   #[@test, @action(new VerifyThat(function() {
-  #  return file_exists("/$Recycle.Bin")
+  #  return file_exists('/$Recycle.Bin');
   #}))
   public function run_when_recycle_bin_exists() {
     // ...
