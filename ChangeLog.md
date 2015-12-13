@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 6.6.2 / 2015-12-13
+
+* Added dependency on io.collections - @thekid
+
 ## 6.6.1 / 2015-12-11
 
 * Removed dependency on util.collections - @thekid
