@@ -10,6 +10,7 @@ use util\NoSuchElementException;
 use unittest\TestSuite;
 use unittest\actions\RuntimeVersion;
 use unittest\PrerequisitesNotMetError;
+use unittest\AssertionFailedError;
 use lang\IllegalArgumentException;
 use lang\FormatException;
 use lang\ClassLoader;
@@ -320,7 +321,7 @@ class SuiteTest extends TestCase {
       '#[@test] fixture' => function() { trigger_error('Test error'); }
     ]);
     $this->assertEquals(
-      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 320, occured once)'],
+      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 321, occured once)'],
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason
     );
   }
@@ -345,7 +346,7 @@ class SuiteTest extends TestCase {
       }
     ]);
     $this->assertEquals(
-      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 343, occured once)'],
+      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 344, occured once)'],
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason
     );
   }
@@ -489,5 +490,35 @@ class SuiteTest extends TestCase {
     ]));
     $r= $this->suite->run();
     $this->assertEquals(1, $r->skipCount());
+  }
+
+  #[@test]
+  public function throwing_PrerequisitesNotMetError_from_setUp_skips_test() {
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
+      'setUp' => function() { throw new PrerequisitesNotMetError('Skip'); },
+      '#[@test] fixture' => function() { $this->assertTrue(false); }
+    ]));
+    $r= $this->suite->run();
+    $this->assertEquals(1, $r->skipCount());
+  }
+
+  #[@test]
+  public function throwing_AssertionFailedError_from_setUp_fails_test() {
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
+      'setUp' => function() { throw new AssertionFailedError('Fail'); },
+      '#[@test] fixture' => function() { $this->assertTrue(false); }
+    ]));
+    $r= $this->suite->run();
+    $this->assertEquals(1, $r->failureCount());
+  }
+
+  #[@test]
+  public function throwing_any_other_exception_from_setUp_fails_test() {
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
+      'setUp' => function() { throw new IllegalArgumentException('Test'); },
+      '#[@test] fixture' => function() { $this->assertTrue(false); }
+    ]));
+    $r= $this->suite->run();
+    $this->assertEquals(1, $r->failureCount());
   }
 }
