@@ -298,12 +298,12 @@ class TestSuite extends \lang\Object {
     $timer= new Timer();
     $report= function($type, $outcome, $arg) use($result, $timer, &$t) {
       $timer->stop();
-      \xp::gc();
       $this->notifyListeners($type, [$result->set($t, new $outcome($t, $arg, $timer->elapsedTime()))]);
+      \xp::gc();
     };
+    \xp::gc();
     foreach ($values as $args) {
       $t= $variation ? new TestVariation($test, $args) : $test;
-      \xp::gc();
       $timer->start();
 
       // Setup test
@@ -363,7 +363,6 @@ class TestSuite extends \lang\Object {
             $report('testWarning', TestWarning::class, $this->formatErrors(\xp::$errors));
           } else {
             $this->notifyListeners('testSucceeded', [$result->setSucceeded($t, $timer->elapsedTime())]);
-            \xp::gc();
           }
         } else if ($expected && !$expected[0]->isInstance($e)) {
           $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
@@ -391,7 +390,6 @@ class TestSuite extends \lang\Object {
         )));
       } else {
         $this->notifyListeners('testSucceeded', [$result->setSucceeded($t, $timer->elapsedTime())]);
-        \xp::gc();
       }
     }
   }
