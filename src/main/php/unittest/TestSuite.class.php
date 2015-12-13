@@ -221,6 +221,25 @@ class TestSuite extends \lang\Object {
   }
 
   /**
+   * Invoke a block, wrap PHP5 and PHP7 native base exceptions in lang.Error
+   *
+   * @param  function(?): void $block
+   * @param  var $arg
+   * @return void
+   */
+  private function invoke($block, $arg) {
+    try {
+      $block($arg);
+    } catch (Throwable $e) {
+      throw $e;
+    } catch (\Exception $e) {
+      throw new Error($e->getMessage());
+    } catch (\Throwable $e) {
+      throw new Error($e->getMessage());
+    }
+  }
+
+  /**
    * Run a test case.
    *
    * @param   unittest.TestCase test
@@ -308,7 +327,7 @@ class TestSuite extends \lang\Object {
 
       // Setup test
       try {
-        $setUp($test);
+        $this->invoke($setUp, $test);
       } catch (PrerequisitesNotMetError $skipped) {
         $report('testSkipped', TestPrerequisitesNotMet::class, $skipped);
         continue;
@@ -317,12 +336,6 @@ class TestSuite extends \lang\Object {
         continue;
       } catch (Throwable $error) {
         $report('testError', TestError::class, $error);
-        continue;
-      } catch (\Exception $base) {
-        $report('testError', TestError::class, new Error($base->getMessage()));
-        continue;
-      } catch (\Throwable $base) {
-        $report('testError', TestError::class, new Error($base->getMessage()));
         continue;
       }
 
@@ -336,15 +349,12 @@ class TestSuite extends \lang\Object {
 
       // Tear down test
       try {
-        $tearDown($test);
+        $this->invoke($tearDown, $test);
       } catch (Throwable $base) {
         $e && $base->setCause($e);
         $e= $base;
-      } catch (\Exception $base) {
-        $e= new Error($base->getMessage(), $e);
-      } catch (\Throwable $base) {
-        $e= new Error($base->getMessage(), $e);
       }
+
       $timer->stop();
 
       if ($e) {
