@@ -289,30 +289,11 @@ class TestSuite extends \lang\Object {
       $values= [[]];
     }
 
-    // Check for @actions, initialize setUp and tearDown call chains
+    // Check for @actions
     $actions= array_merge(
       $this->actionsFor($class, 'unittest.TestAction'),
       $this->actionsFor($method, 'unittest.TestAction')
     );
-    $setUp= function($test) use($actions) {
-      foreach ($actions as $action) {
-        $action->beforeTest($test);
-      }
-      $test->setUp();
-    };
-    $tearDown= function($test) use($actions) {
-      $test->tearDown();
-      $raised= null;
-      foreach ($actions as $action) {
-        try {
-          $action->afterTest($test);
-        } catch (Throwable $e) {
-          $e->setCause($raised);
-          $raised= $e;
-        }
-      }
-      if ($raised) throw $raised;
-    };
 
     $timer= new Timer();
     $report= function($type, $outcome, $arg) use($result, $timer, &$t) {
@@ -325,34 +306,53 @@ class TestSuite extends \lang\Object {
       $t= $variation ? new TestVariation($test, $args) : $test;
       $timer->start();
 
-      // Setup test
+      $tearDown= function($test, $error) { return $error; };
       try {
-        $this->invoke($setUp, $test);
+
+        // Before and after tests
+        foreach ($actions as $action) {
+          $this->invoke([$action, 'beforeTest'], $test);
+          $tearDown= function($test, $error) use($tearDown, $action) {
+            $propagated= $tearDown($test, $error);
+            try {
+              $this->invoke([$action, 'afterTest'], $test);
+              return $propagated;
+            } catch (Throwable $t) {
+              $propagated && $t->setCause($propagated);
+              return $t;
+            }
+          };
+        }
+
+        // Setup and teardown
+        $this->invoke([$test, 'setUp'], $test);
+        $tearDown= function($test, $error) use($tearDown) {
+          try {
+            $this->invoke([$test, 'tearDown'], null);
+            return $tearDown($test, $error);
+          } catch (Throwable $t) {
+            $error && $t->setCause($error);
+            return $tearDown($test, $t);
+          }
+        };
+
+        // Run test
+        $method->invoke($test, is_array($args) ? $args : [$args]);
+        $e= $tearDown($test, null);
+      } catch (TargetInvocationException $invoke) {
+        $e= $tearDown($test, $invoke->getCause());
       } catch (PrerequisitesNotMetError $skipped) {
+        $tearDown($test, $skipped);
         $report('testSkipped', TestPrerequisitesNotMet::class, $skipped);
         continue;
       } catch (AssertionFailedError $failed) {
+        $tearDown($test, $failed);
         $report('testFailed', TestAssertionFailed::class, $failed);
         continue;
       } catch (Throwable $error) {
+        $tearDown($test, $error);
         $report('testError', TestError::class, $error);
         continue;
-      }
-
-      // Run test
-      $e= null;
-      try {
-        $method->invoke($test, is_array($args) ? $args : [$args]);
-      } catch (TargetInvocationException $x) {
-        $e= $x->getCause();
-      }
-
-      // Tear down test
-      try {
-        $this->invoke($tearDown, $test);
-      } catch (Throwable $base) {
-        $e && $base->setCause($e);
-        $e= $base;
       }
 
       $timer->stop();

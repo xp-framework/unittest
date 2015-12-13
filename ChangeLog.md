@@ -3,6 +3,8 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+* Merged pull request #6: Refactor: Actions' before and after runlogic
+  (@thekid)
 * Changed `fail()` to also work without actual and expected parameters
   (@thekid)
 * Changed test case execution to catch PHP5 and PHP7 base exceptions

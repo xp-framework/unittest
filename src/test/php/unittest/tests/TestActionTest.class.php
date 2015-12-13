@@ -14,9 +14,7 @@ use unittest\PrerequisitesNotMetError;
 class TestActionTest extends TestCase {
   protected $suite;
 
-  /**
-   * Setup method. Creates a new test suite.
-   */
+  /** @return void */
   public function setUp() {
     $this->suite= new TestSuite();
   }
@@ -65,10 +63,6 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function beforeTest_can_skip_test() {
-    ClassLoader::defineClass('unittest.tests.SkipThisTest', 'lang.Object', ['unittest.TestAction'], [
-      'beforeTest' => function(TestCase $t) { throw new PrerequisitesNotMetError('Skip'); },
-      'afterTest' => function(TestCase $t) { /* NOOP */ }
-    ]);
     $test= newinstance(TestCase::class, ['fixture'], [
       '#[@test, @action(new \unittest\tests\SkipThisTest())] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
@@ -76,6 +70,22 @@ class TestActionTest extends TestCase {
     ]);
     $r= $this->suite->runTest($test);
     $this->assertEquals(1, $r->skipCount());
+  }
+
+  #[@test]
+  public function afterTest_is_invoked_for_succeeding_actions() {
+    $actions= [];
+    ClassLoader::defineClass('unittest.tests.AllocateMemory', 'lang.Object', ['unittest.TestAction'], [
+      'beforeTest' => function(TestCase $t) use(&$actions) { $actions[]= 'allocated'; },
+      'afterTest' => function(TestCase $t) use(&$actions) { $actions[]= 'freed'; }
+    ]);
+    $test= newinstance(TestCase::class, ['fixture'], [
+      '#[@test, @action([new \unittest\tests\AllocateMemory(), new \unittest\tests\SkipThisTest()])] fixture' => function() {
+        throw new IllegalStateException('This test should have been skipped');
+      }
+    ]);
+    $r= $this->suite->runTest($test);
+    $this->assertEquals([1, ['allocated', 'freed']], [$r->skipCount(), $actions]);
   }
 
   #[@test]
