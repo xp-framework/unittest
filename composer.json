@@ -7,6 +7,7 @@
   "keywords": ["module", "xp"],
   "require" : {
     "xp-framework/core": "^6.5.0",
+    "xp-framework/io-collections": "^6.5.0",
     "php" : ">=5.5.0"
   },
   "autoload" : {
