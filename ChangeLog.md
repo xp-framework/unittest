@@ -3,6 +3,11 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+* Changed *before* and *after* actions logic to run `afterTest()` only
+  for those actions which were successfully setup. Before, all actions
+  were run, resulting in more complex code inside actions to handle
+  cleanup correctly.
+  (@thekid)
 * Changed `fail()` to also work without actual and expected parameters
   (@thekid)
 * Changed test case execution to catch PHP5 and PHP7 base exceptions
