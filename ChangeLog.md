@@ -3,6 +3,8 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 6.7.0 / 2015-12-13
+
 * Merged pull request #6: Refactor: Actions' before and after runlogic
   (@thekid)
 * Changed `fail()` to also work without actual and expected parameters
