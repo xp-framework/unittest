@@ -327,12 +327,34 @@ class SuiteTest extends TestCase {
   }
 
   #[@test]
-  public function exceptionsMakeTestFail() {
+  public function xp_exceptions_make_test_fail() {
     $test= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { throw new IllegalArgumentException('Test'); }
     ]);
     $this->assertInstanceOf(
       'lang.IllegalArgumentException',
+      $this->suite->runTest($test)->failed[$test->hashCode()]->reason
+    );
+  }
+
+  #[@test]
+  public function native_exceptions_make_test_fail() {
+    $test= newinstance(TestCase::class, ['fixture'], [
+      '#[@test] fixture' => function() { throw new \Exception('Test'); }
+    ]);
+    $this->assertInstanceOf(
+      'lang.Throwable',
+      $this->suite->runTest($test)->failed[$test->hashCode()]->reason
+    );
+  }
+
+  #[@test, @action(new RuntimeVersion('>=7.0.0'))]
+  public function native_php7_errors_make_test_fail() {
+    $test= newinstance(TestCase::class, ['fixture'], [
+      '#[@test] fixture' => function() { $null= null; $null->method(); }
+    ]);
+    $this->assertInstanceOf(
+      'lang.Error',
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason
     );
   }
@@ -346,7 +368,7 @@ class SuiteTest extends TestCase {
       }
     ]);
     $this->assertEquals(
-      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 344, occured once)'],
+      [sprintf('"Test error" in ::trigger_error() (SuiteTest.class.php, line %d, occured once)', __LINE__ - 5)],
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason
     );
   }
