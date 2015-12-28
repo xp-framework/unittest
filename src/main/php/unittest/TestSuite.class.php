@@ -209,8 +209,9 @@ class TestSuite extends \lang\Object {
   /**
    * Notify listeners
    *
-   * @param   string method
-   * @param   var[] args
+   * @param  string $method
+   * @param  var[] $args
+   * @return void
    */
   protected function notifyListeners($method, $args) {
     foreach ($this->listeners as $l) {
@@ -218,6 +219,13 @@ class TestSuite extends \lang\Object {
     }
   }
 
+  /**
+   * Skip all targets
+   *
+   * @param  unittest.TestResult $result
+   * @param  unittest.TestTarget[] $targets
+   * @param  unittest.PrerequisitesNotMetError $error
+   */
   protected function skipAll($result, $targets, $error) {
     foreach ($targets as $target) {
       $this->notifyListeners('testSkipped', [$result->setSkipped($target->instance(), $error, 0.0)]);
@@ -245,6 +253,13 @@ class TestSuite extends \lang\Object {
     }
   }
 
+  /**
+   * Runs a test target
+   *
+   * @param  unittest.TestTarget $target
+   * @param  unittest.TestResult $result
+   * @return void
+   */
   protected function runTarget($target, $result) {
     $test= $target->instance();
 
@@ -409,6 +424,13 @@ class TestSuite extends \lang\Object {
     }
   }
 
+  /**
+   * Runs a test group
+   *
+   * @param  unittest.TestGroup $group
+   * @param  unittest.TestResult $result
+   * @return void
+   */
   protected function runGroup($group, $result) {
     try {
       foreach ($group->before() as $name => $before) {
