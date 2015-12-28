@@ -67,7 +67,7 @@ abstract class TestGroup extends \lang\Object {
    * @throws lang.IllegalStateException
    * @return void
    */
-  protected function testMethod($method) {
+  protected function verifyMethod($method) {
     if (self::$base->hasMethod($method->getName())) {
       throw new IllegalStateException(sprintf(
         'Cannot override %s::%s with test method in %s',
@@ -78,7 +78,7 @@ abstract class TestGroup extends \lang\Object {
     }
   }
 
-  protected function testClass($class) {
+  protected function verifyClass($class) {
     if (!$class->isSubclassOf(self::$base)) {
       throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
     }

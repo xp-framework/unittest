@@ -11,7 +11,7 @@ class TestClass extends TestGroup {
     $before= $after= [];
     foreach ($class->getMethods() as $method) {
       if ($method->hasAnnotation('test')) {
-        $this->testMethod($method);
+        $this->verifyMethod($method);
         $instance= $class->getConstructor()->newInstance(array_merge((array)$method->getName(), $arguments));
         $this->targets[]= new TestTarget($instance, $before, $after);
       } else {
@@ -19,7 +19,7 @@ class TestClass extends TestGroup {
       }
     }
 
-    $this->testClass($class);
+    $this->verifyClass($class);
   }
 
   /** @return bool */

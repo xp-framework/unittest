@@ -12,7 +12,7 @@ class TestInstance extends TestGroup {
     $class= typeof($instance);
 
     try {
-      $method= $this->testMethod($class->getMethod($instance->name));
+      $this->verifyMethod($class->getMethod($instance->name));
     } catch (ElementNotFoundException $e) {
       throw new MethodNotImplementedException('Test method does not exist', $instance->name);
     }
@@ -23,7 +23,7 @@ class TestInstance extends TestGroup {
       $this->withMethod($method, $before, $after);
     }
 
-    $this->testClass($class);
+    $this->verifyClass($class);
   }
 
   /** @return bool */
