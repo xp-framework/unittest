@@ -15,29 +15,6 @@ abstract class TestGroup extends \lang\Object {
   }
 
   /**
-   * Returns actions
-   *
-   * @param  lang.XPClass|lang.reflect.Method $annotatable
-   * @param  string $impl The interface which must've been implemented
-   * @return var[]
-   */
-  protected function actionsFor($annotatable, $impl) {
-    $r= [];
-    if ($annotatable->hasAnnotation('action')) {
-      $action= $annotatable->getAnnotation('action');
-      $type= new XPClass($impl);
-      if (is_array($action)) {
-        foreach ($action as $a) {
-          if ($type->isInstance($a)) $r[]= $a;
-        }
-      } else {
-        if ($type->isInstance($action)) $r[]= $action;
-      }
-    }
-    return $r;
-  }
-
-  /**
    * Handle special method
    *
    * @param  lang.reflect.Method
@@ -73,10 +50,16 @@ abstract class TestGroup extends \lang\Object {
    * @return void
    */
   protected function setupClass($class) {
-    foreach ($this->actionsFor($class, TestClassAction::class) as $pos => $action) {
-      $key= nameof($action).'#'.$pos;
-      $this->before[$key]= function() use($class, $action) { $action->beforeTestClass($class); };
-      $this->after[$key]= function() use($class, $action) { $action->afterTestClass($class); };
+    if ($class->hasAnnotation('action')) {
+      $annotation= $class->getAnnotation('action');
+      $actions= is_array($annotation) ? $annotation : [$annotation];
+      foreach ($actions as $pos => $action) {
+        if ($action instanceof TestClassAction) {
+          $key= nameof($action).'#'.$pos;
+          $this->before[$key]= function() use($class, $action) { $action->beforeTestClass($class); };
+          $this->after[$key]= function() use($class, $action) { $action->afterTestClass($class); };
+        }
+      }
     }
   }
 
