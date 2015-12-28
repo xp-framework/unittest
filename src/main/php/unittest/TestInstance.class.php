@@ -16,15 +16,14 @@ class TestInstance extends TestGroup {
    */
   public function __construct($instance) {
     $class= typeof($instance);
+    $before= $after= [];
 
     try {
-      $this->setupMethod($class->getMethod($instance->name));
+      $this->target= new TestTarget($instance, $class->getMethod($instance->name), $before, $after);
     } catch (ElementNotFoundException $e) {
       throw new MethodNotImplementedException('Test method does not exist', $instance->name);
     }
 
-    $before= $after= [];
-    $this->target= new TestTarget($instance, $before, $after);
     foreach ($class->getMethods() as $method) {
       $this->withMethod($method, $before, $after);
     }

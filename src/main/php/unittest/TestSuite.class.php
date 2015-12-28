@@ -263,17 +263,15 @@ class TestSuite extends \lang\Object {
   protected function runTarget($target, $result) {
     $test= $target->instance();
 
-    $class= $test->getClass();
-    $method= $class->getMethod($test->name);
     $this->notifyListeners('testStarted', [$test]);
-    
-    // Check for @ignore
-    if ($method->hasAnnotation('ignore')) {
-      $this->notifyListeners('testNotRun', [
-        $result->set($test, new TestNotRun($test, $method->getAnnotation('ignore')))
-      ]);
+
+    if ($ignored= $target->ignored()) {
+      $this->notifyListeners('testNotRun', [$result->set($test, new TestNotRun($test, $ignored['reason']))]);
       return;
     }
+
+    $class= $test->getClass();
+    $method= $class->getMethod($test->name);
 
     // Check for @expect
     $expected= null;

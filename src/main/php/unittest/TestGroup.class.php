@@ -66,24 +66,6 @@ abstract class TestGroup extends \lang\Object {
   }
 
   /**
-   * Verify no special method, e.g. setUp() or tearDown() is overwritten.
-   *
-   * @param  lang.reflect.Method
-   * @throws lang.IllegalStateException
-   * @return void
-   */
-  protected function setupMethod($method) {
-    if (self::$base->hasMethod($method->getName())) {
-      throw new IllegalStateException(sprintf(
-        'Cannot override %s::%s with test method in %s',
-        self::$base->getName(),
-        $method->getName(),
-        $method->getDeclaringClass()->getName()
-      ));
-    }
-  }
-
-  /**
    * Sets up before and after for class based on `@action` annotation.
    *
    * @param  lang.XPClass

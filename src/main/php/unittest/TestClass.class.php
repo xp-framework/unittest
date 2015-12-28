@@ -22,9 +22,8 @@ class TestClass extends TestGroup {
     $before= $after= [];
     foreach ($class->getMethods() as $method) {
       if ($method->hasAnnotation('test')) {
-        $this->setupMethod($method);
         $instance= $class->getConstructor()->newInstance(array_merge((array)$method->getName(), $arguments));
-        $this->targets[]= new TestTarget($instance, $before, $after);
+        $this->targets[]= new TestTarget($instance, $method, $before, $after);
       } else {
         $this->withMethod($method, $before, $after);
       }
