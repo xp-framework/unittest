@@ -125,41 +125,6 @@ class TestSuite extends \lang\Object {
   /**
    * Returns values
    *
-   * @param  unittest.TestCase test
-   * @param  var annotation
-   * @return var values a traversable structure
-   */
-  protected function valuesFor($test, $annotation) {
-    if (!is_array($annotation)) {               // values("source")
-      $source= $annotation;
-      $args= [];
-    } else if (isset($annotation['source'])) {  // values(source= "src" [, args= ...])
-      $source= $annotation['source'];
-      $args= isset($annotation['args']) ? $annotation['args'] : [];
-    } else {                                    // values([1, 2, 3])
-      return $annotation;
-    }
-
-    // Route "ClassName::methodName" -> static method of the given class,
-    // "self::method" -> static method of the test class, and "method" 
-    // -> the run test's instance method
-    if (false === ($p= strpos($source, '::'))) {
-      return $test->getClass()->getMethod($source)->setAccessible(true)->invoke($test, $args);
-    }
-    $ref= substr($source, 0, $p);
-    if ('self' === $ref) {
-      $class= $test->getClass();
-    } else if (strstr($ref, '.')) {
-      $class= XPClass::forName($ref);
-    } else {
-      $class= new XPClass($ref);
-    }
-    return $class->getMethod(substr($source, $p+ 2))->invoke(null, $args);
-  }
-
-  /**
-   * Returns values
-   *
    * @param  var annotatable
    * @param  string impl The interface which must've been implemented
    * @return var[]
@@ -273,31 +238,10 @@ class TestSuite extends \lang\Object {
     $class= $test->getClass();
     $method= $class->getMethod($test->name);
 
-    // Check for @expect
-    $expected= null;
-    if ($method->hasAnnotation('expect', 'class')) {
-      $message= $method->getAnnotation('expect', 'withMessage');
-      if ('/' === $message{0}) {
-        $pattern= $message;
-      } else {
-        $pattern= '/'.preg_quote($message, '/').'/';
-      }
-      $expected= [XPClass::forName($method->getAnnotation('expect', 'class')), $pattern];
-    } else if ($method->hasAnnotation('expect')) {
-      $expected= [XPClass::forName($method->getAnnotation('expect')), null];
-    }
-    
-    // Check for @limit
-    $eta= 0;
-    if ($method->hasAnnotation('limit')) {
-      $eta= $method->getAnnotation('limit', 'time');
-    }
-
-    // Check for @values
-    if ($method->hasAnnotation('values')) {
-      $annotation= $method->getAnnotation('values');
+    $variations= $target->variations();
+    if ($variations) {
       $variation= true;
-      $values= $this->valuesFor($test, $annotation);
+      $values= $variations;
     } else {
       $variation= false;
       $values= [[]];
@@ -375,12 +319,15 @@ class TestSuite extends \lang\Object {
 
       $timer->stop();
 
+      $expected= $target->expects();
+      $eta= $target->limit();
+
       if ($e) {
         if ($expected && $expected[0]->isInstance($e)) {
-          if ($eta && $timer->elapsedTime() > $eta) {
+          if ($eta && $timer->elapsedTime() > $eta['time']) {
             $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
               'Test runtime of %.3f seconds longer than eta of %.3f seconds',
-              [$timer->elapsedTime(), $eta]
+              [$timer->elapsedTime(), $eta['time']]
             )));
           } else if ($expected[1] && !preg_match($expected[1], $e->getMessage())) {
             $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
@@ -411,10 +358,10 @@ class TestSuite extends \lang\Object {
         )));
       } else if (sizeof(\xp::$errors) > 0) {
         $report('testWarning', TestWarning::class, $this->formatErrors(\xp::$errors));
-      } else if ($eta && $timer->elapsedTime() > $eta) {
+      } else if ($eta && $timer->elapsedTime() > $eta['time']) {
         $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
           'Test runtime of %.3f seconds longer than eta of %.3f seconds',
-          [$timer->elapsedTime(), $eta]
+          [$timer->elapsedTime(), $eta['time']]
         )));
       } else {
         $this->notifyListeners('testSucceeded', [$result->setSucceeded($t, $timer->elapsedTime())]);
