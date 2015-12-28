@@ -22,6 +22,11 @@ class TestSuite extends \lang\Object {
   public $tests= [];
   protected $order= [];
   protected $listeners= [];
+  private static $base;
+
+  static function __static() {
+    self::$base= new XPClass(TestCase::class);
+  }
 
   /**
    * Add a test
@@ -39,11 +44,10 @@ class TestSuite extends \lang\Object {
     $className= nameof($test);
     
     // Verify no special method, e.g. setUp() or tearDown() is overwritten.
-    $base= XPClass::forName('unittest.TestCase');
-    if ($base->hasMethod($test->name)) {
+    if (self::$base->hasMethod($test->name)) {
       throw new IllegalStateException(sprintf(
         'Cannot override %s::%s with test method in %s',
-        $base->getName(),
+        self::$base->getName(),
         $test->name,
         $test->getClass()->getMethod($test->name)->getDeclaringClass()->getName()
       ));
@@ -65,8 +69,7 @@ class TestSuite extends \lang\Object {
    * @throws  util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function addTestClass($class, $arguments= []) {
-    $base= XPClass::forName('unittest.TestCase');
-    if (!$class->isSubclassOf($base)) {
+    if (!$class->isSubclassOf(self::$base)) {
       throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
     }
 
@@ -79,12 +82,12 @@ class TestSuite extends \lang\Object {
       if (!$m->hasAnnotation('test')) continue;
       
       // Verify no special method, e.g. setUp() or tearDown() is overwritten.
-      if ($base->hasMethod($m->getName())) {
+      if (self::$base->hasMethod($m->getName())) {
         $this->tests= $tests;
         $this->order= $order;
         throw new IllegalStateException(sprintf(
           'Cannot override %s::%s with test method in %s',
-          $base->getName(),
+          self::$base->getName(),
           $m->getName(),
           $m->getDeclaringClass()->getName()
         ));
