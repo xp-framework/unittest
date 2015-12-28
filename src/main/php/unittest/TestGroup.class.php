@@ -8,7 +8,7 @@ abstract class TestGroup extends \lang\Object {
   protected $before= [];
   protected $after= [];
 
-  private static $base;
+  protected static $base;
 
   static function __static() {
     self::$base= new XPClass(TestCase::class);
@@ -67,7 +67,7 @@ abstract class TestGroup extends \lang\Object {
    * @throws lang.IllegalStateException
    * @return void
    */
-  protected function verifyMethod($method) {
+  protected function setupMethod($method) {
     if (self::$base->hasMethod($method->getName())) {
       throw new IllegalStateException(sprintf(
         'Cannot override %s::%s with test method in %s',
@@ -78,11 +78,14 @@ abstract class TestGroup extends \lang\Object {
     }
   }
 
-  protected function verifyClass($class) {
-    if (!$class->isSubclassOf(self::$base)) {
-      throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
-    }
-
+  /**
+   * Sets up before and after for class based on `@action` annotation.
+   *
+   * @param  lang.XPClass
+   * @throws lang.IllegalStateException
+   * @return void
+   */
+  protected function setupClass($class) {
     foreach ($this->actionsFor($class, TestClassAction::class) as $pos => $action) {
       $key= nameof($action).'#'.$pos;
       $this->before[$key]= function() use($class, $action) { $action->beforeTestClass($class); };

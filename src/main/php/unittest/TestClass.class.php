@@ -7,11 +7,22 @@ class TestClass extends TestGroup {
 
   static function __static() { }
 
+  /**
+   * Creates a group based on a class with various test methods
+   *
+   * @param  lang.XPClass $instance
+   * @param  var[] $args
+   * @throws unittest.IllegalArgumentException
+   */
   public function __construct($class, $arguments) {
+    if (!$class->isSubclassOf(self::$base)) {
+      throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
+    }
+
     $before= $after= [];
     foreach ($class->getMethods() as $method) {
       if ($method->hasAnnotation('test')) {
-        $this->verifyMethod($method);
+        $this->setupMethod($method);
         $instance= $class->getConstructor()->newInstance(array_merge((array)$method->getName(), $arguments));
         $this->targets[]= new TestTarget($instance, $before, $after);
       } else {
@@ -19,7 +30,7 @@ class TestClass extends TestGroup {
       }
     }
 
-    $this->verifyClass($class);
+    $this->setupClass($class);
   }
 
   /** @return bool */

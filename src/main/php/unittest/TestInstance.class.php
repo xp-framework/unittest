@@ -8,11 +8,17 @@ class TestInstance extends TestGroup {
 
   static function __static() { }
 
-  public function __construct(TestCase $instance) {
+  /**
+   * Creates a group based on a single testcase instance
+   *
+   * @param  unittest.TestCase $instance
+   * @throws unittest.MethodNotImplementedException
+   */
+  public function __construct($instance) {
     $class= typeof($instance);
 
     try {
-      $this->verifyMethod($class->getMethod($instance->name));
+      $this->setupMethod($class->getMethod($instance->name));
     } catch (ElementNotFoundException $e) {
       throw new MethodNotImplementedException('Test method does not exist', $instance->name);
     }
@@ -23,7 +29,7 @@ class TestInstance extends TestGroup {
       $this->withMethod($method, $before, $after);
     }
 
-    $this->verifyClass($class);
+    $this->setupClass($class);
   }
 
   /** @return bool */
