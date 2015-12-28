@@ -235,22 +235,10 @@ class TestSuite extends \lang\Object {
       return;
     }
 
-    $class= $test->getClass();
-    $method= $class->getMethod($test->name);
-
-    $variations= $target->variations();
-    if ($variations) {
-      $variation= true;
-      $values= $variations;
-    } else {
-      $variation= false;
-      $values= [[]];
-    }
-
     // Check for @actions
     $actions= array_merge(
-      $this->actionsFor($class, 'unittest.TestAction'),
-      $this->actionsFor($method, 'unittest.TestAction')
+      $this->actionsFor($test->getClass(), 'unittest.TestAction'),
+      $this->actionsFor($target->method(), 'unittest.TestAction')
     );
 
     $timer= new Timer();
@@ -260,8 +248,8 @@ class TestSuite extends \lang\Object {
       \xp::gc();
     };
     \xp::gc();
-    foreach ($values as $args) {
-      $t= $variation ? new TestVariation($test, $args) : $test;
+    foreach ($target->variations() as $variation) {
+      $t= $variation[0];
       $timer->start();
 
       $tearDown= function($test, $error) { return $error; };
@@ -299,7 +287,7 @@ class TestSuite extends \lang\Object {
         };
 
         // Run test
-        $method->invoke($test, is_array($args) ? $args : [$args]);
+        $target->method()->invoke($test, $variation[1]);
         $e= $tearDown($test, null);
       } catch (TargetInvocationException $invoke) {
         $e= $tearDown($test, $invoke->getCause());

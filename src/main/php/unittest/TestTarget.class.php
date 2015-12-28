@@ -4,10 +4,11 @@ use lang\XPClass;
 use lang\IllegalStateException;
 
 class TestTarget extends \lang\Object {
-  private $instance, $ignored, $expects, $limit, $variations;
+  private $instance, $method;
+  private $ignored, $expects, $limit, $variations;
   private $before, $after;
 
-  protected static $base;
+  private static $base;
 
   static function __static() {
     self::$base= new XPClass(TestCase::class);
@@ -15,9 +16,11 @@ class TestTarget extends \lang\Object {
 
   public function __construct($instance, $method, &$before, &$after) {
     $this->instance= $instance;
-    $this->setupMethod($method);
+    $this->method= $method;
     $this->before= &$before;
     $this->after= &$after;
+
+    $this->setupMethod($method);
   }
 
   /**
@@ -27,7 +30,7 @@ class TestTarget extends \lang\Object {
    * @param  var annotation
    * @return var values a traversable structure
    */
-  protected function valuesFor($test, $annotation) {
+  private function valuesFor($test, $annotation) {
     if (!is_array($annotation)) {               // values("source")
       $source= $annotation;
       $args= [];
@@ -44,6 +47,7 @@ class TestTarget extends \lang\Object {
     if (false === ($p= strpos($source, '::'))) {
       return $test->getClass()->getMethod($source)->setAccessible(true)->invoke($test, $args);
     }
+
     $ref= substr($source, 0, $p);
     if ('self' === $ref) {
       $class= $test->getClass();
@@ -62,7 +66,7 @@ class TestTarget extends \lang\Object {
    * @throws lang.IllegalStateException
    * @return var
    */
-  protected function setupMethod($method) {
+  private function setupMethod($method) {
     if (self::$base->hasMethod($method->getName())) {
       throw new IllegalStateException(sprintf(
         'Cannot override %s::%s with test method in %s',
@@ -98,14 +102,19 @@ class TestTarget extends \lang\Object {
 
     // Check for @values
     if ($method->hasAnnotation('values')) {
-      $annotation= $method->getAnnotation('values');
-      $this->variations= $this->valuesFor($this->instance, $annotation);
+      $this->variations= [];
+      foreach ($this->valuesFor($this->instance, $method->getAnnotation('values')) as $args) {
+        $this->variations[]= [new TestVariation($this->instance, $args), is_array($args) ? $args : [$args]];
+      }
     } else {
-      $this->variations= null;
+      $this->variations= [[$this->instance, []]];
     }
   }
 
+  /** @return unittest.TestCase */
   public function instance() { return $this->instance; }
+
+  public function method() { return $this->method; }
 
   public function ignored() { return $this->ignored; }
 

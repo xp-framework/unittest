@@ -11,8 +11,8 @@ class TestVariation extends TestCase {
   /**
    * Constructor
    *
-   * @param   unittest.TestCase base
-   * @param   var[] args
+   * @param  unittest.TestCase $base
+   * @param  var[] $args
    */
   public function __construct($base, $args) {
     $uniq= '';
