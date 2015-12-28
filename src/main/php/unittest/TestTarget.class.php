@@ -5,7 +5,7 @@ use lang\IllegalStateException;
 
 class TestTarget extends \lang\Object {
   private $instance, $method;
-  private $ignored, $expects, $limit, $variations;
+  private $ignored, $expects, $limit, $variations, $actions= [];
   private $before, $after;
 
   private static $base;
@@ -109,6 +109,27 @@ class TestTarget extends \lang\Object {
     } else {
       $this->variations= [[$this->instance, []]];
     }
+
+    // Class actions
+    $class= typeof($this->instance);
+    if ($class->hasAnnotation('action')) {
+      $annotation= $class->getAnnotation('action');
+      $actions= is_array($annotation) ? $annotation : [$annotation];
+      foreach ($actions as $pos => $action) {
+        if ($action instanceof TestAction) {
+          $this->actions[]= $action;
+        }
+      }
+    }
+
+    // Method actions
+    if ($method->hasAnnotation('action')) {
+      $annotation= $method->getAnnotation('action');
+      $actions= is_array($annotation) ? $annotation : [$annotation];
+      foreach ($actions as $pos => $action) {
+        $this->actions[]= $action;
+      }
+    }
   }
 
   /** @return unittest.TestCase */
@@ -123,6 +144,8 @@ class TestTarget extends \lang\Object {
   public function limit() { return $this->limit; }
 
   public function variations() { return $this->variations; }
+
+  public function actions() { return $this->actions; }
 
   public function before() { return $this->before; }
 

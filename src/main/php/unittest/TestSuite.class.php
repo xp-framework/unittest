@@ -123,29 +123,6 @@ class TestSuite extends \lang\Object {
   }
 
   /**
-   * Returns values
-   *
-   * @param  var annotatable
-   * @param  string impl The interface which must've been implemented
-   * @return var[]
-   */
-  protected function actionsFor($annotatable, $impl) {
-    $r= [];
-    if ($annotatable->hasAnnotation('action')) {
-      $action= $annotatable->getAnnotation('action');
-      $type= XPClass::forName($impl);
-      if (is_array($action)) {
-        foreach ($action as $a) {
-          if ($type->isInstance($a)) $r[]= $a;
-        }
-      } else {
-        if ($type->isInstance($action)) $r[]= $action;
-      }
-    }
-    return $r;
-  }
-  
-  /**
    * Format errors from xp registry
    *
    * @param   [:string[]] registry
@@ -235,11 +212,7 @@ class TestSuite extends \lang\Object {
       return;
     }
 
-    // Check for @actions
-    $actions= array_merge(
-      $this->actionsFor($test->getClass(), 'unittest.TestAction'),
-      $this->actionsFor($target->method(), 'unittest.TestAction')
-    );
+    $actions= $target->actions();
 
     $timer= new Timer();
     $report= function($type, $outcome, $arg) use($result, $timer, &$t) {
