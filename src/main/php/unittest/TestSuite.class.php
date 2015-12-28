@@ -497,9 +497,9 @@ class TestSuite extends \lang\Object {
    * @return  string
    */
   public function toString() {
-    $s= nameof($this).'['.sizeof($this->tests)."]@{\n";
-    foreach ($this->tests as $test) {
-      $s.= '  '.$test->toString()."\n";
+    $s= nameof($this)."@{\n";
+    foreach ($this->groups as $group) {
+      $s.= '  '.$group->toString()."\n";
     }
     return $s.'}';
   }
