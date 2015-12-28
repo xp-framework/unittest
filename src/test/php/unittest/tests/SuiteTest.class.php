@@ -343,7 +343,7 @@ class SuiteTest extends TestCase {
       '#[@test] fixture' => function() { throw new \Exception('Test'); }
     ]);
     $this->assertInstanceOf(
-      'lang.Throwable',
+      'lang.XPException',
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason
     );
   }
