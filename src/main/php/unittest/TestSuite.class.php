@@ -223,13 +223,14 @@ class TestSuite extends \lang\Object {
     \xp::gc();
     foreach ($target->variations() as $variation) {
       $t= $variation[0];
+      $args= $variation[1];
       $timer->start();
 
       $tearDown= function($test, $error) { return $error; };
       try {
 
         // Before and after tests
-        foreach ($actions as $action) {
+        foreach ($target->actions() as $action) {
           $this->invoke([$action, 'beforeTest'], $test);
           $tearDown= function($test, $error) use($tearDown, $action) {
             $propagated= $tearDown($test, $error);
@@ -260,7 +261,7 @@ class TestSuite extends \lang\Object {
         };
 
         // Run test
-        $target->method()->invoke($test, $variation[1]);
+        $target->method()->invoke($test, is_array($args) ?  $args : [$args]);
         $e= $tearDown($test, null);
       } catch (TargetInvocationException $invoke) {
         $e= $tearDown($test, $invoke->getCause());

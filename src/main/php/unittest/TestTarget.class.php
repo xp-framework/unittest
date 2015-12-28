@@ -5,7 +5,7 @@ use lang\IllegalStateException;
 
 class TestTarget extends \lang\Object {
   private $instance, $method;
-  private $ignored, $expects, $limit, $variations, $actions= [];
+  private $ignored= null, $expects= null, $limit= null, $variations= [], $actions= [];
   private $before, $after;
 
   private static $base;
@@ -78,8 +78,6 @@ class TestTarget extends \lang\Object {
 
     if ($method->hasAnnotation('ignore')) {
       $this->ignored= ['reason' => $method->getAnnotation('ignore')];
-    } else {
-      $this->ignored= null; 
     }
 
     // Check for @expect
@@ -93,21 +91,16 @@ class TestTarget extends \lang\Object {
       $this->expects= [XPClass::forName($method->getAnnotation('expect', 'class')), $pattern];
     } else if ($method->hasAnnotation('expect')) {
       $this->expects= [XPClass::forName($method->getAnnotation('expect')), null];
-    } else {
-      $this->expects= null;
     }
 
     // Check for @limit
-    $this->limit= $method->hasAnnotation('limit') ? $method->getAnnotation('limit') : null;
+    if ($method->hasAnnotation('limit')) {
+      $this->limit= $method->getAnnotation('limit');
+    }
 
     // Check for @values
     if ($method->hasAnnotation('values')) {
-      $this->variations= [];
-      foreach ($this->valuesFor($this->instance, $method->getAnnotation('values')) as $args) {
-        $this->variations[]= [new TestVariation($this->instance, $args), is_array($args) ? $args : [$args]];
-      }
-    } else {
-      $this->variations= [[$this->instance, []]];
+      $this->variations= $method->getAnnotation('values');
     }
 
     // Class actions
@@ -115,7 +108,7 @@ class TestTarget extends \lang\Object {
     if ($class->hasAnnotation('action')) {
       $annotation= $class->getAnnotation('action');
       $actions= is_array($annotation) ? $annotation : [$annotation];
-      foreach ($actions as $pos => $action) {
+      foreach ($actions as $action) {
         if ($action instanceof TestAction) {
           $this->actions[]= $action;
         }
@@ -126,7 +119,7 @@ class TestTarget extends \lang\Object {
     if ($method->hasAnnotation('action')) {
       $annotation= $method->getAnnotation('action');
       $actions= is_array($annotation) ? $annotation : [$annotation];
-      foreach ($actions as $pos => $action) {
+      foreach ($actions as $action) {
         $this->actions[]= $action;
       }
     }
@@ -143,7 +136,16 @@ class TestTarget extends \lang\Object {
 
   public function limit() { return $this->limit; }
 
-  public function variations() { return $this->variations; }
+  /** @return php.Generator */
+  public function variations() {
+    if ($this->variations) {
+      foreach ($this->valuesFor($this->instance, $this->variations) as $args) {
+        yield [new TestVariation($this->instance, $args), $args];
+      }
+    } else {
+      yield [$this->instance, []];
+    }
+  }
 
   public function actions() { return $this->actions; }
 
