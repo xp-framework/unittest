@@ -205,6 +205,8 @@ class TestSuite extends \lang\Object {
   protected function runTarget($target, $result) {
     $test= $target->instance();
 
+    $this->notifyListeners('testStarted', [$test]);
+
     if ($ignored= $target->ignored()) {
       $this->notifyListeners('testNotRun', [$result->set($test, new TestNotRun($test, $ignored['reason']))]);
       return;
@@ -221,8 +223,6 @@ class TestSuite extends \lang\Object {
     \xp::gc();
     foreach ($target->variations() as $variation) {
       $t= $variation[0];
-
-      $this->notifyListeners('testStarted', [$t]);
       $timer->start();
 
       $tearDown= function($test, $error) { return $error; };
