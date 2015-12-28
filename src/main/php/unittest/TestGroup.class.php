@@ -46,17 +46,22 @@ abstract class TestGroup extends \lang\Object {
    * @return void
    */
   protected function withMethod($method, &$before, &$after) {
-    $annotations= $method->getAnnotations();
     $name= $method->getName();
-
     if ('setUp' === $name) {
       $before[$name]= function($object) use($method) { $method->invoke($object, []); };
-    } else if (array_key_exists('beforeClass', $annotations)) {
-      $this->before[$name]= function($object) use($method) { $method->invoke($object, []); };
+      return;
     } else if ('tearDown' === $name) {
       $after[$name]= function($object) use($method) { $method->invoke($object, []); };
+      return;
+    }
+
+    $annotations= $method->getAnnotations();
+    if (array_key_exists('beforeClass', $annotations)) {
+      $this->before[$name]= function($object) use($method) { $method->invoke($object, []); };
+      return;
     } else if (array_key_exists('afterClass', $annotations)) {
       $this->after[$name]= function($object) use($method) { $method->invoke($object, []); };
+      return;
     }
   }
 
