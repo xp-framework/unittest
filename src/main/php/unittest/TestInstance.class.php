@@ -1,15 +1,11 @@
 <?php namespace unittest;
 
 use lang\IllegalStateException;
-use lang\XPClass;
 
-class TestInstance {
+class TestInstance extends TestGroup {
   private $instance;
-  private static $base;
 
-  static function __static() {
-    self::$base= new XPClass(TestCase::class);
-  }
+  static function __static() { }
 
   /**
    * Creates an instance from a testcase

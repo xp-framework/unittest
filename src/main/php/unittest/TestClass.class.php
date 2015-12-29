@@ -1,16 +1,12 @@
 <?php namespace unittest;
 
 use lang\IllegalStateException;
-use lang\XPClass;
 use util\NoSuchElementException;
 
-class TestClass {
+class TestClass extends TestGroup {
   private $class, $arguments;
-  private static $base;
 
-  static function __static() {
-    self::$base= new XPClass(TestCase::class);
-  }
+  static function __static() { }
 
   /**
    * Creates an instance from a testcase
