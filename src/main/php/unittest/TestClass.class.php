@@ -34,7 +34,7 @@ class TestClass extends TestGroup {
             $method->getDeclaringClass()->getName()
           ));
         }
-        $this->testMethods[]= $method;
+        $this->testMethods[]= $method->getName();
       }
     }
 
@@ -52,9 +52,9 @@ class TestClass extends TestGroup {
   /** @return php.Generator */
   public function tests() {
     $constructor= $this->class->getConstructor();
-    foreach ($this->testMethods as $method) {
+    foreach ($this->testMethods as $name) {
       yield $constructor->newInstance(array_merge(
-        [$method->getName()],
+        [$name],
         (array)$this->arguments
       ));
     }
