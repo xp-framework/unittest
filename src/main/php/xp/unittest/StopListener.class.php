@@ -25,7 +25,7 @@ class StopListener implements \unittest\TestListener {
   /**
    * Stop on certain events
    *
-   * @param  int $events $Bitfield of FAIL and SKIP
+   * @param  int $events Bitfield of FAIL, SKIP and IGNORE constants
    */
   public function __construct($events) {
     $this->events= $events;
