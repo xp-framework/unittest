@@ -83,6 +83,8 @@ Expected exceptions
 The `@expect` annotation is a shorthand for catching exceptions and verifying their type manually.
 
 ```php
+use lang\IllegalArgumentException;
+
 class CalculatorTest extends \unittest\TestCase {
 
   #[@test, @expect(IllegalArgumentException::class)]
@@ -97,6 +99,8 @@ Parameterization
 The `@values` annotation can be used to run a test with a variety of values which are passed as parameters.
 
 ```php
+use lang\IllegalArgumentException;
+
 class CalculatorTest extends \unittest\TestCase {
 
   #[@test, @expect(IllegalArgumentException::class), @values([1, 0, -1])]
