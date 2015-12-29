@@ -21,6 +21,7 @@ use lang\reflect\TargetInvocationException;
 class TestSuite extends \lang\Object {
   protected $listeners= [];
   private $sources= [];
+  private $numTests= 0;
 
   /**
    * Add a test
@@ -49,22 +50,20 @@ class TestSuite extends \lang\Object {
     $this->sources[$class->getName()][]= new TestClass($class, $arguments);
     return $class;
   }
-  
+
   /**
    * Returns number of tests in this suite
    *
    * @return  int
    */
   public function numTests() {
-    $num= 0;
+    $numTests= 0;
     foreach ($this->sources as $classname => $sources) {
       foreach ($sources as $source) {
-        foreach ($source->tests() as $test) {
-          $num++;
-        }
+        $numTests+= $source->numTests();
       }
     }
-    return $num;
+    return $numTests;
   }
   
   /**

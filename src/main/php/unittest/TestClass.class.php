@@ -46,6 +46,9 @@ class TestClass extends TestGroup {
     $this->arguments= $arguments;
   }
 
+  /** @return int */
+  public function numTests() { return sizeof($this->testMethods); }
+
   /** @return php.Generator */
   public function tests() {
     foreach ($this->testMethods as $method) {

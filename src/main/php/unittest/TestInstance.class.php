@@ -32,6 +32,9 @@ class TestInstance extends TestGroup {
     $this->instance= $instance;
   }
 
+  /** @return int */
+  public function numTests() { return 1; }
+
   /** @return php.Generator */
   public function tests() {
     yield $this->instance;
