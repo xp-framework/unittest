@@ -345,14 +345,7 @@ class Runner {
 
     foreach ($sources as $source) {
       try {
-        if (method_exists($source, 'provideTo')) {
-          $source->provideTo($suite, $arguments);
-        } else {
-          $tests= $source->testCasesWith($arguments);
-          foreach ($tests as $test) {
-            $suite->addTest($test);
-          }
-        }
+        $source->provideTo($suite, $arguments);
       } catch (NoSuchElementException $e) {
         $this->err->writeLine('*** Warning: ', $e->getMessage());
         continue;
