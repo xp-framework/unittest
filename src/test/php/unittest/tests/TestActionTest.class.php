@@ -91,11 +91,14 @@ class TestActionTest extends TestCase {
   #[@test]
   public function invocation_order_with_class_annotation() {
     $this->suite->addTestClass(XPClass::forName('unittest.tests.TestWithAction'));
-    $this->suite->run();
-    $this->assertEquals(
-      ['before', 'one', 'after', 'before', 'two', 'after'],
-      array_merge($this->suite->testAt(0)->run, $this->suite->testAt(1)->run)
-    );
+
+    $r= $this->suite->run();
+    $result= [];
+    foreach ($r->succeeded as $outcome) {
+      $result= array_merge($result, $outcome->test->run);
+    }
+
+    $this->assertEquals(['before', 'one', 'after', 'before', 'two', 'after'], $result );
   }
 
   #[@test]
