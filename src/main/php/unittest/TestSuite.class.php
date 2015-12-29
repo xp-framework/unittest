@@ -33,7 +33,7 @@ class TestSuite extends \lang\Object {
    * @throws  lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function addTest(TestCase $test) {
-    $this->sources[nameof($test)][]= new TestInstance($test);
+    $this->sources[get_class($test)][]= new TestInstance($test);
     return $test;
   }
 
@@ -47,7 +47,7 @@ class TestSuite extends \lang\Object {
    * @throws  util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function addTestClass($class, $arguments= []) {
-    $this->sources[$class->getName()][]= new TestClass($class, $arguments);
+    $this->sources[$class->literal()][]= new TestClass($class, $arguments);
     return $class;
   }
 
@@ -484,7 +484,7 @@ class TestSuite extends \lang\Object {
 
     $result= new TestResult();
     foreach ($this->sources as $classname => $groups) {
-      $class= XPClass::forName($classname);
+      $class= new XPClass($classname);
 
       // Run all tests in this class
       try {
