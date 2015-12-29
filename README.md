@@ -49,7 +49,9 @@ public void assertNull(var $actual, [string $error= "==="])
 public void assertInstanceOf(var $type, var $actual, [string $error= "instanceof"])
 ```
 
-If you need more than that, you can use [xp-forge/assert](https://github.com/xp-forge/assert) on top of this library.
+To manually skip a test, call `$this->fail('Reason')` anywhere inside your test code.
+
+*If you need more than that, you can use [xp-forge/assert](https://github.com/xp-forge/assert) on top of this library.*
 
 Setup and teardown
 ------------------
@@ -93,6 +95,22 @@ class CalculatorTest extends \unittest\TestCase {
   }
 }
 ```
+
+Ignoring tests
+--------------
+The `@ignore` annotation can be used to ignore tests. This can be necessary as a temporary measure or when overriding a test base class and not wanting to run one of its methods.
+
+```php
+class EncodingTest extends \unittest\TestCase {
+
+  #[@test, @ignore('Does not work with all iconv implementations')]
+  public function transliteration() {
+    /* ... */
+  }
+}
+```
+
+To manually skip a test, call `$this->skip('Reason')` anywhere inside your test code.
 
 Parameterization
 -----------------
