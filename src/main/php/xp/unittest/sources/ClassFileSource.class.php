@@ -2,12 +2,13 @@
 
 use io\File;
 use lang\IllegalArgumentException;
+use lang\ClassLoader;
 
 /**
  * Source that load tests from a class filename
  */
 class ClassFileSource extends AbstractSource {
-  protected $file= null;
+  private $loader, $uri;
   
   /**
    * Constructor
@@ -16,34 +17,36 @@ class ClassFileSource extends AbstractSource {
    * @throws  lang.IllegalArgumentException if the given file does not exist
    */
   public function __construct(File $file) {
-    if (!$file->exists()) {
-      throw new IllegalArgumentException('File "'.$file->getURI().'" does not exist!');
+    $uri= $file->getURI();
+    $cl= ClassLoader::getDefault()->findUri($uri);
+    if ($cl === null) {
+      throw new IllegalArgumentException('File "'.$uri.($file->exists()
+        ? '" is not in class path'
+        : '" not found'
+      ));
     }
-    $this->file= $file;
+
+    $this->loader= $cl;
+    $this->uri= $uri;
   }
 
   /**
-   * Get all test cases
+   * Provide tests to test suite
    *
-   * @param   var[] arguments
-   * @return  unittest.TestCase[]
+   * @param  unittest.TestSuite $suite
+   * @param  var[] $arguments
+   * @return void
    */
-  public function testCasesWith($arguments) {
-    $uri= $this->file->getURI();
-    $cl= \lang\ClassLoader::getDefault()->findUri($uri);
-    if (is(null, $cl)) {
-      throw new IllegalArgumentException('Cannot load class from '.$this->file->toString());
-    }
-
-    return $this->testCasesInClass($cl->loadUri($uri), $arguments);
+  public function provideTo($suite, $arguments) {
+    $suite->addTestClass($this->loader->loadUri($this->uri), $arguments);
   }
-  
+
   /**
    * Creates a string representation of this source
    *
-   * @return  string
+   * @return string
    */
   public function toString() {
-    return nameof($this).'['.$this->file->toString().']';
+    return nameof($this).'['.$this->loader->toString().']';
   }
 }

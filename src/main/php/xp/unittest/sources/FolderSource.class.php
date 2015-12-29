@@ -5,87 +5,76 @@ use io\collections\FileCollection;
 use io\collections\iterate\FilteredIOCollectionIterator;
 use io\collections\iterate\ExtensionEqualsFilter;
 use lang\IllegalArgumentException;
-use lang\XPClass;
+use lang\ClassLoader;
+use lang\FileSystemClassLoader;
 use lang\reflect\Modifiers;
+use unittest\TestCase;
 
 /**
  * Source that loads tests from test case classes inside a folder and
  * its subfolders.
  */
 class FolderSource extends AbstractSource {
-  protected $folder= null;
+  private $loader;
   
   /**
    * Constructor
    *
-   * @param   io.Folder folder
-   * @throws  lang.IllegalArgumentException if the given folder does not exist
+   * @param  io.Folder $folder
+   * @throws lang.IllegalArgumentException if the given folder does not exist or isn't in class path
    */
   public function __construct(Folder $folder) {
-    if (!$folder->exists()) {
-      throw new IllegalArgumentException('Folder "'.$folder->getURI().'" does not exist!');
+    $path= $folder->getURI();
+    foreach (ClassLoader::getLoaders() as $cl) {
+      if ($cl instanceof FileSystemClassLoader && 0 === strncmp($cl->path, $path, strlen($cl->path))) {
+        $this->loader= $cl;
+        return;
+      }
     }
-    $this->folder= $folder;
+
+    throw new IllegalArgumentException($folder->toString().($folder->exists()
+      ? ' is not in class path'
+      : ' does not exist'
+    ));
   }
 
   /**
-   * Find first classloader responsible for a given path
+   * Provide tests to test suite
    *
-   * @param   string path
-   * @return  lang.IClassLoader
+   * @param  unittest.TestSuite $suite
+   * @param  var[] $arguments
+   * @return void
+   * @throws lang.IllegalArgumentException if no tests are found
    */
-  protected function findLoaderFor($path) {
-    foreach (\lang\ClassLoader::getLoaders() as $cl) {
-      if (
-        $cl instanceof \lang\FileSystemClassLoader &&
-        0 === strncmp($cl->path, $path, strlen($cl->path))
-      ) return $cl;
-    }
-    return null;      
-  }
-
-  /**
-   * Get all test cases
-   *
-   * @param   var[] arguments
-   * @return  unittest.TestCase[]
-   */
-  public function testCasesWith($arguments) {
-    if (null === ($cl= $this->findLoaderFor($this->folder->getURI()))) {
-      throw new IllegalArgumentException($this->folder->toString().' is not in class path');
-    }
-    $l= strlen($cl->path);
-    $e= -strlen(\xp::CLASS_FILE_EXT);
-
+  public function provideTo($suite, $arguments) {
     $it= new FilteredIOCollectionIterator(
-      new FileCollection($this->folder),
+      new FileCollection($this->loader->path),
       new ExtensionEqualsFilter(\xp::CLASS_FILE_EXT),
       true  // recursive
     );
-    $cases= [];
-    foreach ($it as $element) {
-      $name= strtr(substr($element->getUri(), $l, $e), DIRECTORY_SEPARATOR, '.');
-      $class= XPClass::forName($name);
-      if (
-        !$class->isSubclassOf('unittest.TestCase') ||
-        Modifiers::isAbstract($class->getModifiers())
-      ) continue;
 
-      $cases= array_merge($cases, $this->testCasesInClass($class, $arguments));
+    $l= strlen($this->loader->path);
+    $e= -strlen(\xp::CLASS_FILE_EXT);
+    $empty= true;
+    foreach ($it as $element) {
+      $class= $this->loader->loadClass(strtr(substr($element->getUri(), $l, $e), DIRECTORY_SEPARATOR, '.'));
+      if ($class->isSubclassOf(TestCase::class) && !Modifiers::isAbstract($class->getModifiers())) {
+        $suite->addTestClass($class, $arguments);
+        $empty= false;
+      }
     }
 
-    if (empty($cases)) {
+    if ($empty) {
       throw new IllegalArgumentException('Cannot find any test cases in '.$this->folder->toString());
     }
-    return $cases;
   }
 
   /**
    * Creates a string representation of this source
    *
-   * @return  string
+   * @return string
    */
   public function toString() {
-    return nameof($this).'['.$this->folder->toString().']';
+    return nameof($this).'['.$this->loader->toString().']';
   }
 }
