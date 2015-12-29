@@ -6,6 +6,7 @@ use util\NoSuchElementException;
 
 class TestClass extends TestGroup {
   private $class, $arguments;
+  private $testMethods= [];
 
   static function __static() { }
 
@@ -23,7 +24,6 @@ class TestClass extends TestGroup {
       throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
     }
 
-    $empty= true;
     foreach ($class->getMethods() as $method) {
       if ($method->hasAnnotation('test')) {
         if (self::$base->hasMethod($method->getName())) {
@@ -34,11 +34,11 @@ class TestClass extends TestGroup {
             $method->getDeclaringClass()->getName()
           ));
         }
-        $empty= false;
+        $this->testMethods[]= $method;
       }
     }
 
-    if ($empty) {
+    if (empty($this->testMethods)) {
       throw new NoSuchElementException('No tests found in '.$class->getName());
     }
 
@@ -48,13 +48,11 @@ class TestClass extends TestGroup {
 
   /** @return php.Generator */
   public function tests() {
-    foreach ($this->class->getMethods() as $method) {
-      if ($method->hasAnnotation('test')) {
-        yield $this->class->getConstructor()->newInstance(array_merge(
-          [$method->getName()],
-          (array)$this->arguments
-        ));
-      }
+    foreach ($this->testMethods as $method) {
+      yield $this->class->getConstructor()->newInstance(array_merge(
+        [$method->getName()],
+        (array)$this->arguments
+      ));
     }
   }
 }
