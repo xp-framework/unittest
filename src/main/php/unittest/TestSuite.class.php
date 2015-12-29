@@ -19,14 +19,9 @@ use lang\reflect\TargetInvocationException;
  * @see    http://junit.sourceforge.net/doc/testinfected/testing.htm
  */
 class TestSuite extends \lang\Object {
-  public $tests= [];
-  protected $order= [];
+  private $groups= [];
+  private $numTests= 0;
   protected $listeners= [];
-  private static $base;
-
-  static function __static() {
-    self::$base= new XPClass(TestCase::class);
-  }
 
   /**
    * Add a test
@@ -38,24 +33,8 @@ class TestSuite extends \lang\Object {
    * @throws  lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function addTest(TestCase $test) {
-    if (!$test->getClass()->hasMethod($test->name)) {
-      throw new MethodNotImplementedException('Test method does not exist', $test->name);
-    }
-    $className= nameof($test);
-    
-    // Verify no special method, e.g. setUp() or tearDown() is overwritten.
-    if (self::$base->hasMethod($test->name)) {
-      throw new IllegalStateException(sprintf(
-        'Cannot override %s::%s with test method in %s',
-        self::$base->getName(),
-        $test->name,
-        $test->getClass()->getMethod($test->name)->getDeclaringClass()->getName()
-      ));
-    }
-    
-    if (!isset($this->order[$className])) $this->order[$className]= [];
-    $this->order[$className][]= sizeof($this->tests);
-    $this->tests[]= $test;
+    $this->groups[]= new TestInstance($test);
+    $this->numTests++;
     return $test;
   }
 
@@ -69,42 +48,13 @@ class TestSuite extends \lang\Object {
    * @throws  util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function addTestClass($class, $arguments= []) {
-    if (!$class->isSubclassOf(self::$base)) {
-      throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
-    }
-
-    $numBefore= $this->numTests();
-    $className= $class->getName();
-    $tests= $this->tests;
-    $order= $this->order;
-    if (!isset($this->order[$className])) $this->order[$className]= [];
-    foreach ($class->getMethods() as $m) {
-      if (!$m->hasAnnotation('test')) continue;
-      
-      // Verify no special method, e.g. setUp() or tearDown() is overwritten.
-      if (self::$base->hasMethod($m->getName())) {
-        $this->tests= $tests;
-        $this->order= $order;
-        throw new IllegalStateException(sprintf(
-          'Cannot override %s::%s with test method in %s',
-          self::$base->getName(),
-          $m->getName(),
-          $m->getDeclaringClass()->getName()
-        ));
-      }
-
-      $this->tests[]= $class->getConstructor()->newInstance(array_merge(
-        (array)$m->getName(true),
-        $arguments
-      ));
-      $this->order[$className][]= sizeof($this->tests)- 1;
-    }
-
-    if ($numBefore === $this->numTests()) {
-      if (empty($this->order[$className])) unset($this->order[$className]);
+    $target= new TestClass($class, $arguments);
+    if (!$target->hasTests()) {
       throw new NoSuchElementException('No tests found in '.$class->getName());
     }
 
+    $this->groups[]= $target;
+    $this->numTests+= $target->numTests();
     return $class;
   }
   
@@ -114,16 +64,17 @@ class TestSuite extends \lang\Object {
    * @return  int
    */
   public function numTests() {
-    return sizeof($this->tests);
+    return $this->numTests;
   }
   
   /**
    * Remove all tests
    *
+   * @return  void
    */
   public function clearTests() {
-    $this->tests= [];
-    $this->order= [];
+    $this->groups= [];
+    $this->numTests= 0;
   }
   
   /**
@@ -133,7 +84,13 @@ class TestSuite extends \lang\Object {
    * @return  unittest.TestCase or NULL if none was found
    */
   public function testAt($pos) {
-    if (isset($this->tests[$pos])) return $this->tests[$pos]; else return null;
+    $i= 0;
+    foreach ($this->groups as $group) {
+      foreach ($group->targets() as $target) {
+        if ($i++ === $pos) return $target->instance();
+      }
+    }
+    return null;
   }
   
   /**
@@ -166,61 +123,55 @@ class TestSuite extends \lang\Object {
   }
 
   /**
-   * Returns values
+   * Format errors from xp registry
    *
-   * @param  unittest.TestCase test
-   * @param  var annotation
-   * @return var values a traversable structure
+   * @param   [:string[]] registry
+   * @return  string[]
    */
-  protected function valuesFor($test, $annotation) {
-    if (!is_array($annotation)) {               // values("source")
-      $source= $annotation;
-      $args= [];
-    } else if (isset($annotation['source'])) {  // values(source= "src" [, args= ...])
-      $source= $annotation['source'];
-      $args= isset($annotation['args']) ? $annotation['args'] : [];
-    } else {                                    // values([1, 2, 3])
-      return $annotation;
+  protected function formatErrors($registry) {
+    $w= [];
+    foreach ($registry as $file => $lookup) {
+      foreach ($lookup as $line => $messages) {
+        foreach ($messages as $message => $detail) {
+          $w[]= sprintf(
+            '"%s" in %s::%s() (%s, line %d, occured %s)',
+            $message,
+            $detail['class'],
+            $detail['method'],
+            basename($file),
+            $line,
+            1 === $detail['cnt'] ? 'once' : $detail['cnt'].' times'
+          );
+        }
+      }
     }
-
-    // Route "ClassName::methodName" -> static method of the given class,
-    // "self::method" -> static method of the test class, and "method" 
-    // -> the run test's instance method
-    if (false === ($p= strpos($source, '::'))) {
-      return $test->getClass()->getMethod($source)->setAccessible(true)->invoke($test, $args);
+    return $w;
+  }
+  
+  /**
+   * Notify listeners
+   *
+   * @param  string $method
+   * @param  var[] $args
+   * @return void
+   */
+  protected function notifyListeners($method, $args) {
+    foreach ($this->listeners as $l) {
+      call_user_func_array([$l, $method], $args);
     }
-    $ref= substr($source, 0, $p);
-    if ('self' === $ref) {
-      $class= $test->getClass();
-    } else if (strstr($ref, '.')) {
-      $class= XPClass::forName($ref);
-    } else {
-      $class= new XPClass($ref);
-    }
-    return $class->getMethod(substr($source, $p+ 2))->invoke(null, $args);
   }
 
   /**
-   * Returns values
+   * Skip all targets
    *
-   * @param  var annotatable
-   * @param  string impl The interface which must've been implemented
-   * @return var[]
+   * @param  unittest.TestResult $result
+   * @param  unittest.TestTarget[] $targets
+   * @param  unittest.PrerequisitesNotMetError $error
    */
-  protected function actionsFor($annotatable, $impl) {
-    $r= [];
-    if ($annotatable->hasAnnotation('action')) {
-      $action= $annotatable->getAnnotation('action');
-      $type= XPClass::forName($impl);
-      if (is_array($action)) {
-        foreach ($action as $a) {
-          if ($type->isInstance($a)) $r[]= $a;
-        }
-      } else {
-        if ($type->isInstance($action)) $r[]= $action;
-      }
+  protected function skipAll($result, $targets, $error) {
+    foreach ($targets as $target) {
+      $this->notifyListeners('testSkipped', [$result->setSkipped($target->instance(), $error, 0.0)]);
     }
-    return $r;
   }
 
   /**
@@ -233,70 +184,35 @@ class TestSuite extends \lang\Object {
   private function invoke($block, $arg) {
     try {
       $block($arg);
+    } catch (TargetInvocationException $e) {
+      throw $e->getCause();
     } catch (Throwable $e) {
       throw $e;
     } catch (\Exception $e) {
-      throw new Error($e->getMessage());
+      throw Throwable::wrap($e);
     } catch (\Throwable $e) {
-      throw new Error($e->getMessage());
+      throw Throwable::wrap($e);
     }
   }
 
   /**
-   * Run a test case.
+   * Runs a test target
    *
-   * @param   unittest.TestCase test
-   * @param   unittest.TestResult result
-   * @throws  lang.MethodNotImplementedException
+   * @param  unittest.TestTarget $target
+   * @param  unittest.TestResult $result
+   * @return void
    */
-  protected function runInternal($test, $result) {
-    $class= $test->getClass();
-    $method= $class->getMethod($test->name);
+  protected function runTarget($target, $result) {
+    $test= $target->instance();
+
     $this->notifyListeners('testStarted', [$test]);
-    
-    // Check for @ignore
-    if ($method->hasAnnotation('ignore')) {
-      $this->notifyListeners('testNotRun', [
-        $result->set($test, new TestNotRun($test, $method->getAnnotation('ignore')))
-      ]);
+
+    if ($ignored= $target->ignored()) {
+      $this->notifyListeners('testNotRun', [$result->set($test, new TestNotRun($test, $ignored['reason']))]);
       return;
     }
 
-    // Check for @expect
-    $expected= null;
-    if ($method->hasAnnotation('expect', 'class')) {
-      $message= $method->getAnnotation('expect', 'withMessage');
-      if ('/' === $message{0}) {
-        $pattern= $message;
-      } else {
-        $pattern= '/'.preg_quote($message, '/').'/';
-      }
-      $expected= [XPClass::forName($method->getAnnotation('expect', 'class')), $pattern];
-    } else if ($method->hasAnnotation('expect')) {
-      $expected= [XPClass::forName($method->getAnnotation('expect')), null];
-    }
-    
-    // Check for @limit
-    $eta= 0;
-    if ($method->hasAnnotation('limit')) {
-      $eta= $method->getAnnotation('limit', 'time');
-    }
-
-    // Check for @values
-    if ($method->hasAnnotation('values')) {
-      $annotation= $method->getAnnotation('values');
-      $variation= true;
-      $values= $this->valuesFor($test, $annotation);
-    } else {
-      $variation= false;
-      $values= [[]];
-    }
-
-    // Check for @actions
-    $actions= array_merge(
-      $this->actionsFor($class, 'unittest.TestAction'),
-      $this->actionsFor($method, 'unittest.TestAction')
-    );
+    $actions= $target->actions();
 
     $timer= new Timer();
     $report= function($type, $outcome, $arg) use($result, $timer, &$t) {
@@ -305,15 +221,16 @@ class TestSuite extends \lang\Object {
       \xp::gc();
     };
     \xp::gc();
-    foreach ($values as $args) {
-      $t= $variation ? new TestVariation($test, $args) : $test;
+    foreach ($target->variations() as $variation) {
+      $t= $variation[0];
+      $args= $variation[1];
       $timer->start();
 
       $tearDown= function($test, $error) { return $error; };
       try {
 
         // Before and after tests
-        foreach ($actions as $action) {
+        foreach ($target->actions() as $action) {
           $this->invoke([$action, 'beforeTest'], $test);
           $tearDown= function($test, $error) use($tearDown, $action) {
             $propagated= $tearDown($test, $error);
@@ -328,10 +245,14 @@ class TestSuite extends \lang\Object {
         }
 
         // Setup and teardown
-        $this->invoke([$test, 'setUp'], $test);
-        $tearDown= function($test, $error) use($tearDown) {
+        foreach ($target->before() as $before) {
+          $this->invoke($before, $test);
+        }
+        $tearDown= function($test, $error) use($target, $tearDown) {
           try {
-            $this->invoke([$test, 'tearDown'], null);
+            foreach ($target->after() as $after) {
+              $this->invoke($after, $test);
+            }
             return $tearDown($test, $error);
           } catch (Throwable $t) {
             $error && $t->setCause($error);
@@ -340,7 +261,7 @@ class TestSuite extends \lang\Object {
         };
 
         // Run test
-        $method->invoke($test, is_array($args) ? $args : [$args]);
+        $target->method()->invoke($test, is_array($args) ?  $args : [$args]);
         $e= $tearDown($test, null);
       } catch (TargetInvocationException $invoke) {
         $e= $tearDown($test, $invoke->getCause());
@@ -360,12 +281,15 @@ class TestSuite extends \lang\Object {
 
       $timer->stop();
 
+      $expected= $target->expects();
+      $eta= $target->limit();
+
       if ($e) {
         if ($expected && $expected[0]->isInstance($e)) {
-          if ($eta && $timer->elapsedTime() > $eta) {
+          if ($eta && $timer->elapsedTime() > $eta['time']) {
             $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
               'Test runtime of %.3f seconds longer than eta of %.3f seconds',
-              [$timer->elapsedTime(), $eta]
+              [$timer->elapsedTime(), $eta['time']]
             )));
           } else if ($expected[1] && !preg_match($expected[1], $e->getMessage())) {
             $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
@@ -396,96 +320,46 @@ class TestSuite extends \lang\Object {
         )));
       } else if (sizeof(\xp::$errors) > 0) {
         $report('testWarning', TestWarning::class, $this->formatErrors(\xp::$errors));
-      } else if ($eta && $timer->elapsedTime() > $eta) {
+      } else if ($eta && $timer->elapsedTime() > $eta['time']) {
         $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
           'Test runtime of %.3f seconds longer than eta of %.3f seconds',
-          [$timer->elapsedTime(), $eta]
+          [$timer->elapsedTime(), $eta['time']]
         )));
       } else {
         $this->notifyListeners('testSucceeded', [$result->setSucceeded($t, $timer->elapsedTime())]);
       }
     }
   }
-  
-  /**
-   * Format errors from xp registry
-   *
-   * @param   [:string[]] registry
-   * @return  string[]
-   */
-  protected function formatErrors($registry) {
-    $w= [];
-    foreach ($registry as $file => $lookup) {
-      foreach ($lookup as $line => $messages) {
-        foreach ($messages as $message => $detail) {
-          $w[]= sprintf(
-            '"%s" in %s::%s() (%s, line %d, occured %s)',
-            $message,
-            $detail['class'],
-            $detail['method'],
-            basename($file),
-            $line,
-            1 === $detail['cnt'] ? 'once' : $detail['cnt'].' times'
-          );
-        }
-      }
-    }
-    return $w;
-  }
-  
-  /**
-   * Notify listeners
-   *
-   * @param   string method
-   * @param   var[] args
-   */
-  protected function notifyListeners($method, $args) {
-    foreach ($this->listeners as $l) {
-      call_user_func_array([$l, $method], $args);
-    }
-  }
 
   /**
-   * Call beforeClass methods if present. If any of them throws an exception,
-   * mark all tests in this class as skipped and continue with tests from
-   * other classes (if available)
+   * Runs a test group
    *
-   * @param  lang.XPClass class
+   * @param  unittest.TestGroup $group
+   * @param  unittest.TestResult $result
+   * @return void
    */
-  protected function beforeClass($class) {
-    foreach ($class->getMethods() as $m) {
-      if (!$m->hasAnnotation('beforeClass')) continue;
-      try {
-        $m->invoke(null, []);
-      } catch (TargetInvocationException $e) {
-        $cause= $e->getCause();
-        if ($cause instanceof PrerequisitesNotMetError) {
-          throw $cause;
-        } else {
-          throw new PrerequisitesNotMetError('Exception in beforeClass method '.$m->getName(), $cause);
-        }
+  protected function runGroup($group, $result) {
+    try {
+      foreach ($group->before() as $name => $before) {
+        $this->invoke($before, null);
       }
+    } catch (PrerequisitesNotMetError $p) {
+      return $this->skipAll($result, $group->targets(), $p);
+    } catch (Throwable $t) {
+      return $this->skipAll($result, $group->targets(), new PrerequisitesNotMetError(
+        'Exception in beforeClass method '.$name,
+        $t
+      ));
     }
-    foreach ($this->actionsFor($class, 'unittest.TestClassAction') as $action) {
-      $action->beforeTestClass($class);
+
+    foreach ($group->targets() as $target) {
+      $this->runTarget($target, $result);
     }
-  }
-  
-  /**
-   * Call afterClass methods of the last test's class. Ignore any 
-   * exceptions thrown from these methods.
-   *
-   * @param  lang.XPClass class
-   */
-  protected function afterClass($class) {
-    foreach ($this->actionsFor($class, 'unittest.TestClassAction') as $action) {
-      $action->afterTestClass($class);
-    }
-    foreach ($class->getMethods() as $m) {
-      if (!$m->hasAnnotation('afterClass')) continue;
+
+    foreach ($group->after() as $after) {
       try {
-        $m->invoke(null, []);
-      } catch (TargetInvocationException $ignored) { }
+        $this->invoke($after, null);
+      } catch (Throwable $ignored) { }
     }
   }
 
@@ -498,21 +372,10 @@ class TestSuite extends \lang\Object {
    * @throws  lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function runTest(TestCase $test) {
-    $class= $test->getClass();
-    if (!$class->hasMethod($test->name)) {
-      throw new MethodNotImplementedException('Test method does not exist', $test->name);
-    }
     $this->notifyListeners('testRunStarted', [$this]);
 
-    // Run the single test
     $result= new TestResult();
-    try {
-      $this->beforeClass($class);
-      $this->runInternal($test, $result);
-      $this->afterClass($class);
-    } catch (PrerequisitesNotMetError $e) {
-      $this->notifyListeners('testSkipped', [$result->setSkipped($test, $e, 0.0)]);
-    }
+    $this->runGroup(new TestInstance($test), $result);
 
     $this->notifyListeners('testRunFinished', [$this, $result]);
     return $result;
@@ -527,37 +390,23 @@ class TestSuite extends \lang\Object {
     $this->notifyListeners('testRunStarted', [$this]);
 
     $result= new TestResult();
-    foreach ($this->order as $classname => $tests) {
-      $class= XPClass::forName($classname);
-
-      // Run all tests in this class
-      try {
-        $this->beforeClass($class);
-      } catch (PrerequisitesNotMetError $e) {
-        foreach ($tests as $i) {
-          $this->notifyListeners('testSkipped', [$result->setSkipped($this->tests[$i], $e, 0.0)]);
-        }
-        continue;
-      }
-      foreach ($tests as $i) {
-        $this->runInternal($this->tests[$i], $result);
-      }
-      $this->afterClass($class);
+    foreach ($this->groups as $group) {     
+      $this->runGroup($group, $result);
     }
 
     $this->notifyListeners('testRunFinished', [$this, $result]);
     return $result;
   }
-  
+
   /**
    * Creates a string representation of this test suite
    *
    * @return  string
    */
   public function toString() {
-    $s= nameof($this).'['.sizeof($this->tests)."]@{\n";
-    foreach ($this->tests as $test) {
-      $s.= '  '.$test->toString()."\n";
+    $s= nameof($this)."@{\n";
+    foreach ($this->groups as $group) {
+      $s.= '  '.$group->toString()."\n";
     }
     return $s.'}';
   }
