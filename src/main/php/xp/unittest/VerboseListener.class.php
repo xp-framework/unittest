@@ -102,8 +102,9 @@ class VerboseListener implements TestListener {
    *
    * @param   unittest.TestSuite suite
    * @param   unittest.TestResult result
+   * @param  unittest.StopTests $stop
    */
-  public function testRunFinished(\unittest\TestSuite $suite, \unittest\TestResult $result) {
+  public function testRunFinished(\unittest\TestSuite $suite, \unittest\TestResult $result, \unittest\StopTests $stopped= null) {
 
     // Details
     if ($result->successCount() > 0) {
@@ -127,7 +128,7 @@ class VerboseListener implements TestListener {
 
     $this->out->writeLinef(
       "\n===> %s: %d run (%d skipped), %d succeeded, %d failed",
-      $result->failureCount() ? 'FAIL' : 'OK',
+      $stopped ? 'STOP '.$stopped->getMessage() : ($result->failureCount() ? 'FAIL' : 'OK'),
       $result->runCount(),
       $result->skipCount(),
       $result->successCount(),

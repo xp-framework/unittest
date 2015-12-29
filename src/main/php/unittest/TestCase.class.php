@@ -53,7 +53,11 @@ class TestCase extends \lang\Object {
    * @return  void
    */
   public function skip($reason, $prerequisites= []) {
-    throw new PrerequisitesNotMetError($reason, null, $prerequisites= []);
+    if ($prerequisites) {
+      throw new PrerequisitesNotMetError($reason, null, $prerequisites);
+    } else {
+      throw new IgnoredBecause($reason);
+    }
   }
 
   /**

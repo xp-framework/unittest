@@ -144,28 +144,35 @@ class DefaultListener  implements TestListener, ColorizingListener {
   /**
    * Called when a test run finishes.
    *
-   * @param   unittest.TestSuite suite
-   * @param   unittest.TestResult result
+   * @param  unittest.TestSuite $suite
+   * @param  unittest.TestResult $result
+   * @param  unittest.StopTests $stop
    */
-  public function testRunFinished(\unittest\TestSuite $suite, \unittest\TestResult $result) {
-    $this->out->writeLine(']');
-    
+  public function testRunFinished(\unittest\TestSuite $suite, \unittest\TestResult $result, \unittest\StopTests $stopped= null) {
+    $failed= $result->failureCount();
+
+    if ($stopped) {
+      $this->out->writeLine('|');
+      $indicator= ($this->colored ? "\033[43;1;30m■ " : 'STOP ').$stopped->getMessage();
+    } else if ($failed) {
+      $this->out->writeLine(']');
+      $indicator= $this->colored ? "\033[41;1;37m✗" : 'FAIL';
+    } else {
+      $this->out->writeLine(']');
+      $indicator= $this->colored ? "\033[42;1;37m✓" : 'OK';
+    }
+
     // Show failed test details
-    $fail= false;
-    if ($result->failureCount() > 0) {
+    if ($failed) {
       $this->out->writeLine();
       foreach ($result->failed as $failure) {
         $this->out->writeLine('F ', $failure);
       }
-      $fail= true;
     }
 
     $this->out->writeLinef(
       "\n%s: %d/%d run (%d skipped), %d succeeded, %d failed%s",
-      ($this->colored
-        ? ($fail ? "\033[41;1;37m✗" : "\033[42;1;37m✓")
-        : ($fail ? 'FAIL' : 'OK')
-      ),
+      $indicator,
       $result->runCount(),
       $result->count(),
       $result->skipCount(),
