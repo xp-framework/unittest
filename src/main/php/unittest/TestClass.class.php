@@ -51,8 +51,9 @@ class TestClass extends TestGroup {
 
   /** @return php.Generator */
   public function tests() {
+    $constructor= $this->class->getConstructor();
     foreach ($this->testMethods as $method) {
-      yield $this->class->getConstructor()->newInstance(array_merge(
+      yield $constructor->newInstance(array_merge(
         [$method->getName()],
         (array)$this->arguments
       ));
