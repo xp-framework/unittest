@@ -20,12 +20,7 @@ use lang\reflect\TargetInvocationException;
  */
 class TestSuite extends \lang\Object {
   protected $listeners= [];
-  private static $base;
   private $sources= [];
-
-  static function __static() {
-    self::$base= new XPClass(TestCase::class);
-  }
 
   /**
    * Add a test
@@ -37,10 +32,6 @@ class TestSuite extends \lang\Object {
    * @throws  lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function addTest(TestCase $test) {
-    if (!$test->getClass()->hasMethod($test->name)) {
-      throw new MethodNotImplementedException('Test method does not exist', $test->name);
-    }
-
     $this->sources[nameof($test)][]= new TestInstance($test);
     return $test;
   }
@@ -55,10 +46,6 @@ class TestSuite extends \lang\Object {
    * @throws  util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function addTestClass($class, $arguments= []) {
-    if (!$class->isSubclassOf(self::$base)) {
-      throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
-    }
-
     $this->sources[$class->getName()][]= new TestClass($class, $arguments);
     return $class;
   }

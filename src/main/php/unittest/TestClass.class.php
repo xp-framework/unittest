@@ -1,6 +1,7 @@
 <?php namespace unittest;
 
 use lang\IllegalStateException;
+use lang\IllegalArgumentException;
 use util\NoSuchElementException;
 
 class TestClass extends TestGroup {
@@ -13,10 +14,15 @@ class TestClass extends TestGroup {
    *
    * @param  lang.XPClass $class
    * @param  var[] $args
+   * @throws lang.IllegalArgumentException
    * @throws lang.IllegalStateException
    * @throws util.NoSuchElementException
    */
   public function __construct($class, $arguments) {
+    if (!$class->isSubclassOf(self::$base)) {
+      throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
+    }
+
     $empty= true;
     foreach ($class->getMethods() as $method) {
       if ($method->hasAnnotation('test')) {

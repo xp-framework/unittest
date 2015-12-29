@@ -1,6 +1,7 @@
 <?php namespace unittest;
 
 use lang\IllegalStateException;
+use lang\MethodNotImplementedException;
 
 class TestInstance extends TestGroup {
   private $instance;
@@ -11,9 +12,14 @@ class TestInstance extends TestGroup {
    * Creates an instance from a testcase
    *
    * @param  unittest.TestCase $instance
+   * @throws lang.MethodNotImplementedException
    * @throws lang.IllegalStateException
    */
   public function __construct($instance) {
+    if (!$instance->getClass()->hasMethod($instance->name)) {
+      throw new MethodNotImplementedException('Test method does not exist', $instance->name);
+    }
+
     if (self::$base->hasMethod($instance->name)) {
       throw new IllegalStateException(sprintf(
         'Cannot override %s::%s with test method in %s',
