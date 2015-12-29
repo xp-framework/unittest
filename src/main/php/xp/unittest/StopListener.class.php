@@ -16,8 +16,9 @@ use unittest\StopTests;
  * Checks for given events and stops the run
  */
 class StopListener implements \unittest\TestListener {
-  const FAIL = 0x0001;
-  const SKIP = 0x0002;
+  const FAIL   = 0x0001;
+  const SKIP   = 0x0002;
+  const IGNORE = 0x0004;
 
   private $events;
 
@@ -100,7 +101,7 @@ class StopListener implements \unittest\TestListener {
    * @param  unittest.TestSkipped $ignore
    */
   public function testNotRun(TestSkipped $ignore) {
-    if ($this->events & self::SKIP) {
+    if ($this->events & self::IGNORE) {
       throw new StopTests($ignore->reason);
     }
   }

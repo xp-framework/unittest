@@ -347,20 +347,31 @@ class UnittestRunnerTest extends TestCase {
   #[@test]
   public function stop_after_failing_test() {
     $command= newinstance(TestCase::class, ['fails'], [
-      '#[@test] fails' => function() { $this->assertTrue(false); }
+      '#[@test] fails' => function() { $this->fail('Test'); }
     ]);
     $return= $this->runner->run(['-s', 'fail', nameof($command)]);
     $this->assertEquals(1, $return);
     $this->assertEquals('', $this->err->getBytes());
-    $this->assertOnStream($this->out, 'AssertionFailedError{ expected [true] but was [false] using: \'===\' }: 1/1 run (0 skipped), 0 succeeded, 1 failed');
+    $this->assertOnStream($this->out, 'AssertionFailedError{ Test }: 1/1 run (0 skipped), 0 succeeded, 1 failed');
+  }
+
+  #[@test]
+  public function stop_after_skipped_test() {
+    $command= newinstance(TestCase::class, ['skipped'], [
+      '#[@test] skipped' => function() { $this->skip('Test', ['prerequisite']); }
+    ]);
+    $return= $this->runner->run(['-s', 'skip', nameof($command)]);
+    $this->assertEquals(0, $return);
+    $this->assertEquals('', $this->err->getBytes());
+    $this->assertOnStream($this->out, 'PrerequisitesNotMetError (Test) { prerequisites: ["prerequisite"] }: 0/1 run (1 skipped), 0 succeeded, 0 failed');
   }
 
   #[@test]
   public function stop_after_ignored_test() {
-    $command= newinstance(TestCase::class, ['fails'], [
+    $command= newinstance(TestCase::class, ['ignored'], [
       '#[@test, @ignore("Test")] ignored' => function() { /* ... */ }
     ]);
-    $return= $this->runner->run(['-s', 'skip', nameof($command)]);
+    $return= $this->runner->run(['-s', 'ignore', nameof($command)]);
     $this->assertEquals(0, $return);
     $this->assertEquals('', $this->err->getBytes());
     $this->assertOnStream($this->out, 'IgnoredBecause{ Test }: 0/1 run (1 skipped), 0 succeeded, 0 failed');

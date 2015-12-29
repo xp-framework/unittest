@@ -55,6 +55,7 @@ use xp\unittest\sources\PropertySource;
  *   -s {when}: Stop running when a certain event occurs. When may be:
  *     . "fail" - When the first test fails
  *     . "skip" - On the first skipped test
+ *     . "ignore" - When the first ignored test is encountered
  *
  * Tests can be one or more of:
  *
@@ -80,8 +81,9 @@ class Runner {
   ];
 
   private static $stop= [
-    'fail'  => StopListener::FAIL,
-    'skip'  => StopListener::SKIP
+    'fail'   => StopListener::FAIL,
+    'skip'   => StopListener::SKIP,
+    'ignore' => StopListener::IGNORE
   ];
 
   /**
