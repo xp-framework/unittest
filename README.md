@@ -120,6 +120,9 @@ To execute code before and after tests, test actions can be used. The unittest l
 * `unittest.actions.VerifyThat(function(): var|string $callable)` - Runs the given function, verifying it neither raises an exception nor return a false value.
 
 ```php
+use unittest\actions\IsPlatform;
+use unittest\actions\VerifyThat;
+
 class FileSystemTest extends \unittest\TestCase {
 
   #[@test, @action(new IsPlatform('!WIN'))
