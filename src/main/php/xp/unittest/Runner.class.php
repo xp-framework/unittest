@@ -52,6 +52,9 @@ use xp\unittest\sources\PropertySource;
  *     . "auto" - try to determine whether colors are supported and enable
  *       accordingly.
  *   -w {dir}: Run indefinitely, watch given directory for changes
+ *   -s {when}: Stop running when a certain event occurs. When may be:
+ *     . "fail" - When the first test fails
+ *     . "skip" - On the first skipped test
  *
  * Tests can be one or more of:
  *
@@ -74,6 +77,11 @@ class Runner {
     '=on'   => true,
     '=off'  => false,
     '=auto' => null
+  ];
+
+  private static $stop= [
+    'fail'  => StopListener::FAIL,
+    'skip'  => StopListener::SKIP
   ];
 
   /**
@@ -231,6 +239,7 @@ class Runner {
     $listener= TestListeners::$DEFAULT;
     $arguments= [];
     $colors= null;
+    $stop= 0;
 
     try {
       for ($i= 0, $s= sizeof($args); $i < $s; $i++) {
@@ -304,6 +313,14 @@ class Runner {
           $arguments[]= $this->arg($args, ++$i, 'a');
         } else if ('-w' == $args[$i]) {
           $this->arg($args, ++$i, 'w');
+        } else if ('-s' == $args[$i]) {
+          $argument= $this->arg($args, ++$i, 's');
+          if (isset(self::$stop[$argument])) {
+            $stop |= self::$stop[$argument];
+          } else {
+            $this->err->writeLine('*** Unknown value for -s (must be one of '.implode(', ', array_keys(self::$stop)).')');
+            return 2;
+          }
         } else if ('--color' == substr($args[$i], 0, 7)) {
           $remainder= (string)substr($args[$i], 7);
           if (!array_key_exists($remainder, self::$cmap)) {
@@ -343,6 +360,10 @@ class Runner {
       $l->setColor($colors);
     }
 
+    if ($stop) {
+      $suite->addListener(new StopListener($stop));
+    }
+
     foreach ($sources as $source) {
       try {
         $source->provideTo($suite, $arguments);
@@ -362,8 +383,7 @@ class Runner {
     if (0 == $suite->numTests()) {
       return 3;
     } else {
-      $r= $suite->run();
-      return $r->failureCount() > 0 ? 1 : 0;
+      return $suite->run()->failureCount() > 0 ? 1 : 0;
     }
   }
 
