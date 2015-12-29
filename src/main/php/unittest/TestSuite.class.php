@@ -19,10 +19,9 @@ use lang\reflect\TargetInvocationException;
  * @see    http://junit.sourceforge.net/doc/testinfected/testing.htm
  */
 class TestSuite extends \lang\Object {
-  public $tests= [];
-  protected $order= [];
   protected $listeners= [];
   private static $base;
+  private $sources= [];
 
   static function __static() {
     self::$base= new XPClass(TestCase::class);
@@ -41,21 +40,8 @@ class TestSuite extends \lang\Object {
     if (!$test->getClass()->hasMethod($test->name)) {
       throw new MethodNotImplementedException('Test method does not exist', $test->name);
     }
-    $className= nameof($test);
-    
-    // Verify no special method, e.g. setUp() or tearDown() is overwritten.
-    if (self::$base->hasMethod($test->name)) {
-      throw new IllegalStateException(sprintf(
-        'Cannot override %s::%s with test method in %s',
-        self::$base->getName(),
-        $test->name,
-        $test->getClass()->getMethod($test->name)->getDeclaringClass()->getName()
-      ));
-    }
-    
-    if (!isset($this->order[$className])) $this->order[$className]= [];
-    $this->order[$className][]= sizeof($this->tests);
-    $this->tests[]= $test;
+
+    $this->sources[nameof($test)][]= new TestInstance($test);
     return $test;
   }
 
@@ -73,38 +59,7 @@ class TestSuite extends \lang\Object {
       throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
     }
 
-    $numBefore= $this->numTests();
-    $className= $class->getName();
-    $tests= $this->tests;
-    $order= $this->order;
-    if (!isset($this->order[$className])) $this->order[$className]= [];
-    foreach ($class->getMethods() as $m) {
-      if (!$m->hasAnnotation('test')) continue;
-      
-      // Verify no special method, e.g. setUp() or tearDown() is overwritten.
-      if (self::$base->hasMethod($m->getName())) {
-        $this->tests= $tests;
-        $this->order= $order;
-        throw new IllegalStateException(sprintf(
-          'Cannot override %s::%s with test method in %s',
-          self::$base->getName(),
-          $m->getName(),
-          $m->getDeclaringClass()->getName()
-        ));
-      }
-
-      $this->tests[]= $class->getConstructor()->newInstance(array_merge(
-        (array)$m->getName(true),
-        $arguments
-      ));
-      $this->order[$className][]= sizeof($this->tests)- 1;
-    }
-
-    if ($numBefore === $this->numTests()) {
-      if (empty($this->order[$className])) unset($this->order[$className]);
-      throw new NoSuchElementException('No tests found in '.$class->getName());
-    }
-
+    $this->sources[$class->getName()][]= new TestClass($class, $arguments);
     return $class;
   }
   
@@ -114,7 +69,15 @@ class TestSuite extends \lang\Object {
    * @return  int
    */
   public function numTests() {
-    return sizeof($this->tests);
+    $num= 0;
+    foreach ($this->sources as $classname => $sources) {
+      foreach ($sources as $source) {
+        foreach ($source->tests() as $test) {
+          $num++;
+        }
+      }
+    }
+    return $num;
   }
   
   /**
@@ -122,8 +85,7 @@ class TestSuite extends \lang\Object {
    *
    */
   public function clearTests() {
-    $this->tests= [];
-    $this->order= [];
+    $this->sources= [];
   }
   
   /**
@@ -133,7 +95,15 @@ class TestSuite extends \lang\Object {
    * @return  unittest.TestCase or NULL if none was found
    */
   public function testAt($pos) {
-    if (isset($this->tests[$pos])) return $this->tests[$pos]; else return null;
+    $num= 0;
+    foreach ($this->sources as $classname => $sources) {
+      foreach ($sources as $source) {
+        foreach ($source->tests() as $test) {
+          if ($num++ === $pos) return $test;
+        }
+      }
+    }
+    return null;
   }
   
   /**
@@ -527,20 +497,25 @@ class TestSuite extends \lang\Object {
     $this->notifyListeners('testRunStarted', [$this]);
 
     $result= new TestResult();
-    foreach ($this->order as $classname => $tests) {
+    foreach ($this->sources as $classname => $sources) {
       $class= XPClass::forName($classname);
 
       // Run all tests in this class
       try {
         $this->beforeClass($class);
       } catch (PrerequisitesNotMetError $e) {
-        foreach ($tests as $i) {
-          $this->notifyListeners('testSkipped', [$result->setSkipped($this->tests[$i], $e, 0.0)]);
+        foreach ($sources as $source) {
+          foreach ($source->tests() as $test) {
+            $this->notifyListeners('testSkipped', [$result->setSkipped($test, $e, 0.0)]);
+          }
         }
         continue;
       }
-      foreach ($tests as $i) {
-        $this->runInternal($this->tests[$i], $result);
+
+      foreach ($sources as $source) {
+        foreach ($source->tests() as $test) {
+          $this->runInternal($test, $result);
+        }
       }
       $this->afterClass($class);
     }
