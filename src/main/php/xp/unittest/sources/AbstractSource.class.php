@@ -34,12 +34,4 @@ abstract class AbstractSource extends \lang\Object {
     }
     return $r;
   }
-
-  /**
-   * Get all test cases
-   *
-   * @param   var[] arguments
-   * @return  unittest.TestCase[]
-   */
-  public abstract function testCasesWith($arguments);
 }
