@@ -257,7 +257,7 @@ class TestSuite extends \lang\Object {
     // Check for @ignore
     if ($method->hasAnnotation('ignore')) {
       $this->notifyListeners('testNotRun', [
-        $result->set($test, new TestNotRun($test, $method->getAnnotation('ignore')))
+        $result->set($test, new TestNotRun($test, new IgnoredBecause($method->getAnnotation('ignore'))))
       ]);
       return;
     }
