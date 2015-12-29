@@ -41,7 +41,7 @@ class TestSuite extends \lang\Object {
    *
    * @param   lang.XPClass<unittest.TestCase> class
    * @param   var[] arguments default [] arguments to pass to test case constructor
-   * @return  lang.reflect.Method[] ignored test methods
+   * @return  lang.XPClass
    * @throws  lang.IllegalArgumentException in case given argument is not a testcase class
    * @throws  util.NoSuchElementException in case given testcase class does not contain any tests
    */

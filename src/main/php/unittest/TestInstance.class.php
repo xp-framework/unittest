@@ -12,8 +12,8 @@ class TestInstance extends TestGroup {
    * Creates an instance from a testcase
    *
    * @param  unittest.TestCase $instance
-   * @throws lang.MethodNotImplementedException
-   * @throws lang.IllegalStateException
+   * @throws lang.IllegalStateException for overriding test class methods with tests
+   * @throws lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function __construct($instance) {
     if (!$instance->getClass()->hasMethod($instance->name)) {

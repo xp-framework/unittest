@@ -14,9 +14,9 @@ class TestClass extends TestGroup {
    *
    * @param  lang.XPClass $class
    * @param  var[] $args
-   * @throws lang.IllegalArgumentException
-   * @throws lang.IllegalStateException
-   * @throws util.NoSuchElementException
+   * @throws lang.IllegalArgumentException in case given argument is not a testcase class
+   * @throws lang.IllegalStateException in case a test method is overridden
+   * @throws util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function __construct($class, $arguments) {
     if (!$class->isSubclassOf(self::$base)) {
