@@ -510,11 +510,13 @@ class TestSuite extends \lang\Object {
       $this->beforeClass($class);
       $this->runInternal($test, $result);
       $this->afterClass($class);
+      $this->notifyListeners('testRunFinished', [$this, $result, null]);
     } catch (PrerequisitesNotMetError $e) {
       $this->notifyListeners('testSkipped', [$result->setSkipped($test, $e, 0.0)]);
+    } catch (StopTests $stop) {
+      $this->notifyListeners('testRunFinished', [$this, $result, $stop]);
     }
 
-    $this->notifyListeners('testRunFinished', [$this, $result]);
     return $result;
   }
   
@@ -527,25 +529,30 @@ class TestSuite extends \lang\Object {
     $this->notifyListeners('testRunStarted', [$this]);
 
     $result= new TestResult();
-    foreach ($this->order as $classname => $tests) {
-      $class= XPClass::forName($classname);
+    try {
+      foreach ($this->order as $classname => $tests) {
+        $class= XPClass::forName($classname);
 
-      // Run all tests in this class
-      try {
-        $this->beforeClass($class);
-      } catch (PrerequisitesNotMetError $e) {
-        foreach ($tests as $i) {
-          $this->notifyListeners('testSkipped', [$result->setSkipped($this->tests[$i], $e, 0.0)]);
+        // Run all tests in this class
+        try {
+          $this->beforeClass($class);
+        } catch (PrerequisitesNotMetError $e) {
+          foreach ($tests as $i) {
+            $this->notifyListeners('testSkipped', [$result->setSkipped($this->tests[$i], $e, 0.0)]);
+          }
+          continue;
         }
-        continue;
+
+        foreach ($tests as $i) {
+          $this->runInternal($this->tests[$i], $result);
+        }
+        $this->afterClass($class);
       }
-      foreach ($tests as $i) {
-        $this->runInternal($this->tests[$i], $result);
-      }
-      $this->afterClass($class);
+      $this->notifyListeners('testRunFinished', [$this, $result, null]);
+    } catch (StopTests $stop) {
+      $this->notifyListeners('testRunFinished', [$this, $result, $stop]);
     }
 
-    $this->notifyListeners('testRunFinished', [$this, $result]);
     return $result;
   }
   
