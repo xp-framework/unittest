@@ -58,9 +58,9 @@ class TestSuite extends \lang\Object {
    */
   public function numTests() {
     $numTests= 0;
-    foreach ($this->sources as $classname => $sources) {
-      foreach ($sources as $source) {
-        $numTests+= $source->numTests();
+    foreach ($this->sources as $classname => $groups) {
+      foreach ($groups as $group) {
+        $numTests+= $group->numTests();
       }
     }
     return $numTests;
@@ -82,9 +82,9 @@ class TestSuite extends \lang\Object {
    */
   public function testAt($pos) {
     $num= 0;
-    foreach ($this->sources as $classname => $sources) {
-      foreach ($sources as $source) {
-        foreach ($source->tests() as $test) {
+    foreach ($this->sources as $classname => $groups) {
+      foreach ($groups as $group) {
+        foreach ($group->tests() as $test) {
           if ($num++ === $pos) return $test;
         }
       }
@@ -483,23 +483,23 @@ class TestSuite extends \lang\Object {
     $this->notifyListeners('testRunStarted', [$this]);
 
     $result= new TestResult();
-    foreach ($this->sources as $classname => $sources) {
+    foreach ($this->sources as $classname => $groups) {
       $class= XPClass::forName($classname);
 
       // Run all tests in this class
       try {
         $this->beforeClass($class);
       } catch (PrerequisitesNotMetError $e) {
-        foreach ($sources as $source) {
-          foreach ($source->tests() as $test) {
+        foreach ($groups as $group) {
+          foreach ($group->tests() as $test) {
             $this->notifyListeners('testSkipped', [$result->setSkipped($test, $e, 0.0)]);
           }
         }
         continue;
       }
 
-      foreach ($sources as $source) {
-        foreach ($source->tests() as $test) {
+      foreach ($groups as $group) {
+        foreach ($group->tests() as $test) {
           $this->runInternal($test, $result);
         }
       }
