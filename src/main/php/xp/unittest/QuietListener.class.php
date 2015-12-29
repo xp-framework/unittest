@@ -5,7 +5,7 @@
  * --------------
  * No output at all. This listener has no options.
  */
-class QuietListener extends \lang\Object implements \unittest\TestListener {
+class QuietListener implements \unittest\TestListener {
 
 
   /**

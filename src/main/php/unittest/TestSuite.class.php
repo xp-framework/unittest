@@ -230,7 +230,7 @@ class TestSuite extends \lang\Object {
     // Check for @ignore
     if ($method->hasAnnotation('ignore')) {
       $this->notifyListeners('testNotRun', [
-        $result->set($test, new TestNotRun($test, $method->getAnnotation('ignore')))
+        $result->set($test, new TestNotRun($test, new IgnoredBecause($method->getAnnotation('ignore'))))
       ]);
       return;
     }
@@ -359,6 +359,8 @@ class TestSuite extends \lang\Object {
           $report('testFailed', TestAssertionFailed::class, $e);
         } else if ($e instanceof PrerequisitesNotMetError) {
           $report('testSkipped', TestPrerequisitesNotMet::class, $e);
+        } else if ($e instanceof IgnoredBecause) {
+          $report('testSkipped', TestNotRun::class, $e);
         } else {
           $report('testError', TestError::class, $e);
         }
@@ -486,11 +488,13 @@ class TestSuite extends \lang\Object {
       $this->beforeClass($class);
       $this->runInternal($test, $result);
       $this->afterClass($class);
+      $this->notifyListeners('testRunFinished', [$this, $result, null]);
     } catch (PrerequisitesNotMetError $e) {
       $this->notifyListeners('testSkipped', [$result->setSkipped($test, $e, 0.0)]);
+    } catch (StopTests $stop) {
+      $this->notifyListeners('testRunFinished', [$this, $result, $stop]);
     }
 
-    $this->notifyListeners('testRunFinished', [$this, $result]);
     return $result;
   }
   
@@ -503,30 +507,34 @@ class TestSuite extends \lang\Object {
     $this->notifyListeners('testRunStarted', [$this]);
 
     $result= new TestResult();
-    foreach ($this->sources as $classname => $groups) {
-      $class= new XPClass($classname);
+    try {
+      foreach ($this->sources as $classname => $groups) {
+        $class= new XPClass($classname);
 
-      // Run all tests in this class
-      try {
-        $this->beforeClass($class);
-      } catch (PrerequisitesNotMetError $e) {
+        // Run all tests in this class
+        try {
+          $this->beforeClass($class);
+        } catch (PrerequisitesNotMetError $e) {
+          foreach ($groups as $group) {
+            foreach ($group->tests() as $test) {
+              $this->notifyListeners('testSkipped', [$result->setSkipped($test, $e, 0.0)]);
+            }
+          }
+          continue;
+        }
+
         foreach ($groups as $group) {
           foreach ($group->tests() as $test) {
-            $this->notifyListeners('testSkipped', [$result->setSkipped($test, $e, 0.0)]);
+            $this->runInternal($test, $result);
           }
         }
-        continue;
+        $this->afterClass($class);
       }
-
-      foreach ($groups as $group) {
-        foreach ($group->tests() as $test) {
-          $this->runInternal($test, $result);
-        }
-      }
-      $this->afterClass($class);
+      $this->notifyListeners('testRunFinished', [$this, $result, null]);
+    } catch (StopTests $stop) {
+      $this->notifyListeners('testRunFinished', [$this, $result, $stop]);
     }
 
-    $this->notifyListeners('testRunFinished', [$this, $result]);
     return $result;
   }
   

@@ -49,7 +49,9 @@ public void assertNull(var $actual, [string $error= "==="])
 public void assertInstanceOf(var $type, var $actual, [string $error= "instanceof"])
 ```
 
-If you need more than that, you can use [xp-forge/assert](https://github.com/xp-forge/assert) on top of this library.
+To manually skip a test, call `$this->fail('Reason')` anywhere inside your test code.
+
+*If you need more than that, you can use [xp-forge/assert](https://github.com/xp-forge/assert) on top of this library.*
 
 Setup and teardown
 ------------------
@@ -83,6 +85,8 @@ Expected exceptions
 The `@expect` annotation is a shorthand for catching exceptions and verifying their type manually.
 
 ```php
+use lang\IllegalArgumentException;
+
 class CalculatorTest extends \unittest\TestCase {
 
   #[@test, @expect(IllegalArgumentException::class)]
@@ -92,11 +96,29 @@ class CalculatorTest extends \unittest\TestCase {
 }
 ```
 
+Ignoring tests
+--------------
+The `@ignore` annotation can be used to ignore tests. This can be necessary as a temporary measure or when overriding a test base class and not wanting to run one of its methods.
+
+```php
+class EncodingTest extends \unittest\TestCase {
+
+  #[@test, @ignore('Does not work with all iconv implementations')]
+  public function transliteration() {
+    /* ... */
+  }
+}
+```
+
+To manually skip a test, call `$this->skip('Reason')` anywhere inside your test code.
+
 Parameterization
 -----------------
 The `@values` annotation can be used to run a test with a variety of values which are passed as parameters.
 
 ```php
+use lang\IllegalArgumentException;
+
 class CalculatorTest extends \unittest\TestCase {
 
   #[@test, @expect(IllegalArgumentException::class), @values([1, 0, -1])]
@@ -116,6 +138,9 @@ To execute code before and after tests, test actions can be used. The unittest l
 * `unittest.actions.VerifyThat(function(): var|string $callable)` - Runs the given function, verifying it neither raises an exception nor return a false value.
 
 ```php
+use unittest\actions\IsPlatform;
+use unittest\actions\VerifyThat;
+
 class FileSystemTest extends \unittest\TestCase {
 
   #[@test, @action(new IsPlatform('!WIN'))

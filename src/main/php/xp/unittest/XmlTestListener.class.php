@@ -11,7 +11,7 @@ use lang\XPClass;
  *
  * @test  xp://net.xp_framework.unittests.tests.XmlListenerTest
  */
-class XmlTestListener extends \lang\Object implements TestListener {
+class XmlTestListener implements TestListener {
   public $out= null;
   protected $tree= null;
   protected $classes= [];

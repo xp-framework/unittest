@@ -3,6 +3,13 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 6.7.2 / 2015-12-29
+
+* Merged pull request #11: Add "stop after first failing test" option
+  (@thekid)
+
+## 6.7.1 / 2015-12-29
+
 * Merged pull request #10: Refactor: Provide test cases which greatly
   simplifies code inside source implementations and removes duplication
   (@thekid)
