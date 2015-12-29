@@ -1,18 +1,19 @@
 <?php namespace xp\unittest\sources;
 
 use lang\ClassLoader;
+use unittest\TestCase;
 
 /**
  * Source that dynamically creates testcases
  */
 class EvaluationSource extends AbstractSource {
   private static $uniqId= 0;
-  private $testClass= null;
+  private $testClass;
   
   /**
    * Constructor
    *
-   * @param   string $src method sourcecode
+   * @param  string $src method sourcecode
    */
   public function __construct($src) {
 
@@ -22,27 +23,28 @@ class EvaluationSource extends AbstractSource {
       $src= substr($src, 6);
     }
 
-    $name= 'xp.unittest.DynamicallyGeneratedTestCase·'.(self::$uniqId++);
-    $this->testClass= ClassLoader::defineClass($name, 'unittest.TestCase', [], '{
+    $name= 'xp.unittest.DynamicallyGeneratedTestCase'.(self::$uniqId++);
+    $this->testClass= ClassLoader::defineClass($name, TestCase::class, [], '{
       #[@test] 
       public function run() { '.$src.' }
     }');
   }
 
   /**
-   * Get all test cases
+   * Provide tests to test suite
    *
-   * @param   var[] arguments
-   * @return  unittest.TestCase[]
+   * @param  unittest.TestSuite $suite
+   * @param  var[] $arguments
+   * @return void
    */
-  public function testCasesWith($arguments) {
-    return [$this->testClass->newInstance('run')];
+  public function provideTo($suite, $arguments) {
+    $suite->addTest($this->testClass->newInstance('run'));
   }
 
   /**
    * Creates a string representation of this source
    *
-   * @return  string
+   * @return string
    */
   public function toString() {
     return nameof($this).'['.$this->testClass->toString().']';

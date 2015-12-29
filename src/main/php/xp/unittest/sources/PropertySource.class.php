@@ -7,36 +7,35 @@ use lang\XPClass;
  * Source that load tests from a .ini file
  */
 class PropertySource extends AbstractSource {
-  protected $prop= null;
-  protected $descr= null;
+  private $properties, $description;
   
   /**
    * Constructor
    *
-   * @param   util.Properties prop
+   * @param  util.Properties $properties
    */
-  public function __construct(Properties $prop) {
-    $this->prop= $prop;
-    $this->descr= $this->prop->readString('this', 'description', 'Tests');
+  public function __construct(Properties $properties) {
+    $this->properties= $properties;
+    $this->description= $this->properties->readString('this', 'description', 'Tests');
   }
 
   /**
-   * Get all test cases
+   * Provide tests to test suite
    *
-   * @param   var[] arguments
-   * @return  unittest.TestCase[]
+   * @param  unittest.TestSuite $suite
+   * @param  var[] $arguments
+   * @return void
    */
-  public function testCasesWith($arguments) {
-    $r= [];
-    $section= $this->prop->getFirstSection();
+  public function provideTo($suite, $arguments) {
+    $section= $this->properties->getFirstSection();
     do {
-      if ('this' == $section) continue;   // Ignore special section
-      $r= array_merge($r, $this->testCasesInClass(
-        XPClass::forName($this->prop->readString($section, 'class')),
-        $arguments ? $arguments : $this->prop->readArray($section, 'args')
-      ));
-    } while ($section= $this->prop->getNextSection());
-    return $r;
+      if ('this' === $section) continue;   // Ignore special section
+
+      $suite->addTestClass(
+        XPClass::forName($this->properties->readString($section, 'class')),
+        $arguments ?: $this->properties->readArray($section, 'args')
+      );
+    } while ($section= $this->properties->getNextSection());
   }
 
   /**
@@ -45,6 +44,6 @@ class PropertySource extends AbstractSource {
    * @return  string
    */
   public function toString() {
-    return nameof($this).'['.$this->descr.' @ '.$this->prop->getFilename().']';
+    return nameof($this).'['.$this->description.' @ '.$this->properties->getFilename().']';
   }
 }

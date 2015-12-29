@@ -13,8 +13,8 @@ class PackageSource extends AbstractSource {
   /**
    * Constructor
    *
-   * @param   lang.reflect.Package package
-   * @param   bool recursive default FALSE
+   * @param  lang.reflect.Package $package
+   * @param  bool $recursive
    */
   public function __construct(Package $package, $recursive= false) {
     $this->package= $package;
@@ -56,7 +56,7 @@ class PackageSource extends AbstractSource {
   /**
    * Creates a string representation of this source
    *
-   * @return  string
+   * @return string
    */
   public function toString() {
     return nameof($this).'['.$this->package->getName().($this->recursive ? '.**' : '.*').']';
