@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+* Merged pull request #10: Refactor: Provide test cases which greatly
+  simplifies code inside source implementations and removes duplication
+  (@thekid)
+
 ## 6.7.0 / 2015-12-13
 
 * Merged pull request #6: Refactor: Actions' before and after runlogic

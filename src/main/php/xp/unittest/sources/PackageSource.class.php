@@ -2,66 +2,61 @@
 
 use lang\reflect\Package;
 use lang\reflect\Modifiers;
+use unittest\TestCase;
 
 /**
  * Source that load tests from a package
  */
 class PackageSource extends AbstractSource {
-  protected
-    $package    = null,
-    $recursive  = false;
+  private $package, $recursive;
   
   /**
    * Constructor
    *
-   * @param   lang.reflect.Package package
-   * @param   bool recursive default FALSE
+   * @param  lang.reflect.Package $package
+   * @param  bool $recursive
    */
   public function __construct(Package $package, $recursive= false) {
     $this->package= $package;
     $this->recursive= $recursive;
   }
-  
+
   /**
-   * Returns a list of all classes inside a given package
+   * Provide tests from a given package to the test suite. Handles recursion.
    *
-   * @param   lang.reflect.Package 
-   * @param   bool recursive whether to include subpackages
-   * @return  lang.XPClass[]
+   * @param  lang.reflect.Package $package
+   * @param  unittest.TestSuite $suite
+   * @param  var[] $arguments
+   * @return void
    */
-  protected static function testClassesIn(Package $package, $recursive) {
-    $r= [];
+  private function provideFrom($package, $suite, $arguments) {
     foreach ($package->getClasses() as $class) {
-      if (
-        !$class->isSubclassOf('unittest.TestCase') ||
-        Modifiers::isAbstract($class->getModifiers())
-      ) continue;
-      $r[]= $class;
+      if ($class->isSubclassOf(TestCase::class) && !Modifiers::isAbstract($class->getModifiers())) {
+        $suite->addTestClass($class, $arguments);
+      }
     }
-    if ($recursive) foreach ($package->getPackages() as $package) {
-      $r= array_merge($r, self::testClassesIn($package, $recursive));
+    if ($this->recursive) {
+      foreach ($package->getPackages() as $package) {
+        $this->provideFrom($package, $suite, $arguments);
+      }
     }
-    return $r;
   }
 
   /**
-   * Get all test cases
+   * Provide tests to test suite
    *
-   * @param   var[] arguments
-   * @return  unittest.TestCase[]
+   * @param  unittest.TestSuite $suite
+   * @param  var[] $arguments
+   * @return void
    */
-  public function testCasesWith($arguments) {
-    $tests= [];
-    foreach (self::testClassesIn($this->package, $this->recursive) as $class) {
-      $tests= array_merge($tests, $this->testCasesInClass($class, $arguments));
-    }
-    return $tests;
+  public function provideTo($suite, $arguments) {
+    $this->provideFrom($this->package, $suite, $arguments);
   }
-  
+
   /**
    * Creates a string representation of this source
    *
-   * @return  string
+   * @return string
    */
   public function toString() {
     return nameof($this).'['.$this->package->getName().($this->recursive ? '.**' : '.*').']';

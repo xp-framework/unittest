@@ -71,7 +71,7 @@ class UnittestRunnerTest extends TestCase {
   public function nonExistantFile() {
     $return= $this->runner->run(['@@NON-EXISTANT@@'.\xp::CLASS_FILE_EXT]);
     $this->assertEquals(2, $return);
-    $this->assertOnStream($this->err, '@@NON-EXISTANT@@.class.php" does not exist!');
+    $this->assertOnStream($this->err, '*** File "@@NON-EXISTANT@@.class.php" not found');
     $this->assertEquals('', $this->out->getBytes());
   }
 

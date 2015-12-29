@@ -1,46 +1,48 @@
 <?php namespace xp\unittest\sources;
 
+use lang\XPClass;
+
 /**
  * Source that load tests from a class filename
  */
 class ClassSource extends AbstractSource {
-  protected $testClass= null;
-  protected $method= null;
+  private $testClass, $method;
   
   /**
    * Constructor
    *
-   * @param   lang.XPClass testClass
-   * @param   string method default NULL
+   * @param  lang.XPClass $testClass
+   * @param  string $method
    */
-  public function __construct(\lang\XPClass $testClass, $method= null) {
+  public function __construct(XPClass $testClass, $method= null) {
     $this->testClass= $testClass;
     $this->method= $method;
   }
 
   /**
-   * Get all test cases
+   * Provide tests to test suite
    *
-   * @param   var[] arguments
-   * @return  unittest.TestCase[]
+   * @param  unittest.TestSuite $suite
+   * @param  var[] $arguments
+   * @return void
    */
-  public function testCasesWith($arguments) {
+  public function provideTo($suite, $arguments) {
     if (null === $this->method) {
-      return $this->testCasesInClass($this->testClass, $arguments);
+      return $suite->addTestClass($this->testClass, $arguments);
+    } else {
+      $suite->addTest($this->testClass->getConstructor()->newInstance(array_merge(
+        [$this->method],
+        (array)$arguments
+      )));
     }
-    
-    return [$this->testClass->getConstructor()->newInstance(array_merge(
-      (array)$this->method, 
-      (array)$arguments
-    ))];
   }
 
   /**
    * Creates a string representation of this source
    *
-   * @return  string
+   * @return string
    */
   public function toString() {
-    return nameof($this).'['.$this->testClass->toString().']';
+    return nameof($this).'['.$this->testClass->toString().($this->method ? '::'.$this->method : '').']';
   }
 }
