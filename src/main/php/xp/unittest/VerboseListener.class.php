@@ -11,7 +11,7 @@ use lang\Runtime;
  * Shows details for all tests (succeeded, failed and skipped/ignored).
  * This listener has no options.
  */
-class VerboseListener extends \lang\Object implements TestListener {
+class VerboseListener implements TestListener {
   public $out= null;
   
   /**

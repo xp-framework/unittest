@@ -11,7 +11,7 @@ use io\streams\OutputStreamWriter;
  * Updates the window title bar of an xterm or xterm-compatible shell
  * window. This listener has no options.
  */
-class XTermTitleListener extends \lang\Object implements TestListener {
+class XTermTitleListener implements TestListener {
   const PROGRESS_WIDTH= 20;
   private $out= null;
   private $cur, $sum;

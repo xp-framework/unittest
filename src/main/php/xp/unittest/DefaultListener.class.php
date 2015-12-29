@@ -10,8 +10,8 @@ use lang\Runtime;
  * ----------------
  * Only shows details for failed tests. This listener has no options.
  */
-class DefaultListener extends \lang\Object implements TestListener, ColorizingListener {
-  const OUTPUT_WIDTH  = 72;
+class DefaultListener  implements TestListener, ColorizingListener {
+  const OUTPUT_WIDTH= 72;
 
   public $out= null;
   protected $column= 0;
