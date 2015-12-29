@@ -92,7 +92,22 @@ class TestSuite extends \lang\Object {
     }
     return null;
   }
-  
+
+  /**
+   * Returns all tests
+   *
+   * @return  php.Generator
+   */
+  public function tests() {
+    foreach ($this->sources as $classname => $groups) {
+      foreach ($groups as $group) {
+        foreach ($group->tests() as $test) {
+          yield $test;
+        }
+      }
+    }
+  }
+
   /**
    * Adds a listener
    *
