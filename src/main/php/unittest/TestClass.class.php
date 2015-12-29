@@ -1,6 +1,5 @@
 <?php namespace unittest;
 
-use lang\IllegalStateException;
 use lang\IllegalArgumentException;
 use util\NoSuchElementException;
 
@@ -26,15 +25,11 @@ class TestClass extends TestGroup {
 
     foreach ($class->getMethods() as $method) {
       if ($method->hasAnnotation('test')) {
-        if (self::$base->hasMethod($method->getName())) {
-          throw new IllegalStateException(sprintf(
-            'Cannot override %s::%s with test method in %s',
-            self::$base->getName(),
-            $method->getName(),
-            $method->getDeclaringClass()->getName()
-          ));
+        $name= $method->getName();
+        if (self::$base->hasMethod($name)) {
+          throw $this->cannotOverride($method);
         }
-        $this->testMethods[]= $method->getName();
+        $this->testMethods[]= $name;
       }
     }
 
@@ -43,7 +38,7 @@ class TestClass extends TestGroup {
     }
 
     $this->class= $class;
-    $this->arguments= $arguments;
+    $this->arguments= (array)$arguments;
   }
 
   /** @return int */
@@ -53,10 +48,7 @@ class TestClass extends TestGroup {
   public function tests() {
     $constructor= $this->class->getConstructor();
     foreach ($this->testMethods as $name) {
-      yield $constructor->newInstance(array_merge(
-        [$name],
-        (array)$this->arguments
-      ));
+      yield $constructor->newInstance(array_merge([$name], $this->arguments));
     }
   }
 }
