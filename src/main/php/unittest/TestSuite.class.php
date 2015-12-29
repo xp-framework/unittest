@@ -386,6 +386,8 @@ class TestSuite extends \lang\Object {
           $report('testFailed', TestAssertionFailed::class, $e);
         } else if ($e instanceof PrerequisitesNotMetError) {
           $report('testSkipped', TestPrerequisitesNotMet::class, $e);
+        } else if ($e instanceof IgnoredBecause) {
+          $report('testSkipped', TestNotRun::class, $e);
         } else {
           $report('testError', TestError::class, $e);
         }
