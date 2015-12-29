@@ -69,6 +69,7 @@ class TestSuite extends \lang\Object {
   /**
    * Remove all tests
    *
+   * @return void
    */
   public function clearTests() {
     $this->sources= [];
@@ -203,6 +204,7 @@ class TestSuite extends \lang\Object {
    *
    * @param   unittest.TestCase test
    * @param   unittest.TestResult result
+   * @return  void
    * @throws  lang.MethodNotImplementedException
    */
   protected function runInternal($test, $result) {
@@ -394,6 +396,7 @@ class TestSuite extends \lang\Object {
    *
    * @param   string method
    * @param   var[] args
+   * @return  void
    */
   protected function notifyListeners($method, $args) {
     foreach ($this->listeners as $l) {
@@ -407,6 +410,7 @@ class TestSuite extends \lang\Object {
    * other classes (if available)
    *
    * @param  lang.XPClass class
+   * @return void
    */
   protected function beforeClass($class) {
     foreach ($class->getMethods() as $m) {
@@ -432,6 +436,7 @@ class TestSuite extends \lang\Object {
    * exceptions thrown from these methods.
    *
    * @param  lang.XPClass class
+   * @return void
    */
   protected function afterClass($class) {
     foreach ($this->actionsFor($class, 'unittest.TestClassAction') as $action) {
