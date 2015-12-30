@@ -182,6 +182,24 @@ class SuiteTest extends TestCase {
   }
 
   #[@test]
+  public function tests_initially_empty() {
+    $this->assertEquals([], iterator_to_array($this->suite->tests()));
+  }
+
+  #[@test]
+  public function tests_after_adding_one() {
+    $this->suite->addTest($this);
+    $this->assertEquals([$this], iterator_to_array($this->suite->tests()));
+  }
+
+  #[@test]
+  public function tests_after_adding_two() {
+    $this->suite->addTest($this);
+    $this->suite->addTest($this);
+    $this->assertEquals([$this, $this], iterator_to_array($this->suite->tests()));
+  }
+
+  #[@test]
   public function runningASingleSucceedingTest() {
     $r= $this->suite->runTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(true); }
@@ -321,7 +339,7 @@ class SuiteTest extends TestCase {
       '#[@test] fixture' => function() { trigger_error('Test error'); }
     ]);
     $this->assertEquals(
-      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 321, occured once)'],
+      [sprintf('"Test error" in ::trigger_error() (SuiteTest.class.php, line %d, occured once)', __LINE__ - 3)],
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason
     );
   }
@@ -346,7 +364,7 @@ class SuiteTest extends TestCase {
       }
     ]);
     $this->assertEquals(
-      ['"Test error" in ::trigger_error() (SuiteTest.class.php, line 344, occured once)'],
+      [sprintf('"Test error" in ::trigger_error() (SuiteTest.class.php, line %d, occured once)', __LINE__ - 5)],
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason
     );
   }
