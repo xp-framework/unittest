@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 6.8.0 / ????-??-??
+
+* **Heads up: Bumped minimum XP version required to XP 6.9.1** - @thekid
+* Merged pull request #7: Wrap native exceptions - @thekid
+* Merged pull request #9: Refactor sources - @thekid
+
 ## 6.7.2 / 2015-12-29
 
 * Merged pull request #11: Add "stop after first failing test" option
