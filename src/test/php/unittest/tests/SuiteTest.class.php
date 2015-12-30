@@ -345,12 +345,34 @@ class SuiteTest extends TestCase {
   }
 
   #[@test]
-  public function exceptionsMakeTestFail() {
+  public function xp_exceptions_make_test_fail() {
     $test= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { throw new IllegalArgumentException('Test'); }
     ]);
     $this->assertInstanceOf(
       'lang.IllegalArgumentException',
+      $this->suite->runTest($test)->failed[$test->hashCode()]->reason
+    );
+  }
+
+  #[@test]
+  public function native_exceptions_make_test_fail() {
+    $test= newinstance(TestCase::class, ['fixture'], [
+      '#[@test] fixture' => function() { throw new \Exception('Test'); }
+    ]);
+    $this->assertInstanceOf(
+      'lang.XPException',
+      $this->suite->runTest($test)->failed[$test->hashCode()]->reason
+    );
+  }
+
+  #[@test, @action(new RuntimeVersion('>=7.0.0'))]
+  public function native_php7_errors_make_test_fail() {
+    $test= newinstance(TestCase::class, ['fixture'], [
+      '#[@test] fixture' => function() { $null= null; $null->method(); }
+    ]);
+    $this->assertInstanceOf(
+      'lang.Error',
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason
     );
   }
@@ -548,7 +570,7 @@ class SuiteTest extends TestCase {
     $this->assertEquals(1, $r->failureCount());
   }
 
-  #[@test, @values([IllegalArgumentException::class, 'Exception'])]
+  #[@test, @values([IllegalArgumentException::class, \Exception::class])]
   public function throwing_any_other_exception_from_setUp_fails_test($e) {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'setUp' => function() use($e) { throw new $e('Fail'); },
@@ -568,7 +590,7 @@ class SuiteTest extends TestCase {
     $this->assertEquals(1, $r->failureCount());
   }
 
-  #[@test, @values([IllegalArgumentException::class, 'Exception'])]
+  #[@test, @values([IllegalArgumentException::class, \Exception::class])]
   public function throwing_any_other_exception_from_tearDown_fails_succeeding_test($e) {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'tearDown' => function() use($e) { throw new $e('Fail'); },
@@ -578,7 +600,7 @@ class SuiteTest extends TestCase {
     $this->assertEquals(1, $r->failureCount());
   }
 
-  #[@test, @values([IllegalArgumentException::class, 'Exception'])]
+  #[@test, @values([IllegalArgumentException::class, \Exception::class])]
   public function throwing_any_other_exception_from_tearDown_fails_failing_test($e) {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'tearDown' => function() use($e) { throw new $e('Fail'); },

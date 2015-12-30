@@ -208,9 +208,9 @@ class TestSuite extends \lang\Object {
     } catch (Throwable $e) {
       throw $e;
     } catch (\Exception $e) {
-      throw new Error($e->getMessage());
+      throw Throwable::wrap($e);
     } catch (\Throwable $e) {
-      throw new Error($e->getMessage());
+      throw Throwable::wrap($e);
     }
   }
 
