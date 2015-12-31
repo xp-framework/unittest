@@ -10,6 +10,7 @@
     "xp-framework/io-collections": "^6.5.0",
     "php" : ">=5.5.0"
   },
+  "bin": ["bin/xp-framework.unittest"],
   "autoload" : {
     "files" : ["src/main/php/autoload.php"]
   }
