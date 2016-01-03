@@ -31,7 +31,7 @@ To run the test, use the `unittest` runner:
 $ unittest CalculatorTest
 [.]
 
-✓: 1/1 run (0 skipped), 1 succeeded, 0 failed
+♥: 1/1 run (0 skipped), 1 succeeded, 0 failed
 Memory used: 1173.51 kB (1307.40 kB peak)
 Time taken: 0.000 seconds
 ```
