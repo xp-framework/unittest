@@ -156,10 +156,10 @@ class DefaultListener  implements TestListener, ColorizingListener {
       $indicator= ($this->colored ? "\033[43;1;30m■ " : 'STOP ').$stopped->getMessage();
     } else if ($failed) {
       $this->out->writeLine(']');
-      $indicator= $this->colored ? "\033[41;1;37m✗" : 'FAIL';
+      $indicator= $this->colored ? "\033[41;1;37m×" : 'FAIL';
     } else {
       $this->out->writeLine(']');
-      $indicator= $this->colored ? "\033[42;1;37m✓" : 'OK';
+      $indicator= $this->colored ? "\033[42;1;37m♥" : 'OK';
     }
 
     // Show failed test details
