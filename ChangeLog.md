@@ -3,8 +3,13 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
-## 6.8.0 / ????-??-??
+## 6.8.0 / 2016-01-03
 
+* Merged pull request #12: Use symbols that also work in Windows console
+  (@thekid)
+* Added integration with new XP subcommand runners: `xp test [args]`.
+  See xp-framework/rfc#303
+  (@thekid)
 * **Heads up: Bumped minimum XP version required to XP 6.9.1** - @thekid
 * Merged pull request #7: Wrap native exceptions - @thekid
 * Merged pull request #9: Refactor sources - @thekid
