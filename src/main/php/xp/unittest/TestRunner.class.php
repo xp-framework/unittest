@@ -29,7 +29,7 @@ use xp\unittest\sources\PropertySource;
 
 /**
  * Unittest command
- * ~~~~~~~~~~~~~~~~
+ * ================
  *
  * Usage:
  * ```sh
@@ -146,7 +146,7 @@ class TestRunner {
    * @return  int exitcode
    */
   protected function usage() {
-    $this->err->writeLine($this->textOf((new XPClass(__CLASS__))->getComment()));
+    $this->err->writeLine('Runs unittests: `xp test [tests]`. xp help test has the details!');
     return 2;
   }
 
