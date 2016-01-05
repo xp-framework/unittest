@@ -3,6 +3,13 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 6.8.2 / 2016-01-05
+
+* Fixed incorrect class name for ColoredBarListener which rendered it
+  unusable. It now works again as expected, use the following options:
+  `unittest -q -l ColoredBar - src/test/php`
+  (@thekid)
+
 ## 6.8.1 / 2016-01-05
 
 * Fixed issue #13: assertEquals() and non-XP objects - @thekid
