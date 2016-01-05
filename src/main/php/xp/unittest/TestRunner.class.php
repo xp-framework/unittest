@@ -28,44 +28,35 @@ use xp\unittest\sources\PackageSource;
 use xp\unittest\sources\PropertySource;
 
 /**
- * Unittest command
- * ================
+ * Runs unittests and displays a summary
+ * ========================================================================
  *
- * Usage:
- * ```sh
- * $ xp test [options] test [test [test...]]
- * ```
+ * - Run all tests inside the given directory
+ *   ```sh
+ *   $ xp test src/test/php
+ *   ```
+ * - Run test classes inside a given package
+ *   ```sh
+ *   $ xp test com.example.unittest.**
+ *   ```
+ * - Run a single test class
+ *   ```sh
+ *   $ xp test com.example.unittest.VerifyItWorks
+ *   ```
+ * - Run a single test file
+ *   ```sh
+ *   $ xp test Test.class.php
+ *   ```
+ * - Evaluates test code directly from the command line
+ *   ```sh
+ *   $ xp test -e '$this->assertEquals(3, sizeof([1, 2, 3]);'
+ *   ```
  *
- * Options is one of:
+ * The {-q} option suppresses all output, {-v} is more verbose. By default,
+ * all test methods are run. To interrupt this, use {-s} "fail"|"ignore"|"skip".
+ * Arguments to tests can be passed by supplying on ore more {-a} "value".
  *
- *   -v : Be verbose
- *   -q : Be quiet (no output)
- *   -a {argument}: Define argument to pass to tests (may be used
- *     multiple times)
- *   -l {listener.class.Name} {output} [-o option value [-o ...]]
- *     where output is either "-" for console output or a file name. 
- *     Options with "-o" are listener-dependant arguments.
- *   --color={mode} : Enable / disable color; mode can be one of
- *     . "on" - activate color mode
- *     . "off" - disable color mode
- *     . "auto" - try to determine whether colors are supported and enable
- *       accordingly.
- *   -w {dir}: Run indefinitely, watch given directory for changes
- *   -s {when}: Stop running when a certain event occurs. When may be:
- *     . "fail" - When the first test fails
- *     . "skip" - On the first skipped test
- *     . "ignore" - When the first ignored test is encountered
- *
- * Tests can be one or more of:
- *
- *   {tests}.ini: A configuration file
- *   {package.name}.*: All classes inside a given package
- *   {package.name}.**: All classes inside a given package and all subpackages
- *   {Test}.class.php: A class file
- *   {test.class.Name}: A fully qualified class name
- *   {test.class.Name}::{testName}: A fully qualified class name and a test name
- *   path/with/tests: All classes inside a given directory and all subdirectories
- *   -e {test method sourcecode}: Evaluate source
+ * The exit code is `0` when all tests succeed, nonzero otherwise.
  */
 class TestRunner {
   protected $in, $out, $err;
