@@ -118,6 +118,11 @@ class AssertionsTest extends TestCase {
     $this->assertEquals(new Name($str), new Name($str));
   }
 
+  #[@test]
+  public function nativeInstancesAreEqual() {
+    $this->assertEquals(new \ReflectionClass(self::class), new \ReflectionClass(self::class));
+  }
+
   #[@test, @expect(AssertionFailedError::class)]
   public function differentNotTypesAreNotEqual() {
     $this->assertEquals(false, null);
@@ -142,6 +147,11 @@ class AssertionsTest extends TestCase {
   public function sameIntegersAreEqual() {
     $this->assertNotEquals(1, 1);
   }    
+
+  #[@test]
+  public function nativeInstanceIsNotEqualToThis() {
+    $this->assertNotEquals(new \ReflectionClass(self::class), $this);
+  }
 
   #[@test]
   public function thisIsAnInstanceOfTestCase() {
