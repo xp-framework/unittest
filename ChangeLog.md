@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 6.8.1 / 2016-01-05
+
+* Fixed issue #13: assertEquals() and non-XP objects - @thekid
+
 ## 6.8.0 / 2016-01-03
 
 * Merged pull request #12: Use symbols that also work in Windows console
