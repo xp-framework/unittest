@@ -52,11 +52,11 @@ use xp\unittest\sources\PropertySource;
  *   $ xp test -e '$this->assertEquals(3, sizeof([1, 2, 3]);'
  *   ```
  *
- * The {-q} option suppresses all output, {-v} is more verbose. By default,
- * all test methods are run. To interrupt this, use {-s} "fail"|"ignore"|"skip".
- * Arguments to tests can be passed by supplying on ore more {-a} "value".
+ * The `-q` option suppresses all output, `-v` is more verbose. By default,
+ * all test methods are run. To interrupt this, use `-s` *fail|ignore|skip*.
+ * Arguments to tests can be passed by supplying on ore more `-a` *{value}*.
  *
- * The exit code is `0` when all tests succeed, nonzero otherwise.
+ * The exit code is **0** when all tests succeed, nonzero otherwise.
  */
 class TestRunner {
   protected $in, $out, $err;
