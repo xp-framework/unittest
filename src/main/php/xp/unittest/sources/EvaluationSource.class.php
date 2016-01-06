@@ -15,18 +15,18 @@ class EvaluationSource extends AbstractSource {
    *
    * @param  string $src method sourcecode
    */
-  public function __construct($src) {
+  public function __construct($input) {
 
     // Support <?php
-    $src= trim($src, ' ;').';';
-    if (0 === strncmp($src, '<?php', 5)) {
-      $src= substr($src, 6);
+    if (0 === strncmp($input, '<?', 2)) {
+      $input= substr($input, strcspn($input, "\r\n\t =") + 1);
     }
+    $fragment= trim($input, "\r\n\t ;").';';
 
     $name= 'xp.unittest.DynamicallyGeneratedTestCase'.(self::$uniqId++);
     $this->testClass= ClassLoader::defineClass($name, TestCase::class, [], '{
       #[@test] 
-      public function run() { '.$src.' }
+      public function run() { '.$fragment.' }
     }');
   }
 
