@@ -5,7 +5,7 @@ Unittests change log
 
 ## 6.8.3 / 2016-01-09
 
-* Fix issue #16: Fatal error when no testcases are found - @thekid)
+* Fix issue #16: Fatal error when no testcases are found - @thekid
 
 ## 6.8.2 / 2016-01-05
 
