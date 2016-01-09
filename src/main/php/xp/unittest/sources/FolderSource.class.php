@@ -65,7 +65,7 @@ class FolderSource extends AbstractSource {
     }
 
     if ($empty) {
-      throw new IllegalArgumentException('Cannot find any test cases in '.$this->folder->toString());
+      throw new IllegalArgumentException('Cannot find any test cases in '.$this->loader->toString());
     }
   }
 
