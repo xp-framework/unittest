@@ -51,6 +51,10 @@ use xp\unittest\sources\PropertySource;
  *   ```sh
  *   $ xp test -e '$this->assertEquals(3, sizeof([1, 2, 3]);'
  *   ```
+ * - Run indefinitely, watching the current directory for changes:
+ *   ```sh
+ *   $ xp -watch . test src/test/php
+ *   ```
  *
  * The `-q` option suppresses all output, `-v` is more verbose. By default,
  * all test methods are run. To interrupt this, use `-s` *fail|ignore|skip*.
