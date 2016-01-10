@@ -6,7 +6,6 @@ use lang\Generic;
 use unittest\AssertionFailedError;
 use lang\types\Integer;
 use lang\types\ArrayList;
-use net\xp_framework\unittest\Name;
 
 /**
  * Test assertion methods
