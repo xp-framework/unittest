@@ -3,6 +3,13 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 6.9.0 / 2016-01-10
+
+* **Heads up: Bumped minimum XP version required to XP 6.10.0** - @thekid
+* Merged PR #14: Use a "TL;DR" style for displaying help. This will show
+  when used together with the new XP runners xp-framework/rfc#303
+  (@thekid)
+
 ## 6.8.3 / 2016-01-09
 
 * Fix issue #16: Fatal error when no testcases are found - @thekid
