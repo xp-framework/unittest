@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 6.10.0 / 2016-01-10
+
+* **Heads up: Upgrade your runners before using this release!**
+  It uses class path precedence as defined in xp-runners/reference#11
+  (@thekid)
+
 ## 6.9.0 / 2016-01-10
 
 * **Heads up: Bumped minimum XP version required to XP 6.10.0** - @thekid
