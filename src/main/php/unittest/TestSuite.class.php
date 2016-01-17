@@ -144,9 +144,10 @@ class TestSuite extends \lang\Object {
    *
    * @param  unittest.TestCase test
    * @param  var annotation
+   * @param  lang.types.TypeMirror self
    * @return var values a traversable structure
    */
-  protected function valuesFor($test, $annotation) {
+  protected function valuesFor($test, $annotation, $self) {
     if (!is_array($annotation)) {               // values("source")
       $source= $annotation;
       $args= [];
@@ -161,14 +162,11 @@ class TestSuite extends \lang\Object {
     // "self::method" -> static method of the test class, and "method" 
     // -> the run test's instance method
     if (false === ($p= strpos($source, '::'))) {
-      return (new InstanceMirror($test))->method($source)->invoke($test, $args);
+      return $self->method($source)->invoke($test, $args);
     }
+
     $ref= substr($source, 0, $p);
-    if ('self' === $ref) {
-      $mirror= new InstanceMirror($test);
-    } else {
-      $mirror= new TypeMirror($ref);
-    }
+    $mirror= 'self' === $ref ? $self : new TypeMirror($ref);
     return $mirror->method(substr($source, $p + 2))->invoke(null, $args);
   }
 
@@ -260,7 +258,7 @@ class TestSuite extends \lang\Object {
     if ($annotations->provides('values')) {
       $annotation= $annotations->named('values')->value();
       $variation= true;
-      $values= $this->valuesFor($test, $annotation);
+      $values= $this->valuesFor($test, $annotation, $mirror);
     } else {
       $variation= false;
       $values= [[]];
