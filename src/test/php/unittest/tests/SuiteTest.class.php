@@ -356,6 +356,17 @@ class SuiteTest extends TestCase {
   }
 
   #[@test]
+  public function native_exceptions_make_test_fail() {
+    $test= newinstance(TestCase::class, ['fixture'], [
+      '#[@test] fixture' => function() { throw new \Exception('Test'); }
+    ]);
+    $this->assertInstanceOf(
+      'lang.Error',
+      $this->suite->runTest($test)->failed[$test->hashCode()]->reason
+    );
+  }
+
+  #[@test, @action(new RuntimeVersion('>=7.0.0'))]
   public function native_php7_errors_make_test_fail() {
     $test= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $null= null; $null->method(); }
