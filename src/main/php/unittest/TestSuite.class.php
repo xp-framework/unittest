@@ -220,11 +220,11 @@ class TestSuite extends \lang\Object {
    *
    * @param   unittest.TestCase test
    * @param   unittest.TestResult result
+   * @param   lang.mirrors.TypeMirror mirror
    * @return  void
    * @throws  lang.MethodNotImplementedException
    */
-  protected function runInternal($test, $result) {
-    $mirror= new InstanceMirror($test);
+  protected function runInternal($test, $result, $mirror) {
     $method= $mirror->method($test->name);
     $annotations= $method->annotations(); 
     $this->notifyListeners('testStarted', [$test]);
@@ -491,7 +491,7 @@ class TestSuite extends \lang\Object {
     $result= new TestResult();
     try {
       $this->beforeClass($mirror);
-      $this->runInternal($test, $result);
+      $this->runInternal($test, $result, $mirror);
       $this->afterClass($mirror);
       $this->notifyListeners('testRunFinished', [$this, $result, null]);
     } catch (PrerequisitesNotMetError $e) {
@@ -530,7 +530,7 @@ class TestSuite extends \lang\Object {
 
         foreach ($groups as $group) {
           foreach ($group->tests() as $test) {
-            $this->runInternal($test, $result);
+            $this->runInternal($test, $result, $mirror);
           }
         }
         $this->afterClass($mirror);
