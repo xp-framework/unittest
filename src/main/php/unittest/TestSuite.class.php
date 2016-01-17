@@ -10,6 +10,7 @@ use lang\Throwable;
 use lang\Error;
 use lang\mirrors\TargetInvocationException;
 use lang\mirrors\TypeMirror;
+use lang\mirrors\InstanceMirror;
 
 /**
  * Test suite
@@ -160,11 +161,11 @@ class TestSuite extends \lang\Object {
     // "self::method" -> static method of the test class, and "method" 
     // -> the run test's instance method
     if (false === ($p= strpos($source, '::'))) {
-      return (new TypeMirror(get_class($test)))->method($source)->invoke($test, $args);
+      return (new InstanceMirror($test))->method($source)->invoke($test, $args);
     }
     $ref= substr($source, 0, $p);
     if ('self' === $ref) {
-      $mirror= new TypeMirror(get_class($test));
+      $mirror= new InstanceMirror($test);
     } else {
       $mirror= new TypeMirror($ref);
     }
@@ -223,7 +224,7 @@ class TestSuite extends \lang\Object {
    * @throws  lang.MethodNotImplementedException
    */
   protected function runInternal($test, $result) {
-    $mirror= new TypeMirror(get_class($test));
+    $mirror= new InstanceMirror($test);
     $method= $mirror->method($test->name);
     $annotations= $method->annotations(); 
     $this->notifyListeners('testStarted', [$test]);
@@ -480,7 +481,7 @@ class TestSuite extends \lang\Object {
    * @throws  lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function runTest(TestCase $test) {
-    $mirror= new TypeMirror(get_class($test));
+    $mirror= new InstanceMirror($test);
     if (!$mirror->methods()->provides($test->name)) {
       throw new MethodNotImplementedException('Test method does not exist', $test->name);
     }
