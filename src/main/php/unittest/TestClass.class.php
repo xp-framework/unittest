@@ -1,13 +1,20 @@
 <?php namespace unittest;
 
 use lang\IllegalArgumentException;
+use lang\mirrors\TypeMirror;
 use util\NoSuchElementException;
+use util\Filter;
 
 class TestClass extends TestGroup {
-  private $class, $arguments;
+  private static $TESTS;
+  private $create, $arguments;
   private $testMethods= [];
 
-  static function __static() { }
+  static function __static() {
+    self::$TESTS= newinstance(Filter::class, [], '{
+      public function accept($m) { return $m->annotations()->provides("test"); }
+    }');
+  }
 
   /**
    * Creates an instance from a testcase
@@ -19,25 +26,25 @@ class TestClass extends TestGroup {
    * @throws util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function __construct($class, $arguments) {
-    if (!$class->isSubclassOf(self::$base)) {
+    $mirror= new TypeMirror($class);
+    if (!$mirror->isSubtypeOf(self::$base)) {
       throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
     }
 
-    foreach ($class->getMethods() as $method) {
-      if ($method->hasAnnotation('test')) {
-        $name= $method->getName();
-        if (self::$base->hasMethod($name)) {
-          throw $this->cannotOverride($method);
-        }
-        $this->testMethods[]= $name;
+    $base= self::$base->methods();
+    foreach ($mirror->methods()->all(self::$TESTS) as $method) {
+      $name= $method->name();
+      if ($base->provides($name)) {
+        throw $this->cannotOverride($method);
       }
+      $this->testMethods[]= $name;
     }
 
     if (empty($this->testMethods)) {
-      throw new NoSuchElementException('No tests found in '.$class->getName());
+      throw new NoSuchElementException('No tests found in '.$mirror->name());
     }
 
-    $this->class= $class;
+    $this->create= $mirror->reflect;
     $this->arguments= (array)$arguments;
   }
 
@@ -46,9 +53,8 @@ class TestClass extends TestGroup {
 
   /** @return php.Generator */
   public function tests() {
-    $constructor= $this->class->getConstructor();
     foreach ($this->testMethods as $name) {
-      yield $constructor->newInstance(array_merge([$name], $this->arguments));
+      yield $this->create->newInstance(array_merge([$name], $this->arguments));
     }
   }
 }

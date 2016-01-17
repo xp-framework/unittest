@@ -1,27 +1,27 @@
 <?php namespace unittest;
 
-use lang\XPClass;
+use lang\mirrors\TypeMirror;
 use lang\IllegalStateException;
 
 abstract class TestGroup {
   protected static $base;
 
   static function __static() {
-    self::$base= new XPClass(TestCase::class);
+    self::$base= new TypeMirror(TestCase::class);
   }
 
   /**
    * Verify test method doesn't override a special method from TestCase
    *
-   * @param  lang.reflect.Method $method
+   * @param  lang.mirrors.Method $method
    * @return lang.IllegalStateException
    */
   protected function cannotOverride($method) {
     return new IllegalStateException(sprintf(
       'Cannot override %s::%s with test method in %s',
-      self::$base->getName(),
-      $method->getName(),
-      $method->getDeclaringClass()->getName()
+      self::$base->name(),
+      $method->name(),
+      $method->declaredIn()->name()
     ));
   }
 

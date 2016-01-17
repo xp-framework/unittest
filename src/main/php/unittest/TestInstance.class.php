@@ -1,6 +1,7 @@
 <?php namespace unittest;
 
 use lang\MethodNotImplementedException;
+use lang\mirrors\TypeMirror;
 
 class TestInstance extends TestGroup {
   private $instance;
@@ -15,13 +16,13 @@ class TestInstance extends TestGroup {
    * @throws lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function __construct($instance) {
-    $class= $instance->getClass();
-    if (!$class->hasMethod($instance->name)) {
+    $mirror= new TypeMirror(typeof($instance));
+    if (!$mirror->methods()->provides($instance->name)) {
       throw new MethodNotImplementedException('Test method does not exist', $instance->name);
     }
 
-    if (self::$base->hasMethod($instance->name)) {
-      throw $this->cannotOverride($class->getMethod($instance->name));
+    if (self::$base->methods()->provides($instance->name)) {
+      throw $this->cannotOverride($mirror->method($instance->name));
     }
 
     $this->instance= $instance;
