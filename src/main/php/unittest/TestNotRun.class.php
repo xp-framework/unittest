@@ -37,10 +37,9 @@ class TestNotRun extends \lang\Object implements TestSkipped {
    */
   public function toString() {
     return sprintf(
-      "%s(test= %s, time= %.3f seconds) {\n  %s\n }",
+      "%s(test= %s, time= 0.000 seconds) {\n  %s\n }",
       nameof($this),
       $this->test->getName(true),
-      $this->elapsed,
       \xp::stringOf($this->reason, '  ')
     );
   }

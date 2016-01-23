@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 6.10.1 / 2016-01-23
+
+* Fix code to use `nameof()` instead of the deprecated `getClassName()`
+  method from lang.Generic. See xp-framework/core#120
+  (@thekid)
+
 ## 6.10.0 / 2016-01-10
 
 * **Heads up: Upgrade your runners before using this release!**

@@ -294,7 +294,7 @@ class TestRunner {
           try {
             $method->invoke($instance, $pass);
           } catch (TargetInvocationException $e) {
-            $this->err->writeLine('*** Error for argument '.$name.' to '.$instance->getClassName().': '.$e->getCause()->toString());
+            $this->err->writeLine('*** Error for argument '.$name.' to '.nameof($instance).': '.$e->getCause()->toString());
             return 2;
           }
         } else if ('-?' == $args[$i] || '--help' == $args[$i]) {
