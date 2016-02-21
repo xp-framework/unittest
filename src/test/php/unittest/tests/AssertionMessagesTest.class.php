@@ -47,22 +47,6 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test, @action(new RuntimeVersion('<7.0.0-dev'))]
-  public function differentStrings() {
-    $this->assertFormatted(
-      'expected [abc] but was [] using: \'equals\'',
-      new ComparisonFailedMessage('equals', new \lang\types\String('abc'), new \lang\types\String(''))
-    );
-  }
-
-  #[@test, @action(new RuntimeVersion('<7.0.0-dev'))]
-  public function stringAndStringPrimitive() {
-    $this->assertFormatted(
-      'expected [lang.types.String:] but was [string:""] using: \'equals\'',
-      new ComparisonFailedMessage('equals', new \lang\types\String(''), '')
-    );
-  }
-
   #[@test]
   public function differentStringPrimitives() {
     $this->assertFormatted(
