@@ -1,7 +1,6 @@
 <?php namespace unittest\tests;
  
 use unittest\TestCase;
-use lang\types\ArrayList;
 use unittest\TestSuite;
 
 /**
@@ -12,7 +11,7 @@ use unittest\TestSuite;
  * @see  https://github.com/xp-framework/xp-framework/issues/298
  */
 class ValuesTest extends TestCase {
-  protected $suite= null;
+  private $suite;
     
   /**
    * Setup method. Creates a new test suite.
@@ -234,7 +233,7 @@ class ValuesTest extends TestCase {
       public $values= [];
 
       public function values() {
-        return new \lang\types\ArrayList(1, 2, 3);
+        return new \ArrayObject([1, 2, 3]);
       }
 
       #[@test, @values("values")]

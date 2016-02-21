@@ -1,11 +1,9 @@
 <?php namespace unittest\tests;
  
 use lang\Object;
-use unittest\TestCase;
 use lang\Generic;
+use unittest\TestCase;
 use unittest\AssertionFailedError;
-use lang\types\Integer;
-use lang\types\ArrayList;
 
 /**
  * Test assertion methods
@@ -86,7 +84,7 @@ class AssertionsTest extends TestCase {
   #[@test, @values([
   #  [[]],
   #  [[1, 2, 3]],
-  #  [[[1], [], [-1, 4], [new Integer(2)]]]
+  #  [[[1], [], [-1, 4], [new Value(2)]]]
   #])]
   public function arraysAreEqual($array) {
     $this->assertEquals($array, $array);
@@ -95,7 +93,7 @@ class AssertionsTest extends TestCase {
   #[@test, @values([
   #  [[]],
   #  [['foo' => 2]],
-  #  [[['bar' => 'baz'], [], ['bool' => true, 'bar' => new Integer(6100)]]]
+  #  [[['bar' => 'baz'], [], ['bool' => true, 'bar' => new Value(6100)]]]
   #])]
   public function hashesAreEqual($hash) {
     $this->assertEquals($hash, $hash);
@@ -109,7 +107,7 @@ class AssertionsTest extends TestCase {
 
   #[@test, @values([1, 0, -1])]
   public function integerObjectsAreEqual($str) {
-    $this->assertEquals(new Integer($str), new Integer($str));
+    $this->assertEquals(new Value($str), new Value($str));
   }
 
   #[@test, @values(['', 'Hello','äöüß'])]
@@ -127,23 +125,23 @@ class AssertionsTest extends TestCase {
     $this->assertEquals(false, null);
   }    
 
-  #[@test, @values([-1, 1.0, null, false, true, '', [[1]], new Integer(1)])]
+  #[@test, @values([-1, 1.0, null, false, true, '', [[1]], new Value(1)])]
   public function integersAreNotEqual($cmp) {
     $this->assertNotEquals(1, $cmp);
   }    
 
-  #[@test, @values([-1, 1.0, null, false, true, 1, [[1]], new Integer(1)])]
+  #[@test, @values([-1, 1.0, null, false, true, 1, [[1]], new Value(1)])]
   public function stringsAreNotEqual($cmp) {
     $this->assertNotEquals('', $cmp);
   }
 
-  #[@test, @values([-1, 1.0, null, false, true, 1, [[1]], new Integer(1)])]
+  #[@test, @values([-1, 1.0, null, false, true, 1, [[1]], new Value(1)])]
   public function arraysAreNotEqual($cmp) {
     $this->assertNotEquals([], $cmp);
   }    
 
   #[@test, @expect(AssertionFailedError::class)]
-  public function sameIntegersAreEqual() {
+  public function sameValuesAreEqual() {
     $this->assertNotEquals(1, 1);
   }    
 
@@ -174,7 +172,7 @@ class AssertionsTest extends TestCase {
 
   #[@test, @expect(AssertionFailedError::class)]
   public function objectIsNotAnInstanceOfString() {
-    $this->assertInstanceOf(Integer::class, new \lang\Object());
+    $this->assertInstanceOf(Value::class, new \lang\Object());
   }    
 
   #[@test, @expect(AssertionFailedError::class)]
@@ -189,7 +187,7 @@ class AssertionsTest extends TestCase {
 
   #[@test, @expect(AssertionFailedError::class)]
   public function thisIsNotAnInstanceOfString() {
-    $this->assertInstanceOf(Integer::class, $this);
+    $this->assertInstanceOf(Value::class, $this);
   }    
 
   #[@test]
@@ -243,12 +241,12 @@ class AssertionsTest extends TestCase {
   }
 
   #[@test, @expect(AssertionFailedError::class)]
-  public function arrayListIsNotInstanceOfArray() {
-    $this->assertInstanceOf('array', new ArrayList(1, 2, 3));
+  public function arrayObjectIsNotInstanceOfArray() {
+    $this->assertInstanceOf('array', new \ArrayObject([1, 2, 3]));
   }
 
   #[@test, @expect(AssertionFailedError::class)]
-  public function primitiveIsNotAnInstanceOfIntegerlass() {
-    $this->assertInstanceOf('int', new Integer(1));
+  public function primitiveIsNotAnInstanceOfValuelass() {
+    $this->assertInstanceOf('int', new Value(1));
   }    
 }

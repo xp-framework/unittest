@@ -3,7 +3,6 @@
 use unittest\TestCase;
 use unittest\actions\RuntimeVersion;
 use unittest\ComparisonFailedMessage;
-use lang\types\Integer;
 
 /**
  * TestCase
@@ -75,8 +74,8 @@ class AssertionMessagesTest extends TestCase {
   #[@test]
   public function differentTypes() {
     $this->assertFormatted(
-      'expected [lang.types.Integer(1)] but was [unittest.tests.AssertionMessagesTest<differentTypes>] using: \'equals\'',
-      new ComparisonFailedMessage('equals', new Integer(1), $this)
+      'expected [unittest.tests.Value:unittest.tests.Value(1)] but was [unittest.tests.AssertionMessagesTest:unittest.tests.AssertionMessagesTest<differentTypes>] using: \'equals\'',
+      new ComparisonFailedMessage('equals', new Value(1), $this)
     );
   }
 
