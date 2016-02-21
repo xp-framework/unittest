@@ -6,7 +6,7 @@
   "description" : "Unittests for the XP Framework",
   "keywords": ["module", "xp"],
   "require" : {
-    "xp-framework/core": "^6.10",
+    "xp-framework/core": "^7.0 | ^6.10",
     "xp-framework/io-collections": "^6.5",
     "php" : ">=5.5.0"
   },
