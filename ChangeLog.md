@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 7.0.1 / 2016-03-17
+
+* Fixed issue when expected exception's message was empty. Originally
+  reported in xp-framework/core#135 by @kiesel
+  (@thekid)
+
 ## 7.0.0 / 2016-02-21
 
 * **Adopted semantic versioning. See xp-framework/rfc#300** - @thekid 
