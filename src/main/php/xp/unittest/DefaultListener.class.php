@@ -3,6 +3,7 @@
 use unittest\TestListener;
 use unittest\ColorizingListener;
 use io\streams\OutputStreamWriter;
+use io\streams\ConsoleOutputStream;
 use lang\Runtime;
 
 /**
@@ -34,7 +35,10 @@ class DefaultListener  implements TestListener, ColorizingListener {
    */
   public function setColor($color) {
     if (null === $color) {
-      $color= getenv('TERM') || getenv('ANSICON');
+      $color= (
+        $this->out instanceof ConsoleOutputStream &&
+        function_exists('posix_isatty') ? posix_isatty(STDOUT) : true
+      );
     }
 
     $this->colored= $color;
