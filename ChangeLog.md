@@ -3,6 +3,8 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 7.0.2 / 2016-06-18
+
 * Changed detection whether to use colors in the output to check
   whether writing to the console; and no longer check `TERM` or
   `ANSICON` environment variables. The XP runners guarantee ANSI
