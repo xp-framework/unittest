@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+* Changed detection whether to use colors in the output to check
+  whether writing to the console; and no longer check `TERM` or
+  `ANSICON` environment variables. The XP runners guarantee ANSI
+  color escape sequences work in all situations!
+  (@thekid)
+
 ## 7.0.1 / 2016-03-17
 
 * Fixed issue when expected exception's message was empty. Originally
