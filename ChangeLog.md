@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 7.1.0 / 2016-08-28
+
+* Added forward compatibility with XP 8.0.0 - @thekid
+
 ## 7.0.2 / 2016-06-18
 
 * Changed detection whether to use colors in the output to check
