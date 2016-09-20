@@ -1,5 +1,7 @@
 <?php namespace xp\unittest;
 
+use io\streams\OutputStreamWriter;
+
 /**
  * Quiet listener
  * --------------
@@ -7,6 +9,14 @@
  */
 class QuietListener implements \unittest\TestListener {
 
+  /**
+   * Constructor
+   *
+   * @param   io.streams.OutputStreamWriter out
+   */
+  public function __construct(OutputStreamWriter $out) {
+    // NOOP
+  }
 
   /**
    * Called when a test case starts.

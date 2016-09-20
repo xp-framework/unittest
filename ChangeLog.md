@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed "Class xp\unittest\QuietListener does not have a constructor,
+  so you cannot pass any constructor arguments".
+  (@thekid, @kiesel)
+
 ## 7.1.0 / 2016-08-28
 
 * Added forward compatibility with XP 8.0.0 - @thekid
