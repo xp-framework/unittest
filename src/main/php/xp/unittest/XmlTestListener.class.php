@@ -137,7 +137,7 @@ class XmlTestListener implements TestListener {
     $t= $this->addTestCase($failure, 'failures');
     $t->addChild(new \xml\Node('failure', $this->messageFor($failure), [
       'message' => trim($failure->reason->compoundMessage()),
-      'type'    => \xp::typeOf($failure->reason)
+      'type'    => typeof($failure->reason)->getName()
     ]));
   }
 
@@ -150,7 +150,7 @@ class XmlTestListener implements TestListener {
     $t= $this->addTestCase($error, 'errors');
     $t->addChild(new \xml\Node('error', $this->messageFor($error), [
       'message' => trim($error->reason->compoundMessage()),
-      'type'    => \xp::typeOf($error->reason)
+      'type'    => typeof($error->reason)->getName()
     ]));
   }
 

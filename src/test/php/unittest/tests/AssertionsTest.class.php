@@ -170,23 +170,35 @@ class AssertionsTest extends TestCase {
     $this->assertInstanceOf(Object::class, new \lang\Object());
   }    
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[@test, @expect(
+  #  class= AssertionFailedError::class,
+  #  withMessage= 'expected ["unittest.tests.Value"] but was ["lang.Object"]'
+  #)]
   public function objectIsNotAnInstanceOfString() {
     $this->assertInstanceOf(Value::class, new \lang\Object());
   }    
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[@test, @expect(
+  #  class= AssertionFailedError::class,
+  #  withMessage= 'expected ["lang.Generic"] but was ["int"]'
+  #)]
   public function zeroIsNotAnInstanceOfGeneric() {
     $this->assertInstanceOf(Generic::class, 0);
   }    
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[@test, @expect(
+  #  class= AssertionFailedError::class,
+  #  withMessage= 'expected ["lang.Generic"] but was ["void"]'
+  #)]
   public function nullIsNotAnInstanceOfGeneric() {
     $this->assertInstanceOf(Generic::class, null);
   }    
 
-  #[@test, @expect(AssertionFailedError::class)]
-  public function thisIsNotAnInstanceOfString() {
+  #[@test, @expect(
+  #  class= AssertionFailedError::class,
+  #  withMessage= 'expected ["unittest.tests.Value"] but was ["unittest.tests.AssertionsTest"]'
+  #)]
+  public function thisIsNotAnInstanceOfValue() {
     $this->assertInstanceOf(Value::class, $this);
   }    
 

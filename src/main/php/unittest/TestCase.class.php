@@ -140,7 +140,7 @@ class TestCase extends \lang\Object {
       $type= \lang\Type::forName($type);
     }
     
-    $type->isInstance($var) || $this->fail($error, \xp::typeOf($var), $type->getName());
+    $type->isInstance($var) || $this->fail($error, typeof($var)->getName(), $type->getName());
   }
   
   /**

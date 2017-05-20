@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 7.2.0 / 2017-05-20
+
+* Refactored code to use `typeof()` instead of `xp::typeOf()`, see
+  https://github.com/xp-framework/rfc/issues/323
+  (@thekid)
+
 ## 7.1.1 / 2016-09-20
 
 * Fixed "Class xp\unittest\QuietListener does not have a constructor,

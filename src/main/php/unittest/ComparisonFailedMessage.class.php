@@ -83,9 +83,9 @@ class ComparisonFailedMessage extends \lang\Object implements AssertionFailedMes
       $expect= $this->expect->toString();
       $actual= $this->actual->toString();
     } else {
-      $te= \xp::typeOf($this->expect);
-      $ta= \xp::typeOf($this->actual);
-      $include= $te !== $ta;
+      $te= typeof($this->expect);
+      $ta= typeof($this->actual);
+      $include= !$te->equals($ta);
       $expect= $this->stringOf($this->expect, $include ? $te : null);
       $actual= $this->stringOf($this->actual, $include ? $ta : null);
     }
