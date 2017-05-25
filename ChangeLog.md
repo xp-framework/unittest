@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 8.0.0 / 2017-05-25
+
+* Dropped support for PHP 5.5 - @thekid
+
 ## 7.2.0 / 2017-05-20
 
 * Refactored code to use `typeof()` instead of `xp::typeOf()`, see

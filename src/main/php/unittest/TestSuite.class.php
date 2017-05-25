@@ -96,7 +96,7 @@ class TestSuite extends \lang\Object {
   /**
    * Returns all tests
    *
-   * @return  php.Generator
+   * @return  iterable
    */
   public function tests() {
     foreach ($this->sources as $classname => $groups) {
@@ -161,6 +161,7 @@ class TestSuite extends \lang\Object {
     if (false === ($p= strpos($source, '::'))) {
       return $test->getClass()->getMethod($source)->setAccessible(true)->invoke($test, $args);
     }
+
     $ref= substr($source, 0, $p);
     if ('self' === $ref) {
       $class= $test->getClass();
@@ -267,8 +268,8 @@ class TestSuite extends \lang\Object {
 
     // Check for @actions
     $actions= array_merge(
-      $this->actionsFor($class, 'unittest.TestAction'),
-      $this->actionsFor($method, 'unittest.TestAction')
+      $this->actionsFor($class, TestAction::class),
+      $this->actionsFor($method, TestAction::class)
     );
 
     $timer= new Timer();
@@ -411,13 +412,13 @@ class TestSuite extends \lang\Object {
   /**
    * Notify listeners
    *
-   * @param   string method
-   * @param   var[] args
-   * @return  void
+   * @param  string $method
+   * @param  var[] $args
+   * @return void
    */
   protected function notifyListeners($method, $args) {
     foreach ($this->listeners as $l) {
-      call_user_func_array([$l, $method], $args);
+      $l->{$method}(...$args);
     }
   }
 
@@ -443,7 +444,7 @@ class TestSuite extends \lang\Object {
         }
       }
     }
-    foreach ($this->actionsFor($class, 'unittest.TestClassAction') as $action) {
+    foreach ($this->actionsFor($class, TestClassAction::class) as $action) {
       $action->beforeTestClass($class);
     }
   }
@@ -456,7 +457,7 @@ class TestSuite extends \lang\Object {
    * @return void
    */
   protected function afterClass($class) {
-    foreach ($this->actionsFor($class, 'unittest.TestClassAction') as $action) {
+    foreach ($this->actionsFor($class, TestClassAction::class) as $action) {
       $action->afterTestClass($class);
     }
     foreach ($class->getMethods() as $m) {
