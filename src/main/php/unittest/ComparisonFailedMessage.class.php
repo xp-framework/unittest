@@ -33,12 +33,20 @@ class ComparisonFailedMessage implements AssertionFailedMessage {
   /**
    * Creates a string representation of a given value.
    *
-   * @param   var value
-   * @param   string type NULL if type name should be not included.
-   * @return  string
+   * @param  var $value
+   * @param  string|lang.Type $type NULL if type name should be not included.
+   * @return string
    */
   protected function stringOf($value, $type) {
-    return (null === $value || null === $type ? '' : $type.':').\xp::stringOf($value);
+    if (null === $value) {
+      return 'null';
+    } else if ($value instanceof Value || $value instanceof Generic) {
+      return $value->toString();
+    } else if ($type) {
+      return $type.':'.Objects::stringOf($value);
+    } else {
+      return Objects::stringOf($value);
+    }
   }
 
   /**
@@ -77,12 +85,6 @@ class ComparisonFailedMessage implements AssertionFailedMessage {
       }
       $expect= $this->compact($this->expect, $i, $j+ 1, $le);
       $actual= $this->compact($this->actual, $i, $k+ 1, $la);
-    } else if ($this->expect instanceof Generic && $this->actual instanceof Generic) {
-      $expect= $this->stringOf($this->expect, null);
-      $actual= $this->stringOf($this->actual, null);
-    } else if ($this->expect instanceof Value && $this->actual instanceof Value) {
-      $expect= $this->expect->toString();
-      $actual= $this->actual->toString();
     } else {
       $te= typeof($this->expect);
       $ta= typeof($this->actual);
