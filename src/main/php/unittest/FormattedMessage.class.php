@@ -5,7 +5,7 @@
  *
  * @see  xp://unittest.AssertionFailedError
  */
-class FormattedMessage extends \lang\Object implements AssertionFailedMessage {
+class FormattedMessage implements AssertionFailedMessage {
   protected $format;
   protected $args;
 

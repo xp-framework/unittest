@@ -7,7 +7,7 @@ use util\Objects;
  *
  * @see   php://assert
  */
-class TestCase extends \lang\Object {
+class TestCase implements \lang\Value {
   public $name= '';
     
   /**
@@ -169,13 +169,18 @@ class TestCase extends \lang\Object {
     return nameof($this).'<'.$this->name.'>';
   }
 
+  /** @return string */
+  public function hashCode() {
+    return 'T'.$this->name;
+  }
+
   /**
-   * Returns whether an object is equal to this testcase
+   * Compares this test suite to a given value
    *
-   * @param   var $cmp
-   * @return  bool
+   * @param  var $value
+   * @return int
    */
-  public function equals($cmp) {
-    return $cmp instanceof self && $this->name == $cmp->name;
+  public function compareTo($value) {
+    return $value instanceof self ? Objects::compare($this->name, $value->name) : 1;
   }
 }

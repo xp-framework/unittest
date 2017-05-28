@@ -5,7 +5,7 @@
  *
  * @see   xp://unittest.TestSkipped
  */
-class TestNotRun extends \lang\Object implements TestSkipped {
+class TestNotRun implements TestSkipped {
   public
     $reason   = '',
     $test     = null;
@@ -42,5 +42,20 @@ class TestNotRun extends \lang\Object implements TestSkipped {
       $this->test->getName(true),
       \xp::stringOf($this->reason, '  ')
     );
+  }
+
+  /** @return string */
+  public function hashCode() {
+    return Objects::hashOf([$this->test, $this->reason]);
+  }
+
+  /**
+   * Compares this test outcome to a given value
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    return $value instanceof self ? Objects::compare([$this->test, $this->reason], [$value->test, $value->reason]) : 1;
   }
 }

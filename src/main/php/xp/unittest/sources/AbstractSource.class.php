@@ -3,7 +3,7 @@
 /**
  * Source
  */
-abstract class AbstractSource extends \lang\Object {
+abstract class AbstractSource {
 
   /**
    * Provide tests to test suite

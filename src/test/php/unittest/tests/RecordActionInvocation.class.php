@@ -23,7 +23,7 @@ class RecordActionInvocation implements \unittest\TestAction {
    * @param  unittest.TestCase $t
    */
   public function beforeTest(TestCase $t) {
-    $f= $t->getClass()->getField($this->field);
+    $f= typeof($t)->getField($this->field);
     $f->set($t, array_merge($f->get($t), ['before']));
   }
 
@@ -33,7 +33,7 @@ class RecordActionInvocation implements \unittest\TestAction {
    * @param  unittest.TestCase $t
    */
   public function afterTest(TestCase $t) {
-    $f= $t->getClass()->getField($this->field);
+    $f= typeof($t)->getField($this->field);
     $f->set($t, array_merge($f->get($t), ['after']));
   }
 }

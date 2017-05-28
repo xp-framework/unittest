@@ -15,7 +15,7 @@ class TestInstance extends TestGroup {
    * @throws lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function __construct($instance) {
-    $class= $instance->getClass();
+    $class= typeof($instance);
     if (!$class->hasMethod($instance->name)) {
       throw new MethodNotImplementedException('Test method does not exist', $instance->name);
     }

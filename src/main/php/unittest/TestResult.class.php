@@ -1,11 +1,13 @@
 <?php namespace unittest;
 
+use util\Objects;
+
 /**
  * Test result
  *
  * @see   xp://unittest.TestSuite
  */
-class TestResult extends \lang\Object {
+class TestResult implements \lang\Value {
   public
     $succeeded    = [],
     $failed       = [],
@@ -177,5 +179,25 @@ class TestResult extends \lang\Object {
       }
     }
     return $str.$div."\n";
+  }
+
+  /** @return string */
+  public function hashCode() {
+    return Objects::hashOf([$this->succeeded, $this->failed, $this->skipped]);
+  }
+
+  /**
+   * Compares this test outcome to a given value
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    if (!($value instanceof self)) return 1;
+
+    return Objects::compare(
+      [$this->succeeded, $this->failed, $this->skipped],
+      [$value->succeeded, $value->failed, $this->skipped]
+    );
   }
 }

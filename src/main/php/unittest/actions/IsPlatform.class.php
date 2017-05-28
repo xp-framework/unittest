@@ -13,7 +13,7 @@ use unittest\PrerequisitesNotMetError;
  *
  * @test  xp://net.xp_framework.unittest.tests.IsPlatformTest
  */
-class IsPlatform extends \lang\Object implements \unittest\TestAction {
+class IsPlatform implements \unittest\TestAction {
   protected $platform= '';
   protected static $os= '';
 

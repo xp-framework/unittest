@@ -1,11 +1,13 @@
 <?php namespace unittest;
 
+use util\Objects;
+
 /**
  * Indicates a test failed
  *
  * @see   xp://unittest.TestFailure
  */
-class TestError extends \lang\Object implements TestFailure {
+class TestError implements TestFailure {
   public
     $reason   = null,
     $test     = null,
@@ -44,7 +46,22 @@ class TestError extends \lang\Object implements TestFailure {
       nameof($this),
       $this->test->getName(true),
       $this->elapsed,
-      \xp::stringOf($this->reason, '  ')
+      str_replace("\n", "\n  ", $this->reason->toString())
     );
+  }
+
+  /** @return string */
+  public function hashCode() {
+    return Objects::hashOf([$this->test, $this->reason]);
+  }
+
+  /**
+   * Compares this test outcome to a given value
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    return $value instanceof self ? Objects::compare([$this->test, $this->reason], [$value->test, $value->reason]) : 1;
   }
 }

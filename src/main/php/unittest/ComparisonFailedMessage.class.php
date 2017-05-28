@@ -2,6 +2,7 @@
 
 use lang\Generic;
 use lang\Value;
+use util\Objects;
 
 /**
  * The message for an assertion failure
@@ -9,7 +10,7 @@ use lang\Value;
  * @see  xp://unittest.AssertionFailedError
  * @test xp://net.xp_framework.unittest.tests.AssertionMessagesTest
  */
-class ComparisonFailedMessage extends \lang\Object implements AssertionFailedMessage {
+class ComparisonFailedMessage implements AssertionFailedMessage {
   const CONTEXT_LENGTH = 20;
 
   protected $comparison;
@@ -85,7 +86,7 @@ class ComparisonFailedMessage extends \lang\Object implements AssertionFailedMes
     } else {
       $te= typeof($this->expect);
       $ta= typeof($this->actual);
-      $include= !$te->equals($ta);
+      $include= !Objects::equal($te, $ta);
       $expect= $this->stringOf($this->expect, $include ? $te : null);
       $actual= $this->stringOf($this->actual, $include ? $ta : null);
     }

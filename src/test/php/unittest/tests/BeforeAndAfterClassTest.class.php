@@ -42,7 +42,7 @@ abstract class BeforeAndAfterClassTest extends TestCase {
       public function fixture() { }
     }');
     $this->suite->runTest($t);
-    $this->assertEquals(true, $t->getClass()->getField('initialized')->get(null));
+    $this->assertEquals(true, typeof($t)->getField('initialized')->get(null));
   }
 
   #[@test]
@@ -99,7 +99,7 @@ abstract class BeforeAndAfterClassTest extends TestCase {
       public function fixture() { }
     }');
     $this->suite->runTest($t);
-    $this->assertEquals(true, $t->getClass()->getField('finalized')->get(null));
+    $this->assertEquals(true, typeof($t)->getField('finalized')->get(null));
   }
 
   #[@test]
@@ -121,7 +121,7 @@ abstract class BeforeAndAfterClassTest extends TestCase {
       public function fixture() { }
     }');
     $this->suite->runTest($t);
-    $this->assertEquals(['data', 'conn'], $t->getClass()->getField('initialized')->get(null));
+    $this->assertEquals(['data', 'conn'], typeof($t)->getField('initialized')->get(null));
   }
 
   #[@test]
@@ -143,7 +143,7 @@ abstract class BeforeAndAfterClassTest extends TestCase {
       public function fixture() { }
     }');
     $this->suite->runTest($t);
-    $this->assertEquals(['conn', 'data'], $t->getClass()->getField('finalized')->get(null));
+    $this->assertEquals(['conn', 'data'], typeof($t)->getField('finalized')->get(null));
   }
 
   #[@test]
@@ -165,6 +165,6 @@ abstract class BeforeAndAfterClassTest extends TestCase {
       public function fixture() { }
     }');
     $this->suite->runTest($t);
-    $this->assertEquals(false, $t->getClass()->getField('finalized')->get(null));
+    $this->assertEquals(false, typeof($t)->getField('finalized')->get(null));
   }
 }

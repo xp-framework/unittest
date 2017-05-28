@@ -9,6 +9,7 @@ use lang\XPClass;
 use lang\Throwable;
 use lang\Error;
 use lang\reflect\TargetInvocationException;
+use util\Objects;
 
 /**
  * Test suite
@@ -18,7 +19,7 @@ use lang\reflect\TargetInvocationException;
  * @test   xp://net.xp_framework.unittest.tests.BeforeAndAfterClassTest
  * @see    http://junit.sourceforge.net/doc/testinfected/testing.htm
  */
-class TestSuite extends \lang\Object {
+class TestSuite implements \lang\Value {
   protected $listeners= [];
   private $sources= [];
   private $numTests= 0;
@@ -159,11 +160,11 @@ class TestSuite extends \lang\Object {
     // "self::method" -> static method of the test class, and "method" 
     // -> the run test's instance method
     if (false === ($p= strpos($source, '::'))) {
-      return $test->getClass()->getMethod($source)->setAccessible(true)->invoke($test, $args);
+      return typeof($test)->getMethod($source)->setAccessible(true)->invoke($test, $args);
     }
     $ref= substr($source, 0, $p);
     if ('self' === $ref) {
-      $class= $test->getClass();
+      $class= typeof($test);
     } else if (strstr($ref, '.')) {
       $class= XPClass::forName($ref);
     } else {
@@ -223,7 +224,7 @@ class TestSuite extends \lang\Object {
    * @throws  lang.MethodNotImplementedException
    */
   protected function runInternal($test, $result) {
-    $class= $test->getClass();
+    $class= typeof($test);
     $method= $class->getMethod($test->name);
     $this->notifyListeners('testStarted', [$test]);
     
@@ -476,7 +477,7 @@ class TestSuite extends \lang\Object {
    * @throws  lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function runTest(TestCase $test) {
-    $class= $test->getClass();
+    $class= typeof($test);
     if (!$class->hasMethod($test->name)) {
       throw new MethodNotImplementedException('Test method does not exist', $test->name);
     }
@@ -537,17 +538,28 @@ class TestSuite extends \lang\Object {
 
     return $result;
   }
-  
-  /**
-   * Creates a string representation of this test suite
-   *
-   * @return  string
-   */
+
+  /** @return string */
   public function toString() {
-    $s= nameof($this).'['.sizeof($this->tests)."]@{\n";
-    foreach ($this->tests as $test) {
-      $s.= '  '.$test->toString()."\n";
+    $s= nameof($this).'['.sizeof($this->sources)."]@{\n";
+    foreach ($this->sources as $source) {
+      $s.= '  '.$source->toString()."\n";
     }
     return $s.'}';
+  }
+
+  /** @return string */
+  public function hashCode() {
+    return 'S'.Objects::hashOf($this->sources);
+  }
+
+  /**
+   * Compares this test suite to a given value
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    return $value instanceof self ? Objects::compare($this->sources, $value->sources) : 1;
   }
 }

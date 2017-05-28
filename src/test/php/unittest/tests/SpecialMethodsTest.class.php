@@ -42,7 +42,7 @@ class SpecialMethodsTest extends TestCase {
     }');
     
     try {
-      $this->suite->addTestClass($test->getClass());
+      $this->suite->addTestClass(typeof($test));
       $this->fail('Expected exception not caught', null, IllegalStateException::class);
     } catch (IllegalStateException $expected) {
       $this->assertEquals(0, $this->suite->numTests(), 'Number of test may not have changed');
@@ -51,7 +51,7 @@ class SpecialMethodsTest extends TestCase {
   
   #[@test, @expect(class= IllegalStateException::class, withMessage= '/Cannot override/')]
   public function setUpMethodMayNotBeATestInAddTestClass() {
-    $this->suite->addTestClass($this->setUpCase()->getClass());
+    $this->suite->addTestClass(typeof($this->setUpCase()));
   }
 
   #[@test, @expect(class= IllegalStateException::class, withMessage= '/Cannot override/')]
@@ -85,7 +85,7 @@ class SpecialMethodsTest extends TestCase {
 
   #[@test, @expect(class= IllegalStateException::class, withMessage= '/Cannot override/')]
   public function tearDownMethodMayNotBeATestInAddTestClass() {
-    $this->suite->addTestClass($this->tearDownCase()->getClass());
+    $this->suite->addTestClass(typeof($this->tearDownCase()));
   }
 
   #[@test, @expect(class= IllegalStateException::class, withMessage= '/Cannot override/')]
@@ -95,7 +95,7 @@ class SpecialMethodsTest extends TestCase {
 
   #[@test, @expect(class= IllegalStateException::class, withMessage= '/Cannot override/')]
   public function getNameMethodMayNotBeATestInAddTestClass() {
-    $this->suite->addTestClass($this->getNameCase()->getClass());
+    $this->suite->addTestClass(typeof($this->getNameCase()));
   }
 
   #[@test, @expect(class= IllegalStateException::class, withMessage= '/Cannot override/')]

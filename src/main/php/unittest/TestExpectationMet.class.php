@@ -5,7 +5,7 @@
  *
  * @see   xp://unittest.TestSuccess
  */
-class TestExpectationMet extends \lang\Object implements TestSuccess {
+class TestExpectationMet implements TestSuccess {
   public
     $test     = null,
     $elapsed  = 0.0;
@@ -42,5 +42,20 @@ class TestExpectationMet extends \lang\Object implements TestSuccess {
       $this->test->getName(true),
       $this->elapsed
     );
+  }
+
+  /** @return string */
+  public function hashCode() {
+    return $this->test->hashCode();
+  }
+
+  /**
+   * Compares this test outcome to a given value
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    return $value instanceof self ? $this->test->compareTo($value->test) : 1;
   }
 }

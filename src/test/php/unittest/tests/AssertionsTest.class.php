@@ -1,7 +1,5 @@
 <?php namespace unittest\tests;
  
-use lang\Object;
-use lang\Generic;
 use unittest\TestCase;
 use unittest\AssertionFailedError;
 
@@ -56,13 +54,15 @@ class AssertionsTest extends TestCase {
   }
 
   #[@test]
-  public function equalsMethodIsInvoked() {
-    $instance= newinstance(Object::class, [], '{
+  public function compareToMethodIsInvoked() {
+    $instance= newinstance(\lang\Value::class, [], '{
       public $equalsInvoked= 0;
 
-      public function equals($other) {
+      public function toString() { return nameof($this)."@".$this->equalsInvoked; }
+      public function hashCode() { return "V".$this->equalsInvoked; }
+      public function compareTo($other) {
         $this->equalsInvoked++;
-        return $other instanceof self && $this->equalsInvoked == $other->equalsInvoked;
+        return $other instanceof self ? $this->equalsInvoked - $other->equalsInvoked : 1;
       }
     }');
    
@@ -162,36 +162,28 @@ class AssertionsTest extends TestCase {
 
   #[@test]
   public function thisIsAnInstanceOfObject() {
-    $this->assertInstanceOf(Object::class, $this);
+    $this->assertInstanceOf(\lang\Value::class, $this);
   }    
 
   #[@test]
   public function objectIsAnInstanceOfObject() {
-    $this->assertInstanceOf(Object::class, new \lang\Object());
+    $this->assertInstanceOf(\lang\Value::class, new Value(2));
   }    
 
   #[@test, @expect(
   #  class= AssertionFailedError::class,
-  #  withMessage= 'expected ["unittest.tests.Value"] but was ["lang.Object"]'
+  #  withMessage= 'expected ["lang.Value"] but was ["int"]'
   #)]
-  public function objectIsNotAnInstanceOfString() {
-    $this->assertInstanceOf(Value::class, new \lang\Object());
+  public function zeroIsNotAnInstanceOfValue() {
+    $this->assertInstanceOf(\lang\Value::class, 0);
   }    
 
   #[@test, @expect(
   #  class= AssertionFailedError::class,
-  #  withMessage= 'expected ["lang.Generic"] but was ["int"]'
+  #  withMessage= 'expected ["lang.Value"] but was ["void"]'
   #)]
-  public function zeroIsNotAnInstanceOfGeneric() {
-    $this->assertInstanceOf(Generic::class, 0);
-  }    
-
-  #[@test, @expect(
-  #  class= AssertionFailedError::class,
-  #  withMessage= 'expected ["lang.Generic"] but was ["void"]'
-  #)]
-  public function nullIsNotAnInstanceOfGeneric() {
-    $this->assertInstanceOf(Generic::class, null);
+  public function nullIsNotAnInstanceOfValue() {
+    $this->assertInstanceOf(\lang\Value::class, null);
   }    
 
   #[@test, @expect(
@@ -200,11 +192,6 @@ class AssertionsTest extends TestCase {
   #)]
   public function thisIsNotAnInstanceOfValue() {
     $this->assertInstanceOf(Value::class, $this);
-  }    
-
-  #[@test]
-  public function thisIsAnInstanceOfGeneric() {
-    $this->assertInstanceOf(Generic::class, $this);
   }    
 
   #[@test]

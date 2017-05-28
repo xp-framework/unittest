@@ -12,11 +12,12 @@ use unittest\PrerequisitesNotMetError;
  * Test test actions
  */
 class TestActionTest extends TestCase {
-  protected $suite;
+  protected $suite, $parent;
 
   /** @return void */
   public function setUp() {
     $this->suite= new TestSuite();
+    $this->parent= class_exists(\lang\Object::class) ? 'lang.Object' : null;  // XP9
   }
 
   #[@test]
@@ -75,7 +76,7 @@ class TestActionTest extends TestCase {
   #[@test]
   public function afterTest_is_invoked_for_succeeding_actions() {
     $actions= [];
-    ClassLoader::defineClass('unittest.tests.AllocateMemory', 'lang.Object', ['unittest.TestAction'], [
+    ClassLoader::defineClass('unittest.tests.AllocateMemory', $this->parent, ['unittest.TestAction'], [
       'beforeTest' => function(TestCase $t) use(&$actions) { $actions[]= 'allocated'; },
       'afterTest' => function(TestCase $t) use(&$actions) { $actions[]= 'freed'; }
     ]);
@@ -103,7 +104,8 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function test_action_with_arguments() {
-    ClassLoader::defineClass('unittest.tests.PlatformVerification', 'lang.Object', ['unittest.TestAction'], '{
+
+    ClassLoader::defineClass('unittest.tests.PlatformVerification', $this->parent, ['unittest.TestAction'], '{
       protected $platform;
 
       public function __construct($platform) {
@@ -151,7 +153,7 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function afterTest_can_raise_AssertionFailedErrors() {
-    ClassLoader::defineClass('unittest.tests.FailOnTearDown', 'lang.Object', ['unittest.TestAction'], '{
+    ClassLoader::defineClass('unittest.tests.FailOnTearDown', $this->parent, ['unittest.TestAction'], '{
       public function beforeTest(\unittest\TestCase $t) {
         // NOOP
       }
@@ -171,7 +173,7 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function all_afterTest_exceptions_are_chained_into_one() {
-    ClassLoader::defineClass('unittest.tests.FailOnTearDownWith', 'lang.Object', ['unittest.TestAction'], '{
+    ClassLoader::defineClass('unittest.tests.FailOnTearDownWith', $this->parent, ['unittest.TestAction'], '{
       protected $message;
 
       public function __construct($message) {
