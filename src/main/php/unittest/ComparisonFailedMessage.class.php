@@ -2,6 +2,7 @@
 
 use lang\Generic;
 use lang\Value;
+use util\Objects;
 
 /**
  * The message for an assertion failure
@@ -9,7 +10,7 @@ use lang\Value;
  * @see  xp://unittest.AssertionFailedError
  * @test xp://net.xp_framework.unittest.tests.AssertionMessagesTest
  */
-class ComparisonFailedMessage extends \lang\Object implements AssertionFailedMessage {
+class ComparisonFailedMessage implements AssertionFailedMessage {
   const CONTEXT_LENGTH = 20;
 
   protected $comparison;
@@ -32,12 +33,20 @@ class ComparisonFailedMessage extends \lang\Object implements AssertionFailedMes
   /**
    * Creates a string representation of a given value.
    *
-   * @param   var value
-   * @param   string type NULL if type name should be not included.
-   * @return  string
+   * @param  var $value
+   * @param  string|lang.Type $type NULL if type name should be not included.
+   * @return string
    */
   protected function stringOf($value, $type) {
-    return (null === $value || null === $type ? '' : $type.':').\xp::stringOf($value);
+    if (null === $value) {
+      return 'null';
+    } else if ($value instanceof Value || $value instanceof Generic) {
+      return $value->toString();
+    } else if ($type) {
+      return $type.':'.Objects::stringOf($value);
+    } else {
+      return Objects::stringOf($value);
+    }
   }
 
   /**
@@ -76,18 +85,12 @@ class ComparisonFailedMessage extends \lang\Object implements AssertionFailedMes
       }
       $expect= $this->compact($this->expect, $i, $j+ 1, $le);
       $actual= $this->compact($this->actual, $i, $k+ 1, $la);
-    } else if ($this->expect instanceof Generic && $this->actual instanceof Generic) {
-      $expect= $this->stringOf($this->expect, null);
-      $actual= $this->stringOf($this->actual, null);
-    } else if ($this->expect instanceof Value && $this->actual instanceof Value) {
-      $expect= $this->expect->toString();
-      $actual= $this->actual->toString();
     } else {
       $te= typeof($this->expect);
       $ta= typeof($this->actual);
-      $include= !$te->equals($ta);
-      $expect= $this->stringOf($this->expect, $include ? $te : null);
-      $actual= $this->stringOf($this->actual, $include ? $ta : null);
+      $exclude= $te->equals($ta);
+      $expect= $this->stringOf($this->expect, $exclude ? null : $te);
+      $actual= $this->stringOf($this->actual, $exclude ? null : $ta);
     }
 
     return sprintf(

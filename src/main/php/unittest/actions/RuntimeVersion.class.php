@@ -9,7 +9,7 @@ use unittest\TestCase;
  * @test xp://net.xp_framework.unittest.tests.RuntimeVersionTest
  * @see  http://getcomposer.org/doc/01-basic-usage.md#package-versions
  */
-class RuntimeVersion extends \lang\Object implements \unittest\TestAction {
+class RuntimeVersion implements \unittest\TestAction {
   protected $compare= [];
 
   /**

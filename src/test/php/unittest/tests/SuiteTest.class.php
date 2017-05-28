@@ -4,7 +4,6 @@ use unittest\TestCase;
 use unittest\TestResult;
 use unittest\TestPrerequisitesNotMet;
 use lang\Error;
-use lang\Object;
 use lang\MethodNotImplementedException;
 use util\NoSuchElementException;
 use unittest\TestSuite;
@@ -90,22 +89,22 @@ class SuiteTest extends TestCase {
 
   #[@test, @expect(IllegalArgumentException::class), @action(new RuntimeVersion('<7.0.0-dev'))]
   public function addNonTest() {
-    $this->suite->addTest(new Object());
+    $this->suite->addTest(new NotATest());
   }
 
   #[@test, @expect(Error::class), @action(new RuntimeVersion('>=7.0.0-dev'))]
   public function addNonTest7() {
-    $this->suite->addTest(new Object());
+    $this->suite->addTest(new NotATest());
   }
 
   #[@test, @expect(IllegalArgumentException::class), @action(new RuntimeVersion('<7.0.0-dev'))]
   public function runNonTest() {
-    $this->suite->runTest(new Object());
+    $this->suite->runTest(new NotATest());
   }
 
   #[@test, @expect(Error::class), @action(new RuntimeVersion('>=7.0.0-dev'))]
   public function runNonTest7() {
-    $this->suite->runTest(new Object());
+    $this->suite->runTest(new NotATest());
   }
 
   #[@test, @expect(MethodNotImplementedException::class)]
@@ -170,7 +169,7 @@ class SuiteTest extends TestCase {
 
   #[@test, @expect(IllegalArgumentException::class)]
   public function addingANonTestClass() {
-    $this->suite->addTestClass(\lang\XPClass::forName('lang.Object'));
+    $this->suite->addTestClass(\lang\XPClass::forName('unittest.tests.NotATest'));
   }    
 
   #[@test]

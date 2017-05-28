@@ -7,7 +7,7 @@
  * =======
  * Given the following class (abbreviated):
  * <code>
- *   class Calculator extends Object {
+ *   class Calculator {
  *     
  *     public function add($a, $b) {
  *       return $a + $b;

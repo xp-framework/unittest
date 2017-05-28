@@ -1,11 +1,13 @@
 <?php namespace unittest;
 
+use util\Objects;
+
 /**
  * Indicates a test failed
  *
  * @see      xp://unittest.TestFailure
  */
-class TestWarning extends \lang\Object implements TestFailure {
+class TestWarning implements TestFailure {
   public
     $reason   = null,
     $test     = null,
@@ -33,11 +35,7 @@ class TestWarning extends \lang\Object implements TestFailure {
     return $this->elapsed;
   }
 
-  /**
-   * Return a string representation of this class
-   *
-   * @return  string
-   */
+  /** @return string */
   public function toString() {
     return sprintf(
       "%s(test= %s, time= %.3f seconds) {\n  %s\n }",
@@ -46,5 +44,20 @@ class TestWarning extends \lang\Object implements TestFailure {
       $this->elapsed,
       \xp::stringOf($this->reason, '  ')
     );
+  }
+
+  /** @return string */
+  public function hashCode() {
+    return Objects::hashOf([null => $this->test] + $this->reason);
+  }
+
+  /**
+   * Compares this test outcome to a given value
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    return $value instanceof self ? Objects::compare([$this->test, $this->reason], [$value->test, $value->reason]) : 1;
   }
 }

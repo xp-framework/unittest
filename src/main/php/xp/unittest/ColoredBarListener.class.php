@@ -14,7 +14,7 @@ use io\streams\OutputStreamWriter;
  *   information out instantly)
  *
  */
-class ColoredBarListener extends \lang\Object implements \unittest\TestListener {
+class ColoredBarListener implements \unittest\TestListener {
   const PROGRESS_WIDTH= 10;
   private $out= null;
   private $cur, $sum, $len, $status;

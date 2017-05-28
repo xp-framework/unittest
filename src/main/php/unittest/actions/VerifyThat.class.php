@@ -9,7 +9,7 @@ use lang\Throwable;
  *
  * @test  xp://net.xp_framework.unittest.tests.VerifyThatTest
  */
-class VerifyThat extends \lang\Object implements \unittest\TestAction, \unittest\TestClassAction {
+class VerifyThat implements \unittest\TestAction, \unittest\TestClassAction {
   protected $verify;
   protected $prerequisite;
 

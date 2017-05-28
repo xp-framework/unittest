@@ -58,8 +58,8 @@ class AssertionMessagesTest extends TestCase {
   #[@test]
   public function differentTypes() {
     $this->assertFormatted(
-      'expected [unittest.tests.Value:unittest.tests.Value(1)] but was [unittest.tests.AssertionMessagesTest:unittest.tests.AssertionMessagesTest<differentTypes>] using: \'equals\'',
-      new ComparisonFailedMessage('equals', new Value(1), $this)
+      'expected [unittest.tests.Value(1)] but was [int:1] using: \'equals\'',
+      new ComparisonFailedMessage('equals', new Value(1), 1)
     );
   }
 
@@ -82,7 +82,7 @@ class AssertionMessagesTest extends TestCase {
   #[@test]
   public function nullVsObject() {
     $this->assertFormatted(
-      "expected [unittest.TestCase:unittest.TestCase<b>] but was [null] using: 'equals'",
+      "expected [unittest.TestCase<b>] but was [null] using: 'equals'",
       new ComparisonFailedMessage('equals', new TestCase('b'), null)
     );
   }

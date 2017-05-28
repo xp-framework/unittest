@@ -4,7 +4,7 @@
  * Outcome from a test
  *
  */
-interface TestOutcome {
+interface TestOutcome extends \lang\Value {
 
   /**
    * Returns elapsed time

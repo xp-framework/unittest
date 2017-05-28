@@ -10,7 +10,7 @@ use unittest\TestCase;
  * @test  xp://net.xp_framework.unittest.tests.ExtensionAvailableTest
  * @see   xp://lang.Runtime#extensionAvailable
  */
-class ExtensionAvailable extends \lang\Object implements \unittest\TestAction {
+class ExtensionAvailable implements \unittest\TestAction {
   protected $extension= '';
 
   /**

@@ -1,11 +1,13 @@
 <?php namespace unittest;
 
+use util\Objects;
+
 /**
  * Indicates a test was skipped
  *
  * @see      xp://unittest.TestSkipped
  */
-class TestPrerequisitesNotMet extends \lang\Object implements TestSkipped {
+class TestPrerequisitesNotMet implements TestSkipped {
   public
     $reason   = null,
     $test     = null,
@@ -46,5 +48,20 @@ class TestPrerequisitesNotMet extends \lang\Object implements TestSkipped {
       $this->elapsed,
       \xp::stringOf($this->reason, '  ')
     );
+  }
+
+  /** @return string */
+  public function hashCode() {
+    return Objects::hashOf([$this->test, $this->reason]);
+  }
+
+  /**
+   * Compares this test outcome to a given value
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    return $value instanceof self ? Objects::compare([$this->test, $this->reason], [$value->test, $value->reason]) : 1;
   }
 }
