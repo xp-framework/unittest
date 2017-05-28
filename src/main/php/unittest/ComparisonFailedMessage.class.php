@@ -88,9 +88,9 @@ class ComparisonFailedMessage implements AssertionFailedMessage {
     } else {
       $te= typeof($this->expect);
       $ta= typeof($this->actual);
-      $include= !Objects::equal($te, $ta);
-      $expect= $this->stringOf($this->expect, $include ? $te : null);
-      $actual= $this->stringOf($this->actual, $include ? $ta : null);
+      $exclude= $te->equals($ta);
+      $expect= $this->stringOf($this->expect, $exclude ? null : $te);
+      $actual= $this->stringOf($this->actual, $exclude ? null : $ta);
     }
 
     return sprintf(
