@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.0.1 / 2017-05-28
+
+* Merged PR #20: Drop dependency on xp-framework/io-collections,
+  preventing a circular-dependency situation.
+  (@thekid)
+
 ## 9.0.0 / 2017-05-28
 
 * Merged PR #19: XP9 Compatibility - @thekid
