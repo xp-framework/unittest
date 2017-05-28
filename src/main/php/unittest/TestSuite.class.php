@@ -22,7 +22,6 @@ use util\Objects;
 class TestSuite implements \lang\Value {
   protected $listeners= [];
   private $sources= [];
-  private $numTests= 0;
 
   /**
    * Add a test
