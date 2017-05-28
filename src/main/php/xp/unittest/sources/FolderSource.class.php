@@ -1,9 +1,6 @@
 <?php namespace xp\unittest\sources;
 
 use io\Folder;
-use io\collections\FileCollection;
-use io\collections\iterate\FilteredIOCollectionIterator;
-use io\collections\iterate\ExtensionEqualsFilter;
 use lang\IllegalArgumentException;
 use lang\ClassLoader;
 use lang\FileSystemClassLoader;
@@ -38,6 +35,20 @@ class FolderSource extends AbstractSource {
     ));
   }
 
+  /** @return iterable */
+  private function classFilesIn(Folder $folder) {
+    $e= -strlen(\xp::CLASS_FILE_EXT);
+    foreach ($folder->entries() as $entry) {
+      if ($entry->isFolder()) {
+        foreach ($this->classFilesIn($entry->asFolder()) as $entry) {
+          yield $entry;
+        }
+      } else if (0 === substr_compare($entry->name(), \xp::CLASS_FILE_EXT, $e)) {
+        yield $entry;
+      }
+    }
+  }
+
   /**
    * Provide tests to test suite
    *
@@ -47,17 +58,12 @@ class FolderSource extends AbstractSource {
    * @throws lang.IllegalArgumentException if no tests are found
    */
   public function provideTo($suite, $arguments) {
-    $it= new FilteredIOCollectionIterator(
-      new FileCollection($this->loader->path),
-      new ExtensionEqualsFilter(\xp::CLASS_FILE_EXT),
-      true  // recursive
-    );
+    $empty= true;
 
     $l= strlen($this->loader->path);
     $e= -strlen(\xp::CLASS_FILE_EXT);
-    $empty= true;
-    foreach ($it as $element) {
-      $class= $this->loader->loadClass(strtr(substr($element->getUri(), $l, $e), DIRECTORY_SEPARATOR, '.'));
+    foreach ($this->classFilesIn(new Folder($this->loader->path)) as $classFile) {
+      $class= $this->loader->loadClass(strtr(substr($classFile, $l, $e), DIRECTORY_SEPARATOR, '.'));
       if ($class->isSubclassOf(TestCase::class) && !Modifiers::isAbstract($class->getModifiers())) {
         $suite->addTestClass($class, $arguments);
         $empty= false;
