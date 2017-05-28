@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.0.0 / 2017-05-28
+
+* Merged PR #19: XP9 Compatibility - @thekid
+
 ## 8.0.0 / 2017-05-25
 
 * Dropped support for PHP 5.5 - @thekid
