@@ -171,7 +171,7 @@ class TestCase implements \lang\Value {
 
   /** @return string */
   public function hashCode() {
-    return 'T'.$this->name;
+    return 'T'.md5(get_class($this).$this->name);
   }
 
   /**
