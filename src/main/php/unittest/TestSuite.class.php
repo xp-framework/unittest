@@ -97,7 +97,7 @@ class TestSuite implements \lang\Value {
   /**
    * Returns all tests
    *
-   * @return  php.Generator
+   * @return  iterable
    */
   public function tests() {
     foreach ($this->sources as $classname => $groups) {
@@ -162,6 +162,7 @@ class TestSuite implements \lang\Value {
     if (false === ($p= strpos($source, '::'))) {
       return typeof($test)->getMethod($source)->setAccessible(true)->invoke($test, $args);
     }
+
     $ref= substr($source, 0, $p);
     if ('self' === $ref) {
       $class= typeof($test);
@@ -268,8 +269,8 @@ class TestSuite implements \lang\Value {
 
     // Check for @actions
     $actions= array_merge(
-      $this->actionsFor($class, 'unittest.TestAction'),
-      $this->actionsFor($method, 'unittest.TestAction')
+      $this->actionsFor($class, TestAction::class),
+      $this->actionsFor($method, TestAction::class)
     );
 
     $timer= new Timer();
@@ -412,13 +413,13 @@ class TestSuite implements \lang\Value {
   /**
    * Notify listeners
    *
-   * @param   string method
-   * @param   var[] args
-   * @return  void
+   * @param  string $method
+   * @param  var[] $args
+   * @return void
    */
   protected function notifyListeners($method, $args) {
     foreach ($this->listeners as $l) {
-      call_user_func_array([$l, $method], $args);
+      $l->{$method}(...$args);
     }
   }
 
@@ -444,7 +445,7 @@ class TestSuite implements \lang\Value {
         }
       }
     }
-    foreach ($this->actionsFor($class, 'unittest.TestClassAction') as $action) {
+    foreach ($this->actionsFor($class, TestClassAction::class) as $action) {
       $action->beforeTestClass($class);
     }
   }
@@ -457,7 +458,7 @@ class TestSuite implements \lang\Value {
    * @return void
    */
   protected function afterClass($class) {
-    foreach ($this->actionsFor($class, 'unittest.TestClassAction') as $action) {
+    foreach ($this->actionsFor($class, TestClassAction::class) as $action) {
       $action->afterTestClass($class);
     }
     foreach ($class->getMethods() as $m) {
