@@ -339,7 +339,7 @@ class SuiteTest extends TestCase {
     ]);
     $this->assertEquals(
       [sprintf('"Test error" in ::trigger_error() (SuiteTest.class.php, line %d, occured once)', __LINE__ - 3)],
-      $this->suite->runTest($test)->failed[$test->hashCode()]->reason
+      $this->suite->runTest($test)->failed[$test->hashCode()]->reason->all()
     );
   }
 
@@ -386,7 +386,7 @@ class SuiteTest extends TestCase {
     ]);
     $this->assertEquals(
       [sprintf('"Test error" in ::trigger_error() (SuiteTest.class.php, line %d, occured once)', __LINE__ - 5)],
-      $this->suite->runTest($test)->failed[$test->hashCode()]->reason
+      $this->suite->runTest($test)->failed[$test->hashCode()]->reason->all()
     );
   }
   

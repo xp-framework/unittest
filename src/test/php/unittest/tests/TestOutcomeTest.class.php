@@ -91,8 +91,13 @@ class TestOutcomeTest extends \unittest\TestCase {
   #[@test, @values('fixtures')]
   public function string_representation_of_TestWarning($test, $variant) {
     $this->assertStringRepresentation(
-      "unittest.TestWarning(test= %s, time= 0.000 seconds) {\n  [\"Could not open file\"]\n }",
-      new TestWarning($test, ['Could not open file'], 0.0), $variant
+      "unittest.TestWarning(test= %s, time= 0.000 seconds) {\n".
+      "  unittest.Warnings(1)@{\n".
+      "    Could not open file\n".
+      "  }\n".
+      "}",
+      new TestWarning($test, ['Could not open file'], 0.0),
+      $variant
     );
   }
 }
