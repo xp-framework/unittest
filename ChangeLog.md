@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.1.0 / 2017-06-04
+
+* Merged PR #21: Refactor reason field in TestWarning to contain a
+  lang.Throwable. Fixes a fatal error (method call on array).
+  (@thekid)
+
 ## 9.0.1 / 2017-05-28
 
 * Merged PR #20: Drop dependency on xp-framework/io-collections,
