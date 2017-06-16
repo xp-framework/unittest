@@ -128,6 +128,28 @@ class UnittestRunnerTest extends TestCase {
   }
 
   #[@test]
+  public function skip_test() {
+    $command= newinstance(TestCase::class, ['skipped'], [
+      '#[@test] skipped' => function() { $this->skip('Test'); }
+    ]);
+    $return= $this->runner->run([nameof($command)]);
+    $this->assertEquals(0, $return);
+    $this->assertEquals('', $this->err->getBytes());
+    $this->assertOnStream($this->out, '0/1 run (1 skipped), 0 succeeded, 0 failed');
+  }
+
+  #[@test]
+  public function skip_test_with_prerequisites() {
+    $command= newinstance(TestCase::class, ['skipped'], [
+      '#[@test] skipped' => function() { $this->skip('Test', ['prerequisite']); }
+    ]);
+    $return= $this->runner->run([nameof($command)]);
+    $this->assertEquals(0, $return);
+    $this->assertEquals('', $this->err->getBytes());
+    $this->assertOnStream($this->out, '0/1 run (1 skipped), 0 succeeded, 0 failed');
+  }
+
+  #[@test]
   public function runColoredTest($setting= '--color=on') {
     $command= newinstance(TestCase::class, ['succeeds'], [
       '#[@test] succeeds' => function() { $this->assertTrue(true); }
