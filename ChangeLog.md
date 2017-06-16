@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.1.1 / 2017-06-04
+
+* Fixed issue #22: Class undefined: unittest\Objects (@thekid)
+
 ## 9.1.0 / 2017-06-04
 
 * Merged PR #21: Refactor reason field in TestWarning to contain a

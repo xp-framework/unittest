@@ -1,5 +1,7 @@
 <?php namespace unittest;
 
+use util\Objects;
+
 /**
  * Indicates a test was ignored
  *
@@ -40,7 +42,7 @@ class TestNotRun implements TestSkipped {
       "%s(test= %s, time= 0.000 seconds) {\n  %s\n }",
       nameof($this),
       $this->test->getName(true),
-      \xp::stringOf($this->reason, '  ')
+      Objects::stringOf($this->reason, '  ')
     );
   }
 
