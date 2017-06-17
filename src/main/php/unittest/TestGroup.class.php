@@ -25,6 +25,9 @@ abstract class TestGroup {
     ));
   }
 
+  /** @return lang.XPClass */
+  public abstract function type();
+
   /** @return int */
   public abstract function numTests();
 
