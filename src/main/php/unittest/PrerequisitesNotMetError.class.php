@@ -2,6 +2,7 @@
 
 use lang\Throwable;
 use util\Objects;
+use util\profiling\Timer;
 
 /**
  * Indicates prerequisites have not been met
@@ -26,8 +27,10 @@ class PrerequisitesNotMetError extends TestAborted {
   /** @return string */
   public function type() { return 'testSkipped'; }
 
-  /** @return string */
-  public function outcome() { return TestPrerequisitesNotMet::class; }
+  /** @return unittest.TestOutcome */
+  public function outcome(TestCase $test, Timer $timer) {
+    return new TestPrerequisitesNotMet($test, $this, $timer->elapsedTime());
+  }
 
   /**
    * Return compound message of this exception.

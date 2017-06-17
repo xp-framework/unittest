@@ -1,5 +1,7 @@
 <?php namespace unittest;
 
+use util\profiling\Timer;
+
 /**
  * Indicates an assertion failed
  *
@@ -29,8 +31,10 @@ class AssertionFailedError extends TestAborted {
   /** @return string */
   public function type() { return 'testFailed'; }
 
-  /** @return string */
-  public function outcome() { return TestAssertionFailed::class; }
+  /** @return unittest.TestOutcome */
+  public function outcome(TestCase $test, Timer $timer) {
+    return new TestAssertionFailed($test, $this, $timer->elapsedTime());
+  }
 
   /**
    * Return compound message of this exception.

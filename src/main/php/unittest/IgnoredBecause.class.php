@@ -1,5 +1,7 @@
 <?php namespace unittest;
 
+use util\profiling\Timer;
+
 /**
  * Indicates an `@ignore` annotation was present
  */
@@ -17,8 +19,10 @@ class IgnoredBecause extends TestAborted {
   /** @return string */
   public function type() { return 'testSkipped'; }
 
-  /** @return string */
-  public function outcome() { return TestNotRun::class; }
+  /** @return unittest.TestOutcome */
+  public function outcome(TestCase $test, Timer $timer) {
+    return new TestNotRun($test, $this, $timer->elapsedTime());
+  }
 
   /**
    * Return compound message of this exception.

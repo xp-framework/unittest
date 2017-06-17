@@ -1,5 +1,7 @@
 <?php namespace unittest;
 
+use util\profiling\Timer;
+
 /**
  * Indicates a test run was aborted
  */
@@ -16,8 +18,10 @@ abstract class TestAborted extends \lang\XPException {
   /**
    * Returns the outcome class
    *
-   * @return string
+   * @param  unittest.TestCase $test
+   * @param  util.profiling.Timer $timer
+   * @return unittest.TestOutcome
    */ 
-  public abstract function outcome();   
+  public abstract function outcome(TestCase $test, Timer $timer);
 
 }
