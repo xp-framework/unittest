@@ -65,7 +65,7 @@ class TestSuite implements \lang\Value {
     }
     return $numTests;
   }
-  
+
   /**
    * Remove all tests
    *
@@ -74,7 +74,7 @@ class TestSuite implements \lang\Value {
   public function clearTests() {
     $this->sources= [];
   }
-  
+
   /**
    * Returns test at a given position
    *
@@ -273,7 +273,6 @@ class TestSuite implements \lang\Value {
 
     $timer= new Timer();
     $report= function($type, $outcome, $arg) use($result, $timer, &$t) {
-      $timer->stop();
       $this->notifyListeners($type, [$result->set($t, new $outcome($t, $arg, $timer->elapsedTime()))]);
       \xp::gc();
     };
@@ -365,7 +364,7 @@ class TestSuite implements \lang\Value {
       }
     }
   }
-  
+
   /**
    * Format errors from xp registry
    *
@@ -391,7 +390,7 @@ class TestSuite implements \lang\Value {
     }
     return $w;
   }
-  
+
   /**
    * Notify listeners
    *
@@ -481,7 +480,7 @@ class TestSuite implements \lang\Value {
 
     return $result;
   }
-  
+
   /**
    * Run this test suite
    *
