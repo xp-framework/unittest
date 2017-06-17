@@ -39,52 +39,6 @@ class TestRun {
   }
 
   /**
-   * Call beforeClass methods if present. If any of them throws an exception,
-   * mark all tests in this class as skipped and continue with tests from
-   * other classes (if available)
-   *
-   * @param  lang.XPClass class
-   * @return void
-   */
-  private function beforeClass($class) {
-    foreach ($class->getMethods() as $m) {
-      if (!$m->hasAnnotation('beforeClass')) continue;
-      try {
-        $m->invoke(null, []);
-      } catch (TargetInvocationException $e) {
-        $cause= $e->getCause();
-        if ($cause instanceof PrerequisitesNotMetError) {
-          throw $cause;
-        } else {
-          throw new PrerequisitesNotMetError('Exception in beforeClass method '.$m->getName(), $cause);
-        }
-      }
-    }
-    foreach ($this->actionsFor($class, TestClassAction::class) as $action) {
-      $action->beforeTestClass($class);
-    }
-  }
-  
-  /**
-   * Call afterClass methods of the last test's class. Ignore any 
-   * exceptions thrown from these methods.
-   *
-   * @param  lang.XPClass class
-   * @return void
-   */
-  private function afterClass($class) {
-    foreach ($this->actionsFor($class, TestClassAction::class) as $action) {
-      $action->afterTestClass($class);
-    }
-    foreach ($class->getMethods() as $m) {
-      if (!$m->hasAnnotation('afterClass')) continue;
-      try {
-        $m->invoke(null, []);
-      } catch (TargetInvocationException $ignored) { }
-    }
-  }
-
- /**
    * Returns values
    *
    * @param  unittest.TestCase test
@@ -123,21 +77,19 @@ class TestRun {
   /**
    * Returns values
    *
-   * @param  var annotatable
-   * @param  string impl The interface which must've been implemented
+   * @param  var $annotatable
    * @return var[]
    */
-  private function actionsFor($annotatable, $impl) {
+  private function actionsFor($annotatable) {
     $r= [];
     if ($annotatable->hasAnnotation('action')) {
       $action= $annotatable->getAnnotation('action');
-      $type= XPClass::forName($impl);
       if (is_array($action)) {
         foreach ($action as $a) {
-          if ($type->isInstance($a)) $r[]= $a;
+          if ($a instanceof TestAction) $r[]= $a;
         }
       } else {
-        if ($type->isInstance($action)) $r[]= $action;
+        if ($action instanceof TestAction) $r[]= $action;
       }
     }
     return $r;
@@ -223,10 +175,7 @@ class TestRun {
     }
 
     // Check for @actions
-    $actions= array_merge(
-      $this->actionsFor($class, TestAction::class),
-      $this->actionsFor($method, TestAction::class)
-    );
+    $actions= array_merge($this->actionsFor($class), $this->actionsFor($method));
 
     $timer= new Timer();
     Errors::clear();
@@ -345,10 +294,8 @@ class TestRun {
    * @return void
    */
   public function one(TestGroup $group) {
-    $class= $group->type();
-
     try {
-      $this->beforeClass($class);
+      $group->before();
     } catch (PrerequisitesNotMetError $e) {
       foreach ($group->tests() as $test) {
         $this->record('testSkipped', new TestPrerequisitesNotMet($test, $e, 0.0));
@@ -359,7 +306,7 @@ class TestRun {
     foreach ($group->tests() as $test) {
       $this->run($test);
     }
-    $this->afterClass($class);
+    $group->after();
   }
 
   /**
