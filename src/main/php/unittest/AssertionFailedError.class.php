@@ -12,7 +12,7 @@ class AssertionFailedError extends TestAborted {
   /**
    * Constructor
    *
-   * @param   var message
+   * @param  string|unittest.AssertionFailedMessage $message
    */
   public function __construct($message) {
     if ($message instanceof AssertionFailedMessage) {

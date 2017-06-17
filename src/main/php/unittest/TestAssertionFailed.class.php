@@ -17,12 +17,12 @@ class TestAssertionFailed implements TestFailure {
    * Constructor
    *
    * @param   unittest.TestCase test
-   * @param   unittest.AssertionFailedError reason
+   * @param   unittest.AssertionFailedError|unittest.AssertionFailedMessage|string reason
    * @param   float elapsed
    */
-  public function __construct(TestCase $test, AssertionFailedError $reason, $elapsed) {
+  public function __construct(TestCase $test, $reason, $elapsed) {
     $this->test= $test;
-    $this->reason= $reason;
+    $this->reason= $reason instanceof AssertionFailedError ? $reason : new AssertionFailedError($reason);
     $this->elapsed= $elapsed;
   }
 

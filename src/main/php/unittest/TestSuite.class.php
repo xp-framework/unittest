@@ -325,44 +325,31 @@ class TestSuite implements \lang\Value {
       }
 
       // Check outcome
-      $elapsed= $timer->elapsedTime();
-      if ($eta && $elapsed > $eta) {
-        $error= new AssertionFailedError(new FormattedMessage(
-          'Test runtime of %.3f seconds longer than eta of %.3f seconds',
-          [$elapsed, $eta]
-        ));
-        $record('testFailed', new TestAssertionFailed($t, $error, $elapsed));
+      $time= $timer->elapsedTime();
+      if ($eta && $time > $eta) {
+        $record('testFailed', new TestAssertionFailed($t, new TimedOut($eta, $time), $time));
       } else if ($thrown) {
         if ($expected && $expected[0]->isInstance($thrown)) {
           if ($expected[1] && !preg_match($expected[1], $thrown->getMessage())) {
-            $error= new AssertionFailedError(new FormattedMessage(
-              'Expected %s\'s message "%s" differs from expected %s',
-              [nameof($thrown), $thrown->getMessage(), $expected[1]]
-            ));
-            $record('testFailed', new TestAssertionFailed($t, $error, $elapsed));
+            $record('testFailed', new TestAssertionFailed($t, new ExpectedMessageDiffers($expected[1], $thrown), $time));
           } else if (sizeof(\xp::$errors) > 0) {
-            $record('testWarning', new TestWarning($t, $this->formatErrors(\xp::$errors), $elapsed));
+            $record('testWarning', new TestWarning($t, $this->formatErrors(\xp::$errors), $time));
           } else {
-            $record('testSucceeded', new TestExpectationMet($t, $elapsed));
+            $record('testSucceeded', new TestExpectationMet($t, $time));
           }
         } else if ($expected && !$expected[0]->isInstance($thrown)) {
-          $error= new AssertionFailedError(new FormattedMessage(
-            'Caught %s instead of expected %s',
-            [$thrown->compoundMessage(), $expected[0]->getName()]
-          ));
-          $record('testFailed', new TestAssertionFailed($t, $error, $elapsed));
+          $record('testFailed', new TestAssertionFailed($t, new DidNotCatch($expected[0], $thrown), $time));
         } else if ($thrown instanceof TestAborted) {
-          $this->notifyListeners($thrown->type(), [$result->set($t, $thrown->outcome($t, $timer))]);
+          $record($thrown->type(), $thrown->outcome($t, $timer));
         } else {
-          $record('testError', new TestError($t, $thrown, $elapsed));
+          $record('testError', new TestError($t, $thrown, $time));
         }
       } else if ($expected) {
-        $error= new AssertionFailedError(new FormattedMessage('Expected %s not caught', [$expected[0]->getName()]));
-        $record('testFailed', new TestAssertionFailed($t, $error, $elapsed));
+        $record('testFailed', new TestAssertionFailed($t, new DidNotCatch($expected[0]), $time));
       } else if (sizeof(\xp::$errors) > 0) {
-        $record('testWarning', new TestWarning($t, $this->formatErrors(\xp::$errors), $elapsed));
+        $record('testWarning', new TestWarning($t, $this->formatErrors(\xp::$errors), $time));
       } else {
-        $record('testSucceeded', new TestExpectationMet($t, $elapsed));
+        $record('testSucceeded', new TestExpectationMet($t, $time));
       }
     }
   }
