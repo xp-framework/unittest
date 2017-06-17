@@ -2,15 +2,15 @@
 
 abstract class Errors {
 
-  /** @return bool */
-  public static function present() { return !empty(\xp::$errors); }
+  /** @return void */
+  public static function clear() { \xp::gc(); }
   
   /**
    * Returns all errors in registry
    *
    * @return string[]
    */
-  public static function all() {
+  public static function raised() {
     $w= [];
     foreach (\xp::$errors as $file => $lookup) {
       foreach ($lookup as $line => $messages) {

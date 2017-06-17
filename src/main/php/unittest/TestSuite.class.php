@@ -225,7 +225,7 @@ class TestSuite implements \lang\Value {
    */
   protected function record($result, $type, $outcome) {
     $this->notifyListeners($type, [$result->record($outcome)]);
-    \xp::gc();
+    Errors::clear();
   }
 
   /**
@@ -283,7 +283,7 @@ class TestSuite implements \lang\Value {
     );
 
     $timer= new Timer();
-    \xp::gc();
+    Errors::clear();
     foreach ($values as $args) {
       $t= $variation ? new TestVariation($test, $args) : $test;
       $timer->start();
@@ -339,8 +339,8 @@ class TestSuite implements \lang\Value {
         if ($expected && $expected[0]->isInstance($thrown)) {
           if ($expected[1] && !preg_match($expected[1], $thrown->getMessage())) {
             $this->record($result, 'testFailed', new TestAssertionFailed($t, new ExpectedMessageDiffers($expected[1], $thrown), $time));
-          } else if (Errors::present()) {
-            $this->record($result, 'testWarning', new TestWarning($t, Errors::all(), $time));
+          } else if ($errors= Errors::raised()) {
+            $this->record($result, 'testWarning', new TestWarning($t, $errors, $time));
           } else {
             $this->record($result, 'testSucceeded', new TestExpectationMet($t, $time));
           }
@@ -353,8 +353,8 @@ class TestSuite implements \lang\Value {
         }
       } else if ($expected) {
         $this->record($result, 'testFailed', new TestAssertionFailed($t, new DidNotCatch($expected[0]), $time));
-      } else if (Errors::present()) {
-        $this->record($result, 'testWarning', new TestWarning($t, Errors::all(), $time));
+      } else if ($errors= Errors::raised()) {
+        $this->record($result, 'testWarning', new TestWarning($t, $errors, $time));
       } else {
         $this->record($result, 'testSucceeded', new TestExpectationMet($t, $time));
       }
