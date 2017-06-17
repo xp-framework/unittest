@@ -12,7 +12,7 @@ use util\Objects;
  * @see    http://junit.sourceforge.net/doc/testinfected/testing.htm
  */
 class TestSuite implements \lang\Value {
-  protected $listeners= [];
+  private $listeners= [];
   private $sources= [];
 
   /**
