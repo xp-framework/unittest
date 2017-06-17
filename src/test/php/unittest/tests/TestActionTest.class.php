@@ -104,7 +104,6 @@ class TestActionTest extends TestCase {
 
   #[@test]
   public function test_action_with_arguments() {
-
     ClassLoader::defineClass('unittest.tests.PlatformVerification', $this->parent, ['unittest.TestAction'], '{
       protected $platform;
 
@@ -130,6 +129,21 @@ class TestActionTest extends TestCase {
     $outcome= $this->suite->runTest($test)->outcomeOf($test);
     $this->assertInstanceOf(TestPrerequisitesNotMet::class, $outcome);
     $this->assertEquals(['Test'], $outcome->reason->prerequisites);
+  }
+
+  #[@test]
+  public function skip_test_via_skip() {
+    ClassLoader::defineClass('unittest.tests.SkipTest', $this->parent, ['unittest.TestAction'], [
+      'beforeTest' => function(TestCase $t) { $t->skip('Not run'); },
+      'afterTest' => function(TestCase $t) { }
+    ]);
+    $test= newinstance(TestCase::class, ['fixture'], [
+      '#[@test, @action([new \unittest\tests\SkipTest()])] fixture' => function() {
+        throw new IllegalStateException('This test should have been skipped');
+      }
+    ]);
+    $r= $this->suite->runTest($test);
+    $this->assertEquals(1, $r->skipCount());
   }
 
   #[@test]

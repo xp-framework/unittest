@@ -3,7 +3,7 @@
 /**
  * Indicates an `@ignore` annotation was present
  */
-class IgnoredBecause extends \lang\XPException {
+class IgnoredBecause extends TestAborted {
     
   /**
    * Constructor
@@ -13,6 +13,12 @@ class IgnoredBecause extends \lang\XPException {
   public function __construct($value) {
     parent::__construct($value ? (string)$value : 'n/a');
   }
+
+  /** @return string */
+  public function type() { return 'testSkipped'; }
+
+  /** @return string */
+  public function outcome() { return TestNotRun::class; }
 
   /**
    * Return compound message of this exception.

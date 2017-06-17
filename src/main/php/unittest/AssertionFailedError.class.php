@@ -5,7 +5,7 @@
  *
  * @see  xp://unittest.AssertionFailedMessage
  */
-class AssertionFailedError extends \lang\XPException {
+class AssertionFailedError extends TestAborted {
 
   /**
    * Constructor
@@ -25,6 +25,12 @@ class AssertionFailedError extends \lang\XPException {
       $element->args= null;
     }
   }
+
+  /** @return string */
+  public function type() { return 'testFailed'; }
+
+  /** @return string */
+  public function outcome() { return TestAssertionFailed::class; }
 
   /**
    * Return compound message of this exception.
