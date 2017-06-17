@@ -218,10 +218,9 @@ class TestSuite implements \lang\Value {
   /**
    * Run a test case.
    *
-   * @param   unittest.TestCase test
-   * @param   unittest.TestResult result
-   * @return  void
-   * @throws  lang.MethodNotImplementedException
+   * @param  unittest.TestCase $test
+   * @param  unittest.TestResult $result
+   * @return void
    */
   protected function runInternal($test, $result) {
     $class= typeof($test);
