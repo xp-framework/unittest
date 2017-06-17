@@ -322,30 +322,12 @@ class TestRun {
   /**
    * Runs test groups
    *
-   * @param  [:unittest.TestGroup[]] $sources
+   * @param  unittest.TestGroup[] $groups
    * @return void
    */
-  public function all($sources) {
-    foreach ($sources as $classname => $groups) {
-      $class= new XPClass($classname);
-
-      try {
-        $this->beforeClass($class);
-      } catch (PrerequisitesNotMetError $e) {
-        foreach ($groups as $group) {
-          foreach ($group->tests() as $test) {
-            $this->record('testSkipped', new TestPrerequisitesNotMet($test, $e, 0.0));
-          }
-        }
-        continue;
-      }
-
-      foreach ($groups as $group) {
-        foreach ($group->tests() as $test) {
-          $this->run($test);
-        }
-      }
-      $this->afterClass($class);
+  public function all($groups) {
+    foreach ($groups as $group) {
+      $this->one($group);
     }
   }
 }

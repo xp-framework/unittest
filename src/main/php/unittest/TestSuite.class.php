@@ -168,7 +168,11 @@ class TestSuite implements \lang\Value {
    * @return unittest.TestResult
    */
   public function run() {
-    return $this->runThis(function($run) { $run->all($this->sources); });
+    return $this->runThis(function($run) {
+      foreach ($this->sources as $classname => $groups) {
+        $run->all($groups);
+      }
+    });
   }
 
   /** @return string */
