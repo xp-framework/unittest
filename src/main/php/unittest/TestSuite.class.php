@@ -339,8 +339,8 @@ class TestSuite implements \lang\Value {
         if ($expected && $expected[0]->isInstance($thrown)) {
           if ($expected[1] && !preg_match($expected[1], $thrown->getMessage())) {
             $this->record($result, 'testFailed', new TestAssertionFailed($t, new ExpectedMessageDiffers($expected[1], $thrown), $time));
-          } else if (sizeof(\xp::$errors) > 0) {
-            $this->record($result, 'testWarning', new TestWarning($t, $this->formatErrors(\xp::$errors), $time));
+          } else if (Errors::present()) {
+            $this->record($result, 'testWarning', new TestWarning($t, Errors::all(), $time));
           } else {
             $this->record($result, 'testSucceeded', new TestExpectationMet($t, $time));
           }
@@ -353,38 +353,12 @@ class TestSuite implements \lang\Value {
         }
       } else if ($expected) {
         $this->record($result, 'testFailed', new TestAssertionFailed($t, new DidNotCatch($expected[0]), $time));
-      } else if (sizeof(\xp::$errors) > 0) {
-        $this->record($result, 'testWarning', new TestWarning($t, $this->formatErrors(\xp::$errors), $time));
+      } else if (Errors::present()) {
+        $this->record($result, 'testWarning', new TestWarning($t, Errors::all(), $time));
       } else {
         $this->record($result, 'testSucceeded', new TestExpectationMet($t, $time));
       }
     }
-  }
-
-  /**
-   * Format errors from xp registry
-   *
-   * @param   [:string[]] registry
-   * @return  string[]
-   */
-  protected function formatErrors($registry) {
-    $w= [];
-    foreach ($registry as $file => $lookup) {
-      foreach ($lookup as $line => $messages) {
-        foreach ($messages as $message => $detail) {
-          $w[]= sprintf(
-            '"%s" in %s::%s() (%s, line %d, occured %s)',
-            $message,
-            $detail['class'],
-            $detail['method'],
-            basename($file),
-            $line,
-            1 === $detail['cnt'] ? 'once' : $detail['cnt'].' times'
-          );
-        }
-      }
-    }
-    return $w;
   }
 
   /**
