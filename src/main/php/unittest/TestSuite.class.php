@@ -326,8 +326,6 @@ class TestSuite implements \lang\Value {
         $thrown= $tearDown($test, $error);
       }
 
-      $timer->stop();
-
       // Check outcome
       if ($eta && $timer->elapsedTime() > $eta) {
         $report('testFailed', TestAssertionFailed::class, new AssertionFailedError(new FormattedMessage(
