@@ -216,6 +216,19 @@ class TestSuite implements \lang\Value {
   }
 
   /**
+   * Record outcome, notifying listeners
+   *
+   * @param  unittest.TestResult $result
+   * @param  string $type
+   * @param  unittest.TestOutcome $result
+   * @return void
+   */
+  protected function record($result, $type, $outcome) {
+    $this->notifyListeners($type, [$result->record($outcome)]);
+    \xp::gc();
+  }
+
+  /**
    * Run a test case.
    *
    * @param  unittest.TestCase $test
@@ -229,9 +242,7 @@ class TestSuite implements \lang\Value {
     
     // Check for @ignore
     if ($method->hasAnnotation('ignore')) {
-      $this->notifyListeners('testNotRun', [
-        $result->set($test, new TestNotRun($test, new IgnoredBecause($method->getAnnotation('ignore'))))
-      ]);
+      $this->record($result, 'testNotRun', new TestNotRun($test, new IgnoredBecause($method->getAnnotation('ignore'))));
       return;
     }
 
@@ -272,10 +283,6 @@ class TestSuite implements \lang\Value {
     );
 
     $timer= new Timer();
-    $record= function($type, $outcome) use($result, &$t) {
-      $this->notifyListeners($type, [$result->set($t, $outcome)]);
-      \xp::gc();
-    };
     \xp::gc();
     foreach ($values as $args) {
       $t= $variation ? new TestVariation($test, $args) : $test;
@@ -316,7 +323,7 @@ class TestSuite implements \lang\Value {
         $thrown= $tearDown($test, null);
       } catch (TestAborted $aborted) {
         $tearDown($test, $aborted);
-        $record($aborted->type(), $aborted->outcome($t, $timer));
+        $this->record($result, $aborted->type(), $aborted->outcome($t, $timer));
         continue;
       } catch (TargetInvocationException $invoke) {
         $thrown= $tearDown($test, $invoke->getCause());
@@ -327,29 +334,29 @@ class TestSuite implements \lang\Value {
       // Check outcome
       $time= $timer->elapsedTime();
       if ($eta && $time > $eta) {
-        $record('testFailed', new TestAssertionFailed($t, new TimedOut($eta, $time), $time));
+        $this->record($result, 'testFailed', new TestAssertionFailed($t, new TimedOut($eta, $time), $time));
       } else if ($thrown) {
         if ($expected && $expected[0]->isInstance($thrown)) {
           if ($expected[1] && !preg_match($expected[1], $thrown->getMessage())) {
-            $record('testFailed', new TestAssertionFailed($t, new ExpectedMessageDiffers($expected[1], $thrown), $time));
+            $this->record($result, 'testFailed', new TestAssertionFailed($t, new ExpectedMessageDiffers($expected[1], $thrown), $time));
           } else if (sizeof(\xp::$errors) > 0) {
-            $record('testWarning', new TestWarning($t, $this->formatErrors(\xp::$errors), $time));
+            $this->record($result, 'testWarning', new TestWarning($t, $this->formatErrors(\xp::$errors), $time));
           } else {
-            $record('testSucceeded', new TestExpectationMet($t, $time));
+            $this->record($result, 'testSucceeded', new TestExpectationMet($t, $time));
           }
         } else if ($expected && !$expected[0]->isInstance($thrown)) {
-          $record('testFailed', new TestAssertionFailed($t, new DidNotCatch($expected[0], $thrown), $time));
+          $this->record($result, 'testFailed', new TestAssertionFailed($t, new DidNotCatch($expected[0], $thrown), $time));
         } else if ($thrown instanceof TestAborted) {
-          $record($thrown->type(), $thrown->outcome($t, $timer));
+          $this->record($result, $thrown->type(), $thrown->outcome($t, $timer));
         } else {
-          $record('testError', new TestError($t, $thrown, $time));
+          $this->record($result, 'testError', new TestError($t, $thrown, $time));
         }
       } else if ($expected) {
-        $record('testFailed', new TestAssertionFailed($t, new DidNotCatch($expected[0]), $time));
+        $this->record($result, 'testFailed', new TestAssertionFailed($t, new DidNotCatch($expected[0]), $time));
       } else if (sizeof(\xp::$errors) > 0) {
-        $record('testWarning', new TestWarning($t, $this->formatErrors(\xp::$errors), $time));
+        $this->record($result, 'testWarning', new TestWarning($t, $this->formatErrors(\xp::$errors), $time));
       } else {
-        $record('testSucceeded', new TestExpectationMet($t, $time));
+        $this->record($result, 'testSucceeded', new TestExpectationMet($t, $time));
       }
     }
   }
