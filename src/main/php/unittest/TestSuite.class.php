@@ -32,15 +32,16 @@ class TestSuite implements \lang\Value {
   /**
    * Add a test class
    *
-   * @param  lang.XPClass $class
+   * @param  string|lang.XPClass $class
    * @param  var[] $arguments default [] arguments to pass to test case constructor
    * @return lang.XPClass
    * @throws lang.IllegalArgumentException in case given argument is not a testcase class
    * @throws util.NoSuchElementException in case given testcase class does not contain any tests
    */
-  public function addTestClass(XPClass $class, $arguments= []) {
-    $this->sources[$class->literal()][]= new TestClass($class, $arguments);
-    return $class;
+  public function addTestClass($class, $arguments= []) {
+    $type= $class instanceof XPClass ? $class : XPClass::forName($class);
+    $this->sources[$type->literal()][]= new TestClass($type, $arguments);
+    return $type;
   }
 
   /**

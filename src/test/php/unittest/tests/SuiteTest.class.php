@@ -119,11 +119,12 @@ class SuiteTest extends TestCase {
 
   #[@test]
   public function adding_a_testclass_returns_added_class() {
-    $class= ClassLoader::defineClass($this->name, 'unittest.TestCase', [], '{
-      #[@test]
-      public function fixture() { }
-    }');
-    $this->assertEquals($class, $this->suite->addTestClass($class));
+    $this->assertEquals(typeof($this), $this->suite->addTestClass(typeof($this)));
+  }
+
+  #[@test]
+  public function adding_a_testclass_by_name_returns_added_class() {
+    $this->assertEquals(typeof($this), $this->suite->addTestClass(self::class));
   }
 
   #[@test]
