@@ -8,10 +8,22 @@ use util\profiling\Timer;
 class TestRun {
   private $result, $listeners;
 
-  public function __construct($result, $listeners) {
+  /**
+   * Creates a new run
+   *
+   * @param  unittest.TestResult $result
+   * @param  unittest.TestListener[] $listeners
+   */
+  public function __construct(TestResult $result, $listeners) {
     $this->result= $result;
     $this->listeners= $listeners;
   }
+
+  /** @return unittest.TestResult */
+  public function result() { return $this->result; }
+
+  /** @return unittest.TestListener[] */
+  public function listeners() { return $this->listeners; }
 
   /**
    * Notify listeners
@@ -20,7 +32,7 @@ class TestRun {
    * @param  var[] $args
    * @return void
    */
-  public function notify($method, $args) {
+  private function notify($method, $args) {
     foreach ($this->listeners as $l) {
       $l->{$method}(...$args);
     }
@@ -34,7 +46,7 @@ class TestRun {
    * @param  lang.XPClass class
    * @return void
    */
-  protected function beforeClass($class) {
+  private function beforeClass($class) {
     foreach ($class->getMethods() as $m) {
       if (!$m->hasAnnotation('beforeClass')) continue;
       try {
@@ -60,7 +72,7 @@ class TestRun {
    * @param  lang.XPClass class
    * @return void
    */
-  protected function afterClass($class) {
+  private function afterClass($class) {
     foreach ($this->actionsFor($class, TestClassAction::class) as $action) {
       $action->afterTestClass($class);
     }
@@ -79,7 +91,7 @@ class TestRun {
    * @param  var annotation
    * @return var values a traversable structure
    */
-  protected function valuesFor($test, $annotation) {
+  private function valuesFor($test, $annotation) {
     if (!is_array($annotation)) {               // values("source")
       $source= $annotation;
       $args= [];
@@ -115,7 +127,7 @@ class TestRun {
    * @param  string impl The interface which must've been implemented
    * @return var[]
    */
-  protected function actionsFor($annotatable, $impl) {
+  private function actionsFor($annotatable, $impl) {
     $r= [];
     if ($annotatable->hasAnnotation('action')) {
       $action= $annotatable->getAnnotation('action');
@@ -157,7 +169,7 @@ class TestRun {
    * @param  unittest.TestOutcome $result
    * @return void
    */
-  protected function record($type, $outcome) {
+  private function record($type, $outcome) {
     $this->notify($type, [$this->result->record($outcome)]);
     Errors::clear();
   }
@@ -169,7 +181,7 @@ class TestRun {
    * @param  unittest.TestResult $result
    * @return void
    */
-  protected function run($test) {
+  private function run($test) {
     $class= typeof($test);
     $method= $class->getMethod($test->name);
     $this->notify('testStarted', [$test]);
@@ -293,6 +305,37 @@ class TestRun {
         $this->record('testSucceeded', new TestExpectationMet($t, $time));
       }
     }
+  }
+
+  /**
+   * Starts a suite
+   *
+   * @param  unittest.TestSuite $suite
+   * @return void
+   */
+  public function start(TestSuite $suite) {
+    $this->notify('testRunStarted', [$suite]);
+  }
+
+  /**
+   * Finishes a suite
+   *
+   * @param  unittest.TestSuite $suite
+   * @return void
+   */
+  public function finish(TestSuite $suite) {
+    $this->notify('testRunFinished', [$suite, $this->result, null]);
+  }
+
+  /**
+   * Aborts a suite
+   *
+   * @param  unittest.TestSuite $suite
+   * @param  unittest.StopTests $reason
+   * @return void
+   */
+  public function abort(TestSuite $suite, StopTests $reason) {
+    $this->notify('testRunFinished', [$suite, $this->result, $reason]);
   }
 
   /**

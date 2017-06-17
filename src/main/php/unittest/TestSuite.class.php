@@ -136,18 +136,17 @@ class TestSuite implements \lang\Value {
    * @return unittest.TestResult
    */
   private function runThis($target) {
-    $result= new TestResult();
+    $run= new TestRun(new TestResult(), $this->listeners);
 
-    $run= new TestRun($result, $this->listeners);
-    $run->notify('testRunStarted', [$this]);
+    $run->start($this);
     try {
       $target($run);
-      $run->notify('testRunFinished', [$this, $result, null]);
+      $run->finish($this);
     } catch (StopTests $stop) {
-      $run->notify('testRunFinished', [$this, $result, $stop]);
+      $run->abort($this, $stop);
     }
 
-    return $result;
+    return $run->result();
   }
 
   /**
