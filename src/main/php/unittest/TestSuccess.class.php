@@ -5,6 +5,6 @@
  *
  * @see   xp://unittest.TestExpectationMet
  */
-interface TestSuccess extends TestOutcome {
+class TestSuccess extends TestOutcome {
 
 }

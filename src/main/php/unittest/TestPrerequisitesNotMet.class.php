@@ -1,67 +1,21 @@
 <?php namespace unittest;
 
-use util\Objects;
-
 /**
  * Indicates a test was skipped
  *
  * @see      xp://unittest.TestSkipped
  */
-class TestPrerequisitesNotMet implements TestSkipped {
-  public
-    $reason   = null,
-    $test     = null,
-    $elapsed  = 0.0;
+class TestPrerequisitesNotMet extends TestSkipped {
     
   /**
    * Constructor
    *
-   * @param   unittest.TestCase $test
-   * @param   unittest.PrerequisitesNotMetError $reason
-   * @param   float $elapsed
+   * @param  unittest.TestCase $test
+   * @param  unittest.PrerequisitesNotMetError $reason
+   * @param  double $elapsed
    */
   public function __construct(TestCase $test, PrerequisitesNotMetError $reason, $elapsed) {
-    $this->test= $test;
+    parent::__construct($test, $elapsed);
     $this->reason= $reason;
-    $this->elapsed= $elapsed;
-  }
-
-  /**
-   * Returns elapsed time
-   *
-   * @return  float
-   */
-  public function elapsed() {
-    return $this->elapsed;
-  }
-
-  /**
-   * Return a string representation of this class
-   *
-   * @return  string
-   */
-  public function toString() {
-    return sprintf(
-      "%s(test= %s, time= %.3f seconds) {\n  %s\n }",
-      nameof($this),
-      $this->test->getName(true),
-      $this->elapsed,
-      \xp::stringOf($this->reason, '  ')
-    );
-  }
-
-  /** @return string */
-  public function hashCode() {
-    return Objects::hashOf([$this->test, $this->reason]);
-  }
-
-  /**
-   * Compares this test outcome to a given value
-   *
-   * @param  var $value
-   * @return int
-   */
-  public function compareTo($value) {
-    return $value instanceof self ? Objects::compare([$this->test, $this->reason], [$value->test, $value->reason]) : 1;
   }
 }
