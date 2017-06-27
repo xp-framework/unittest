@@ -1,16 +1,18 @@
 <?php namespace unittest;
 
+use util\profiling\Timer;
+
 /**
  * Indicates an assertion failed
  *
  * @see  xp://unittest.AssertionFailedMessage
  */
-class AssertionFailedError extends \lang\XPException {
+class AssertionFailedError extends TestAborted {
 
   /**
    * Constructor
    *
-   * @param   var message
+   * @param  string|unittest.AssertionFailedMessage $message
    */
   public function __construct($message) {
     if ($message instanceof AssertionFailedMessage) {
@@ -24,6 +26,14 @@ class AssertionFailedError extends \lang\XPException {
     foreach ($this->trace as $element) {
       $element->args= null;
     }
+  }
+
+  /** @return string */
+  public function type() { return 'testFailed'; }
+
+  /** @return unittest.TestOutcome */
+  public function outcome(TestCase $test, Timer $timer) {
+    return new TestAssertionFailed($test, $this, $timer->elapsedTime());
   }
 
   /**

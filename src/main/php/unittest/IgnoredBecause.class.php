@@ -1,9 +1,11 @@
 <?php namespace unittest;
 
+use util\profiling\Timer;
+
 /**
  * Indicates an `@ignore` annotation was present
  */
-class IgnoredBecause extends \lang\XPException {
+class IgnoredBecause extends TestAborted {
     
   /**
    * Constructor
@@ -12,6 +14,14 @@ class IgnoredBecause extends \lang\XPException {
    */
   public function __construct($value) {
     parent::__construct($value ? (string)$value : 'n/a');
+  }
+
+  /** @return string */
+  public function type() { return 'testSkipped'; }
+
+  /** @return unittest.TestOutcome */
+  public function outcome(TestCase $test, Timer $timer) {
+    return new TestNotRun($test, $this, $timer->elapsedTime());
   }
 
   /**

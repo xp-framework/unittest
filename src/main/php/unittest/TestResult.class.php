@@ -12,58 +12,25 @@ class TestResult implements \lang\Value {
     $succeeded    = [],
     $failed       = [],
     $skipped      = [];
-    
+
   /**
-   * Set outcome for a given test
+   * Record outcome for a given test
    *
-   * @param   unittest.TestCase test
-   * @param   unittest.TestOutcome outcome
-   * @return  unittest.TestOutcome the given outcome
+   * @param  unittest.TestOutcome $outcome
+   * @return unittest.TestOutcome the given outcome
    */
-  public function set(TestCase $test, TestOutcome $outcome) {
+  public function record(TestOutcome $outcome) {
+    $key= $outcome->test()->hashCode();
     if ($outcome instanceof TestSuccess) {
-      $this->succeeded[$test->hashCode()]= $outcome;
+      $this->succeeded[$key]= $outcome;
     } else if ($outcome instanceof TestSkipped) {
-      $this->skipped[$test->hashCode()]= $outcome;
+      $this->skipped[$key]= $outcome;
     } else if ($outcome instanceof TestFailure) {
-      $this->failed[$test->hashCode()]= $outcome;
+      $this->failed[$key]= $outcome;
     }
     return $outcome;
   }
-  
-  /**
-   * Mark a test as succeeded
-   *
-   * @param   unittest.TestCase test
-   * @param   float elapsed
-   */
-  public function setSucceeded($test, $elapsed) {
-    return $this->succeeded[$test->hashCode()]= new TestExpectationMet($test, $elapsed);
-  }
-  
-  /**
-   * Mark a test as failed
-   *
-   * @param   unittest.TestCase test
-   * @param   var reason
-   * @param   float elapsed
-   */
-  public function setFailed($test, $reason, $elapsed) {
-    return $this->failed[$test->hashCode()]= new TestAssertionFailed($test, $reason, $elapsed);
-  }
 
-  /**
-   * Mark a test as been skipped
-   *
-   * @param   unittest.TestCase test
-   * @param   var reason
-   * @param   float elapsed
-   * @return  unittest.TestSkipped s
-   */
-  public function setSkipped($test, $reason, $elapsed) {
-    return $this->skipped[$test->hashCode()]= new TestPrerequisitesNotMet($test, $reason, $elapsed);
-  }
-  
   /**
    * Returns the outcome of a specific test
    *
@@ -76,6 +43,54 @@ class TestResult implements \lang\Value {
       if (isset($lookup[$key])) return $lookup[$key];
     }
     return null;
+  }
+
+  /**
+   * Set outcome for a given test
+   *
+   * @deprecated Use record() instead
+   * @param   unittest.TestCase test
+   * @param   unittest.TestOutcome outcome
+   * @return  unittest.TestOutcome the given outcome
+   */
+  public function set(TestCase $test, TestOutcome $outcome) {
+    return $this->record($outcome);
+  }
+  
+  /**
+   * Mark a test as succeeded
+   *
+   * @deprecated Use record() instead
+   * @param   unittest.TestCase test
+   * @param   float elapsed
+   */
+  public function setSucceeded($test, $elapsed) {
+    return $this->succeeded[$test->hashCode()]= new TestExpectationMet($test, $elapsed);
+  }
+  
+  /**
+   * Mark a test as failed
+   *
+   * @deprecated Use record() instead
+   * @param   unittest.TestCase test
+   * @param   var reason
+   * @param   float elapsed
+   */
+  public function setFailed($test, $reason, $elapsed) {
+    return $this->failed[$test->hashCode()]= new TestAssertionFailed($test, $reason, $elapsed);
+  }
+
+  /**
+   * Mark a test as been skipped
+   *
+   * @deprecated Use record() instead
+   * @param   unittest.TestCase test
+   * @param   var reason
+   * @param   float elapsed
+   * @return  unittest.TestSkipped s
+   */
+  public function setSkipped($test, $reason, $elapsed) {
+    return $this->skipped[$test->hashCode()]= new TestPrerequisitesNotMet($test, $reason, $elapsed);
   }
 
   /**

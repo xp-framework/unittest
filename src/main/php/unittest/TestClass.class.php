@@ -41,6 +41,9 @@ class TestClass extends TestGroup {
     $this->arguments= (array)$arguments;
   }
 
+  /** @return lang.XPClass */
+  public function type() { return $this->class; }
+
   /** @return int */
   public function numTests() { return sizeof($this->testMethods); }
 
