@@ -3,6 +3,11 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.2.0 / 2017-06-27
+
+* Merged PR #24: Refactor test runner - @thekid
+* Fixes issue #23: Calling skip in actions doesn't work - @thekid
+
 ## 9.1.1 / 2017-06-04
 
 * Fixed issue #22: Class undefined: unittest\Objects (@thekid)

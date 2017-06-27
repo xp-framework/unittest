@@ -1,7 +1,7 @@
 <?php namespace xp\unittest\sources;
 
 use util\Properties;
-use lang\XPClass;
+use lang\ClassLoader;
 
 /**
  * Source that load tests from a .ini file
@@ -27,12 +27,14 @@ class PropertySource extends AbstractSource {
    * @return void
    */
   public function provideTo($suite, $arguments) {
+    $cl= ClassLoader::getDefault();
+
     $section= $this->properties->getFirstSection();
     do {
       if ('this' === $section) continue;   // Ignore special section
 
       $suite->addTestClass(
-        XPClass::forName($this->properties->readString($section, 'class')),
+        $cl->loadClass($this->properties->readString($section, 'class')),
         $arguments ?: $this->properties->readArray($section, 'args')
       );
     } while ($section= $this->properties->getNextSection());
