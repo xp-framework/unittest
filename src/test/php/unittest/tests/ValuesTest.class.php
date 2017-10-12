@@ -46,6 +46,20 @@ class ValuesTest extends TestCase {
   }
 
   #[@test]
+  public function inline_value_map() {
+    $test= newinstance(TestCase::class, ['fixture'], '{
+      public $values= [];
+
+      #[@test, @values(map= ["a" => "b", "c" => "d"])]
+      public function fixture($key, $value) {
+        $this->values[]= [$key, $value];
+      }
+    }');
+    $this->suite->runTest($test);
+    $this->assertEquals([['a', 'b'], ['c', 'd']], $test->values);
+  }
+
+  #[@test]
   public function local_value_source() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];

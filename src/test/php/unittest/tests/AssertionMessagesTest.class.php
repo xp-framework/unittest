@@ -42,8 +42,8 @@ class AssertionMessagesTest extends TestCase {
   #[@test]
   public function differentPrimitives() {
     $this->assertFormatted(
-      'expected [int:2] but was [double:2] using: \'equals\'',
-      new ComparisonFailedMessage('equals', 2, 2.0)
+      'expected [int:2] but was [bool:false] using: \'equals\'',
+      new ComparisonFailedMessage('equals', 2, false)
     );
   }
 
