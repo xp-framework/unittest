@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.3.0 / 2017-10-12
+
+* Merged PR #25: Map values - @thekid
+
 ## 9.2.0 / 2017-06-27
 
 * Merged PR #24: Refactor test runner - @thekid
