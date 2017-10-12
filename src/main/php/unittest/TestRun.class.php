@@ -49,6 +49,12 @@ class TestRun {
     if (!is_array($annotation)) {               // values("source")
       $source= $annotation;
       $args= [];
+    } else if (isset($annotation['map'])) {     // values(map= ["test" => true, ...])
+      $values= [];
+      foreach ($annotation['map'] as $key => $value) {
+        $values[]= [$key, $value];
+      }
+      return $values;
     } else if (isset($annotation['source'])) {  // values(source= "src" [, args= ...])
       $source= $annotation['source'];
       $args= isset($annotation['args']) ? $annotation['args'] : [];
