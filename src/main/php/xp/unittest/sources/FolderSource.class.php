@@ -10,6 +10,9 @@ use unittest\TestCase;
 /**
  * Source that loads tests from test case classes inside a folder and
  * its subfolders.
+ *
+ * FIXME: The class loading infrastructure should provide ways to translate
+ * paths to packages and classes!
  */
 class FolderSource extends AbstractSource {
   private $loader;
@@ -43,8 +46,14 @@ class FolderSource extends AbstractSource {
         foreach ($this->classFilesIn($entry->asFolder()) as $entry) {
           yield $entry;
         }
-      } else if (0 === substr_compare($entry->name(), \xp::CLASS_FILE_EXT, $e)) {
-        yield $entry;
+        continue;
+      }
+
+      $name= $entry->name();
+      if (0 === substr_compare($name, \xp::CLASS_FILE_EXT, $e)) {
+        yield substr($entry, 0, $e);
+      } else if (strspn($name, 'ABCDEFGIJKLMOPQRSTUVWXYZ') && 0 === substr_compare($name, '.php', -4)) {
+        yield substr($entry, 0, -4);
       }
     }
   }
@@ -60,10 +69,10 @@ class FolderSource extends AbstractSource {
   public function provideTo($suite, $arguments) {
     $empty= true;
 
+    $cl= ClassLoader::getDefault();
     $l= strlen($this->loader->path);
-    $e= -strlen(\xp::CLASS_FILE_EXT);
     foreach ($this->classFilesIn(new Folder($this->loader->path)) as $classFile) {
-      $class= $this->loader->loadClass(strtr(substr($classFile, $l, $e), DIRECTORY_SEPARATOR, '.'));
+      $class= $cl->loadClass(strtr(substr($classFile, $l), DIRECTORY_SEPARATOR, '.'));
       if ($class->isSubclassOf(TestCase::class) && !Modifiers::isAbstract($class->getModifiers())) {
         $suite->addTestClass($class, $arguments);
         $empty= false;

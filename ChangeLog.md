@@ -3,6 +3,13 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.4.0 / 2017-10-31
+
+* Implemented issue #30: Find compiler classes. There really should
+  be a way to determine classes and packages by using the class loading
+  infrastructure!
+  (@thekid)
+
 ## 9.3.0 / 2017-10-12
 
 * Merged PR #25: Map values - @thekid
