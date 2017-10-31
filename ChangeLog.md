@@ -5,7 +5,8 @@ Unittests change log
 
 ## 9.4.0 / 2017-10-31
 
-* Implemented issue #30: Find compiler classes. There really should
+* Added PHP 7.2 to test matrix - @thekid
+* Implemented issue #26: Find compiler classes. There really should
   be a way to determine classes and packages by using the class loading
   infrastructure!
   (@thekid)
