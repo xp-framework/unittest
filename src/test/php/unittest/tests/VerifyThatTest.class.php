@@ -4,6 +4,7 @@ use unittest\TestExpectationMet;
 use unittest\TestPrerequisitesNotMet;
 use unittest\TestCase;
 use unittest\TestSuite;
+use util\Objects;
 
 /**
  * Test VerifyThat class
@@ -26,7 +27,7 @@ class VerifyThatTest extends TestCase {
    */
   protected function assertSucceeds($test) {
     $outcome= $this->suite->runTest($test)->outcomeOf($test);
-    $this->assertInstanceOf(TestExpectationMet::class, $outcome, \xp::stringOf($outcome));
+    $this->assertInstanceOf(TestExpectationMet::class, $outcome, Objects::stringOf($outcome));
   }
 
   /**
@@ -38,7 +39,7 @@ class VerifyThatTest extends TestCase {
    */
   protected function assertSkipped($prerequisites, $test) {
     $outcome= $this->suite->runTest($test)->outcomeOf($test);
-    $this->assertInstanceOf(TestPrerequisitesNotMet::class, $outcome, \xp::stringOf($outcome));
+    $this->assertInstanceOf(TestPrerequisitesNotMet::class, $outcome, Objects::stringOf($outcome));
     $this->assertEquals($prerequisites, $outcome->reason->prerequisites);
   }
 

@@ -4,6 +4,7 @@ use io\streams\OutputStreamWriter;
 use xml\Tree;
 use util\collections\HashTable;
 use lang\XPClass;
+use util\Objects;
 
 /**
  * Creates an XML file suitable for importing into continuous integration
@@ -64,7 +65,7 @@ class XmlTestListener implements TestListener {
       "%s(%s)\n%s \n\n%s:%d\n\n",
       $testClass->getName(),
       $error->test->getName(),
-      \xp::stringOf($error->reason),
+      Objects::stringOf($error->reason),
       $this->uriFor($testClass),
       $this->lineFor($testClass, $error->test->getName())
     );

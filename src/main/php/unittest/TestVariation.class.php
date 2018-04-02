@@ -1,5 +1,7 @@
 <?php namespace unittest;
 
+use util\Objects;
+
 /**
  * Test case variation
  *
@@ -17,7 +19,7 @@ class TestVariation extends TestCase {
   public function __construct($base, $args) {
     $uniq= '';
     foreach ((array)$args as $arg) {
-      $uniq.= ', '.\xp::stringOf($arg);
+      $uniq.= ', '.Objects::stringOf($arg);
     }
     parent::__construct($base->getName().'('.substr($uniq, 2).')');
     $this->base= $base;

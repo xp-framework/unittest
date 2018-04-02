@@ -2,6 +2,7 @@
  
 use unittest\TestCase;
 use unittest\AssertionFailedError;
+use util\Objects;
 
 /**
  * Test assertion methods
@@ -102,7 +103,7 @@ class AssertionsTest extends TestCase {
   #[@test]
   public function hashesOrderNotRelevant() {
     $hash= ['&' => '&amp;', '"' => '&quot;'];
-    $this->assertEquals($hash, array_reverse($hash, true), \xp::stringOf($hash));
+    $this->assertEquals($hash, array_reverse($hash, true), Objects::stringOf($hash));
   }    
 
   #[@test, @values([1, 0, -1])]
