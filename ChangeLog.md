@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.4.1 / 2018-04-02
+
+* Merged PR #28: Replace all occurrences of `xp::stringOf()` with
+  `Objects::stringOf()` (the former has been deprecated since XP9)
+  (@thekid)
+
 ## 9.4.0 / 2017-10-31
 
 * Added PHP 7.2 to test matrix - @thekid
