@@ -2,6 +2,7 @@
 
 use lang\IllegalArgumentException;
 use util\NoSuchElementException;
+use util\Objects;
 
 class TestClass extends TestGroup {
   private $class, $arguments;
@@ -20,7 +21,7 @@ class TestClass extends TestGroup {
    */
   public function __construct($class, $arguments) {
     if (!$class->isSubclassOf(self::$base)) {
-      throw new IllegalArgumentException('Given argument is not a TestCase class ('.\xp::stringOf($class).')');
+      throw new IllegalArgumentException('Given argument is not a TestCase class ('.Objects::stringOf($class).')');
     }
 
     foreach ($class->getMethods() as $method) {
