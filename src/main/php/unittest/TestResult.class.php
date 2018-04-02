@@ -135,9 +135,9 @@ class TestResult implements \lang\Value {
    * @return  int
    */
   public function count() {
-    return sizeof($this->succeeded)+ sizeof($this->failed)+ sizeof($this->skipped);
+    return sizeof($this->succeeded) + sizeof($this->failed) + sizeof($this->skipped);
   }
-  
+
   /**
    * Returns elapsed time
    *
