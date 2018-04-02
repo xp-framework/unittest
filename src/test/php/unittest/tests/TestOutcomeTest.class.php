@@ -59,7 +59,7 @@ class TestOutcomeTest extends \unittest\TestCase {
   public function string_representation_of_TestAssertionFailed($test, $variant) {
     $assert= new AssertionFailedError('Not equal', 1, 2);
     $this->assertStringRepresentation(
-      "unittest.TestAssertionFailed(test= %s, time= 0.000 seconds) {\n  ".Objects::stringOf($assert, '  ')."\n}",
+      "unittest.TestAssertionFailed(test= %s, time= 0.000 seconds) {\n  ".str_replace("\n", "\n  ", Objects::stringOf($assert))."\n}",
       new TestAssertionFailed($test, $assert, 0.0),
       $variant
     );
@@ -69,7 +69,7 @@ class TestOutcomeTest extends \unittest\TestCase {
   public function string_representation_of_TestError($test, $variant) {
     $error= new Error('Out of memory');
     $this->assertStringRepresentation(
-      "unittest.TestError(test= %s, time= 0.000 seconds) {\n  ".Objects::stringOf($error, '  ')."\n}",
+      "unittest.TestError(test= %s, time= 0.000 seconds) {\n  ".str_replace("\n", "\n  ", Objects::stringOf($error))."\n}",
       new TestError($test, $error, 0.0),
       $variant
     );
@@ -79,7 +79,7 @@ class TestOutcomeTest extends \unittest\TestCase {
   public function string_representation_of_TestPrerequisitesNotMet($test, $variant) {
     $prerequisites= new PrerequisitesNotMetError('Initialization failed');
     $this->assertStringRepresentation(
-      "unittest.TestPrerequisitesNotMet(test= %s, time= 0.000 seconds) {\n  ".Objects::stringOf($prerequisites, '  ')."\n}",
+      "unittest.TestPrerequisitesNotMet(test= %s, time= 0.000 seconds) {\n  ".str_replace("\n", "\n  ", Objects::stringOf($prerequisites))."\n}",
       new TestPrerequisitesNotMet($test, $prerequisites, 0.0),
       $variant
     );
