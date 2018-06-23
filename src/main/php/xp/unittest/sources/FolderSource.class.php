@@ -78,7 +78,7 @@ class FolderSource extends AbstractSource {
     }
 
     if ($empty) {
-      throw new IllegalArgumentException('Cannot find any test cases in '.$this->loader->toString());
+      throw new IllegalArgumentException('Cannot find any test cases in '.$this->toString());
     }
   }
 
@@ -88,6 +88,6 @@ class FolderSource extends AbstractSource {
    * @return string
    */
   public function toString() {
-    return nameof($this).'['.$this->loader->toString().']';
+    return nameof($this).'['.$this->loader->toString().($this->package ? ', package '.$this->package : '').']';
   }
 }
