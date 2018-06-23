@@ -2,7 +2,7 @@
 
 use unittest\TestCase;
 
-abstract class Base extends TestCase {
+abstract class UtilityTest extends TestCase {
 
   #[@test]
   public function test() {
