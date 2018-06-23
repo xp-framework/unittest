@@ -1,24 +1,24 @@
 <?php namespace xp\unittest;
 
-use lang\XPClass;
-use lang\Throwable;
+use io\File;
+use io\Folder;
+use io\streams\FileOutputStream;
+use io\streams\InputStream;
+use io\streams\OutputStream;
+use io\streams\Streams;
+use io\streams\StringReader;
+use io\streams\StringWriter;
 use lang\ClassLoader;
 use lang\IllegalArgumentException;
 use lang\MethodNotImplementedException;
+use lang\Throwable;
+use lang\XPClass;
 use lang\reflect\Package;
 use lang\reflect\TargetInvocationException;
-use io\File;
-use io\Folder;
-use io\streams\Streams;
-use io\streams\InputStream;
-use io\streams\OutputStream;
-use io\streams\FileOutputStream;
-use io\streams\StringWriter;
-use io\streams\StringReader;
-use unittest\TestSuite;
 use unittest\ColorizingListener;
-use util\Properties;
+use unittest\TestSuite;
 use util\NoSuchElementException;
+use util\Properties;
 use util\cmd\Console;
 use xp\unittest\sources\ClassFileSource;
 use xp\unittest\sources\ClassSource;
@@ -319,14 +319,14 @@ class TestRunner {
           $colors= self::$cmap[$remainder];
         } else if (strstr($args[$i], '.ini')) {
           $sources[]= new PropertySource(new Properties($args[$i]));
-        } else if (strstr($args[$i], \xp::CLASS_FILE_EXT)) {
-          $sources[]= new ClassFileSource(new File($args[$i]));
         } else if (strstr($args[$i], '.**')) {
           $sources[]= new PackageSource(Package::forName(substr($args[$i], 0, -3)), true);
         } else if (strstr($args[$i], '.*')) {
           $sources[]= new PackageSource(Package::forName(substr($args[$i], 0, -2)));
         } else if (false !== ($p= strpos($args[$i], '::'))) {
           $sources[]= new ClassSource(XPClass::forName(substr($args[$i], 0, $p)), substr($args[$i], $p+ 2));
+        } else if (is_file($args[$i])) {
+          $sources[]= new ClassFileSource(new File($args[$i]));
         } else if (is_dir($args[$i])) {
           $sources[]= new FolderSource(new Folder($args[$i]));
         } else {
