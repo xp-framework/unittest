@@ -3,6 +3,14 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.4.2 / 2018-06-23
+
+* Allowed all file names as arguments to test suite runner, not just
+  `.class.php`. Instead, delegate determining classes from passed URIs
+  to the class loading mechanism. This fixes `xp test path/to/Test.php`
+  not working in conjunction with the XP Compiler.
+  (@thekid)
+
 ## 9.4.1 / 2018-04-02
 
 * Merged PR #28: Replace all occurrences of `xp::stringOf()` with
