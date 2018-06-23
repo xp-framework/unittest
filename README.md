@@ -25,10 +25,10 @@ class CalculatorTest extends \unittest\TestCase {
 }
 ```
 
-To run the test, use the `unittest` runner:
+To run the test, use the `test` subcommand:
 
 ```sh
-$ unittest CalculatorTest
+$ xp test CalculatorTest
 [.]
 
 ♥: 1/1 run (0 skipped), 1 succeeded, 0 failed
@@ -58,7 +58,9 @@ Setup and teardown
 In order to run a method before and after every test, overwrite the base class' `setUp()` and `tearDown()` methods:
 
 ```php
-class CalculatorTest extends \unittest\TestCase {
+use unittest\TestCase;
+
+class CalculatorTest extends TestCase {
   private $fixture;
 
   /** @return void */
@@ -86,8 +88,9 @@ The `@expect` annotation is a shorthand for catching exceptions and verifying th
 
 ```php
 use lang\IllegalArgumentException;
+use unittest\TestCase;
 
-class CalculatorTest extends \unittest\TestCase {
+class CalculatorTest extends TestCase {
 
   #[@test, @expect(IllegalArgumentException::class)]
   public function cannot_divide_by_zero() {
@@ -101,7 +104,9 @@ Ignoring tests
 The `@ignore` annotation can be used to ignore tests. This can be necessary as a temporary measure or when overriding a test base class and not wanting to run one of its methods.
 
 ```php
-class EncodingTest extends \unittest\TestCase {
+use unittest\TestCase;
+
+class EncodingTest extends TestCase {
 
   #[@test, @ignore('Does not work with all iconv implementations')]
   public function transliteration() {
@@ -118,8 +123,9 @@ The `@values` annotation can be used to run a test with a variety of values whic
 
 ```php
 use lang\IllegalArgumentException;
+use unittest\TestCase;
 
-class CalculatorTest extends \unittest\TestCase {
+class CalculatorTest extends TestCase {
 
   #[@test, @expect(IllegalArgumentException::class), @values([1, 0, -1])]
   public function cannot_divide_by_zero($dividend) {
@@ -140,8 +146,9 @@ To execute code before and after tests, test actions can be used. The unittest l
 ```php
 use unittest\actions\IsPlatform;
 use unittest\actions\VerifyThat;
+use unittest\TestCase;
 
-class FileSystemTest extends \unittest\TestCase {
+class FileSystemTest extends TestCase {
 
   #[@test, @action(new IsPlatform('!WIN'))
   public function not_run_on_windows() {
