@@ -3,6 +3,14 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.5.0 / ????-??-??
+
+* Merged PR #29: Allow passing subfolders directly as source, only
+  running the tests therein as a consequence. Previously, the class
+  loader was simply queried for all classes inside any loader the given
+  path was a part of.
+  (@thekid)
+
 ## 9.4.2 / 2018-06-23
 
 * Allowed all file names as arguments to test suite runner, not just
