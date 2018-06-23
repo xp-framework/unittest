@@ -1,9 +1,9 @@
 <?php namespace xp\unittest\sources;
 
 use io\Folder;
-use lang\IllegalArgumentException;
 use lang\ClassLoader;
 use lang\FileSystemClassLoader;
+use lang\IllegalArgumentException;
 use lang\reflect\Modifiers;
 use unittest\TestCase;
 
@@ -11,11 +11,10 @@ use unittest\TestCase;
  * Source that loads tests from test case classes inside a folder and
  * its subfolders.
  *
- * FIXME: The class loading infrastructure should provide ways to translate
- * paths to packages and classes!
+ * @test  xp://unittest.tests.FolderSourceTest
  */
 class FolderSource extends AbstractSource {
-  private $loader;
+  private $loader, $package;
   
   /**
    * Constructor
@@ -26,8 +25,10 @@ class FolderSource extends AbstractSource {
   public function __construct(Folder $folder) {
     $path= $folder->getURI();
     foreach (ClassLoader::getLoaders() as $cl) {
-      if ($cl instanceof FileSystemClassLoader && 0 === strncmp($cl->path, $path, strlen($cl->path))) {
+      $l= strlen($cl->path);
+      if ($cl instanceof FileSystemClassLoader && 0 === strncmp($cl->path, $path, $l)) {
         $this->loader= $cl;
+        $this->package= rtrim(strtr(substr($path, $l), [DIRECTORY_SEPARATOR => '.']), '.');
         return;
       }
     }
@@ -39,23 +40,23 @@ class FolderSource extends AbstractSource {
   }
 
   /** @return iterable */
-  private function classFilesIn(Folder $folder) {
+  private function classesIn($package) {
     $e= -strlen(\xp::CLASS_FILE_EXT);
-    foreach ($folder->entries() as $entry) {
-      if ($entry->isFolder()) {
-        foreach ($this->classFilesIn($entry->asFolder()) as $entry) {
-          yield $entry;
+    $p= $package ? $package.'.' : '';
+    foreach ($this->loader->packageContents($package) as $file) {
+      if (0 === substr_compare($file, \xp::CLASS_FILE_EXT, $e)) {
+        yield $this->loader->loadClass($p.substr($file, 0, $e));
+      } else if ('/' === $file{strlen($file) - 1}) {
+        foreach ($this->classesIn($p.substr($file, 0, -1)) as $class) {
+          yield $class;
         }
-        continue;
-      }
-
-      $name= $entry->name();
-      if (0 === substr_compare($name, \xp::CLASS_FILE_EXT, $e)) {
-        yield substr($entry, 0, $e);
-      } else if (strspn($name, 'ABCDEFGIJKLMOPQRSTUVWXYZ') && 0 === substr_compare($name, '.php', -4)) {
-        yield substr($entry, 0, -4);
       }
     }
+  }
+
+  /** @return iterable */
+  public function classes() {
+    return $this->classesIn($this->package);
   }
 
   /**
@@ -69,10 +70,7 @@ class FolderSource extends AbstractSource {
   public function provideTo($suite, $arguments) {
     $empty= true;
 
-    $cl= ClassLoader::getDefault();
-    $l= strlen($this->loader->path);
-    foreach ($this->classFilesIn(new Folder($this->loader->path)) as $classFile) {
-      $class= $cl->loadClass(strtr(substr($classFile, $l), DIRECTORY_SEPARATOR, '.'));
+    foreach ($this->classesIn($this->package) as $class) {
       if ($class->isSubclassOf(TestCase::class) && !Modifiers::isAbstract($class->getModifiers())) {
         $suite->addTestClass($class, $arguments);
         $empty= false;
