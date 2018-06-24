@@ -4,8 +4,6 @@ use io\Folder;
 use lang\ClassLoader;
 use lang\FileSystemClassLoader;
 use lang\IllegalArgumentException;
-use lang\reflect\Modifiers;
-use unittest\TestCase;
 
 /**
  * Source that loads tests from test case classes inside a folder and
@@ -13,7 +11,7 @@ use unittest\TestCase;
  *
  * @test  xp://unittest.tests.FolderSourceTest
  */
-class FolderSource extends AbstractSource {
+class FolderSource extends ClassesSource {
   private $loader, $package;
   
   /**
@@ -57,29 +55,6 @@ class FolderSource extends AbstractSource {
   /** @return iterable */
   public function classes() {
     return $this->classesIn($this->package);
-  }
-
-  /**
-   * Provide tests to test suite
-   *
-   * @param  unittest.TestSuite $suite
-   * @param  var[] $arguments
-   * @return void
-   * @throws lang.IllegalArgumentException if no tests are found
-   */
-  public function provideTo($suite, $arguments) {
-    $empty= true;
-
-    foreach ($this->classesIn($this->package) as $class) {
-      if ($class->isSubclassOf(TestCase::class) && !Modifiers::isAbstract($class->getModifiers())) {
-        $suite->addTestClass($class, $arguments);
-        $empty= false;
-      }
-    }
-
-    if ($empty) {
-      throw new IllegalArgumentException('Cannot find any test cases in '.$this->toString());
-    }
   }
 
   /**

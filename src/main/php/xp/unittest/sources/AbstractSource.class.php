@@ -1,8 +1,5 @@
 <?php namespace xp\unittest\sources;
 
-/**
- * Source
- */
 abstract class AbstractSource {
 
   /**

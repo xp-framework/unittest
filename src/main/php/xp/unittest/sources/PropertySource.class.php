@@ -1,7 +1,7 @@
 <?php namespace xp\unittest\sources;
 
-use util\Properties;
 use lang\ClassLoader;
+use util\Properties;
 
 /**
  * Source that load tests from a .ini file
@@ -17,6 +17,11 @@ class PropertySource extends AbstractSource {
   public function __construct(Properties $properties) {
     $this->properties= $properties;
     $this->description= $this->properties->readString('this', 'description', 'Tests');
+  }
+
+  /** @return iterable */
+  public function classes() {
+    return [];
   }
 
   /**

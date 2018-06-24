@@ -1,16 +1,14 @@
 <?php namespace xp\unittest\sources;
 
 use lang\IllegalArgumentException;
-use lang\reflect\Modifiers;
 use lang\reflect\Package;
-use unittest\TestCase;
 
 /**
  * Source that load tests from a package
  *
  * @test  xp://unittest.tests.PackageSourceTest
  */
-class PackageSource extends AbstractSource {
+class PackageSource extends ClassesSource {
   private $package, $recursive;
   
   /**
@@ -41,29 +39,6 @@ class PackageSource extends AbstractSource {
   /** @return iterable */
   public function classes() {
     return $this->classesIn($this->package);
-  }
-
-  /**
-   * Provide tests to test suite
-   *
-   * @param  unittest.TestSuite $suite
-   * @param  var[] $arguments
-   * @return void
-   * @throws lang.IllegalArgumentException if no tests are found
-   */
-  public function provideTo($suite, $arguments) {
-    $empty= true;
-
-    foreach ($this->classesIn($this->package) as $class) {
-      if ($class->isSubclassOf(TestCase::class) && !Modifiers::isAbstract($class->getModifiers())) {
-        $suite->addTestClass($class, $arguments);
-        $empty= false;
-      }
-    }
-
-    if ($empty) {
-      throw new IllegalArgumentException('Cannot find any test cases in '.$this->toString());
-    }
   }
 
   /**
