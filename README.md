@@ -16,7 +16,9 @@ Writing a test
 Tests reside inside a testcase class and are annotated with the `@test` annotation.
 
 ```php
-class CalculatorTest extends \unittest\TestCase {
+use unittest\TestCase;
+
+class CalculatorTest extends TestCase {
 
   #[@test]
   public function addition() {
