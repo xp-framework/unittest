@@ -5,6 +5,8 @@ use util\Properties;
 
 /**
  * Source that load tests from a .ini file
+ *
+ * @test  xp://unittest.tests.PropertySourceTest
  */
 class PropertySource extends AbstractSource {
   private $properties, $description;
@@ -19,11 +21,6 @@ class PropertySource extends AbstractSource {
     $this->description= $this->properties->readString('this', 'description', 'Tests');
   }
 
-  /** @return iterable */
-  public function classes() {
-    return [];
-  }
-
   /**
    * Provide tests to test suite
    *
@@ -34,15 +31,14 @@ class PropertySource extends AbstractSource {
   public function provideTo($suite, $arguments) {
     $cl= ClassLoader::getDefault();
 
-    $section= $this->properties->getFirstSection();
-    do {
+    foreach ($this->properties->sections() as $section) {
       if ('this' === $section) continue;   // Ignore special section
 
       $suite->addTestClass(
         $cl->loadClass($this->properties->readString($section, 'class')),
         $arguments ?: $this->properties->readArray($section, 'args')
       );
-    } while ($section= $this->properties->getNextSection());
+    }
   }
 
   /**
