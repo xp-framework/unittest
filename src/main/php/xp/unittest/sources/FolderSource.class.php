@@ -27,8 +27,7 @@ class FolderSource extends ClassesSource {
 
     $path= $folder->getURI();
     foreach (ClassLoader::getLoaders() as $cl) {
-      $l= strlen($cl->path);
-      if ($cl instanceof FileSystemClassLoader && 0 === strncmp($cl->path, $path, $l)) {
+      if ($cl instanceof FileSystemClassLoader && 0 === strncmp($cl->path, $path, strlen($cl->path))) {
         $this->folder= $folder;
         return;
       }
