@@ -3,7 +3,7 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
-## 9.5.0 / ????-??-??
+## 9.5.0 / 2018-06-24
 
 * Merged PR #29: Allow passing subfolders directly as source, only
   running the tests therein as a consequence. Previously, the class
