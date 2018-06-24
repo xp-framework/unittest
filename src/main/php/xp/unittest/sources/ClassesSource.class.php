@@ -7,7 +7,7 @@ use unittest\TestCase;
 abstract class ClassesSource {
 
   /** @return iterable */
-  public abstract function classes();
+  protected abstract function classes();
 
   /**
    * Provide tests to test suite

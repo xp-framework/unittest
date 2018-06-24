@@ -53,7 +53,7 @@ class FolderSource extends ClassesSource {
   }
 
   /** @return iterable */
-  public function classes() {
+  protected function classes() {
     return $this->classesIn($this->package);
   }
 

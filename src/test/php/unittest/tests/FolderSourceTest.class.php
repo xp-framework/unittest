@@ -19,22 +19,18 @@ class FolderSourceTest extends AbstractSourceTest {
 
   #[@test]
   public function finds_classes() {
-    $expected= [
-      'unittest.tests.sources.InBase',
-      'unittest.tests.sources.fixtures.Fixture',
-      'unittest.tests.sources.util.InUtil',
-      'unittest.tests.sources.util.UtilityTest',
-    ];
-    $this->assertFinds($expected, new FolderSource(new Folder('src/test/php/unittest/tests/sources')));
+    $this->assertTests(
+      ['unittest.tests.sources.InBase::test', 'unittest.tests.sources.util.InUtil::test'],
+      new FolderSource(new Folder('src/test/php/unittest/tests/sources'))
+    );
   }
 
   #[@test]
   public function finds_classes_in_subpackage() {
-    $expected= [
-      'unittest.tests.sources.util.InUtil',
-      'unittest.tests.sources.util.UtilityTest',
-    ];
-    $this->assertFinds($expected, new FolderSource(new Folder('src/test/php/unittest/tests/sources/util')));
+    $this->assertTests(
+      ['unittest.tests.sources.util.InUtil::test'],
+      new FolderSource(new Folder('src/test/php/unittest/tests/sources/util'))
+    );
   }
 
   #[@test, @expect(IllegalArgumentException::class)]

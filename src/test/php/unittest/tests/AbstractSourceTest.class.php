@@ -1,6 +1,7 @@
 <?php namespace unittest\tests;
 
 use unittest\TestCase;
+use unittest\TestSuite;
 
 abstract class AbstractSourceTest extends TestCase {
 
@@ -11,12 +12,15 @@ abstract class AbstractSourceTest extends TestCase {
    * @param  xp.unittest.sources.AbstractSource $source
    * @throws unittest.AssertionFailedError
    */
-  protected function assertFinds($expected, $source) {
-    $found= [];
-    foreach ($source->classes() as $class) {
-      $found[]= $class->getName();
+  protected function assertTests($expected, $source) {
+    $suite= new TestSuite();
+    $source->provideTo($suite, []);
+
+    $contained= [];
+    foreach ($suite->tests() as $test) {
+      $contained[]= $test->getName(true);
     }
-    sort($found);
-    $this->assertEquals($expected, $found);
+    sort($contained);
+    $this->assertEquals($expected, $contained);
   }
 }
