@@ -43,7 +43,7 @@ class FolderSource extends ClassesSource {
       $name= $entry->name();
 
       // Must begin with an uppercase letter, and end with ".php"
-      if (1 === strspn($name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') && 0 === substr_compare($name, '.php', -4)) {
+      if (strspn($name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') > 0 && 0 === substr_compare($name, '.php', -4)) {
         $uri= $entry->asURI();
         if ($loader= $cl->findUri($uri)) {
           yield $loader->loadUri($uri);

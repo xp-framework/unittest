@@ -23,7 +23,11 @@ class PackageSourceTest extends AbstractSourceTest {
   #[@test]
   public function finds_classes_inside_given_package_recursively() {
     $this->assertTests(
-      ['unittest.tests.sources.InBase::test', 'unittest.tests.sources.util.InUtil::test'],
+      [
+        'unittest.tests.sources.InBase::test',
+        'unittest.tests.sources.util.InUtil::test',
+        'unittest.tests.sources.util.LDAPTest::connect'
+      ],
       new PackageSource(Package::forName('unittest.tests.sources'), $recursive= true)
     );
   }

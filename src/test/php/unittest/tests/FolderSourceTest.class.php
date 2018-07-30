@@ -20,7 +20,11 @@ class FolderSourceTest extends AbstractSourceTest {
   #[@test]
   public function finds_classes() {
     $this->assertTests(
-      ['unittest.tests.sources.InBase::test', 'unittest.tests.sources.util.InUtil::test'],
+      [
+        'unittest.tests.sources.InBase::test',
+        'unittest.tests.sources.util.InUtil::test',
+        'unittest.tests.sources.util.LDAPTest::connect'
+      ],
       new FolderSource(new Folder('src/test/php/unittest/tests/sources'))
     );
   }
@@ -28,7 +32,7 @@ class FolderSourceTest extends AbstractSourceTest {
   #[@test]
   public function finds_classes_in_subpackage() {
     $this->assertTests(
-      ['unittest.tests.sources.util.InUtil::test'],
+      ['unittest.tests.sources.util.InUtil::test', 'unittest.tests.sources.util.LDAPTest::connect'],
       new FolderSource(new Folder('src/test/php/unittest/tests/sources/util'))
     );
   }

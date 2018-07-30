@@ -3,6 +3,11 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.5.1 / 2018-07-30
+
+* Fixed #30: Cannot find any test cases in xp.unittest.sources.FolderSource
+  (@thekid)
+
 ## 9.5.0 / 2018-06-24
 
 * Merged PR #29: Allow passing subfolders directly as source, only
