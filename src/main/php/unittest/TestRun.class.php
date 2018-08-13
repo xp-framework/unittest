@@ -1,8 +1,8 @@
 <?php namespace unittest;
 
-use lang\reflect\TargetInvocationException;
 use lang\Throwable;
 use lang\XPClass;
+use lang\reflect\TargetInvocationException;
 use util\profiling\Timer;
 
 class TestRun {
@@ -302,6 +302,11 @@ class TestRun {
   public function one(TestGroup $group) {
     try {
       $group->before();
+    } catch (PrerequisitesFailedError $e) {
+      foreach ($group->tests() as $test) {
+        $this->record('testFailed', new TestPrerequisitesFailed($test, $e, 0.0));
+      }
+      return;
     } catch (PrerequisitesNotMetError $e) {
       foreach ($group->tests() as $test) {
         $this->record('testSkipped', new TestPrerequisitesNotMet($test, $e, 0.0));
