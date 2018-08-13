@@ -1,8 +1,10 @@
 <?php namespace unittest\tests;
 
-use unittest\TestCase;
-use unittest\TestSkipped;
+use unittest\PrerequisitesFailedError;
 use unittest\PrerequisitesNotMetError;
+use unittest\TestCase;
+use unittest\TestFailure;
+use unittest\TestSkipped;
 use unittest\TestSuite;
 
 /**
@@ -66,7 +68,7 @@ abstract class BeforeAndAfterClassTest extends TestCase {
   }
 
   #[@test]
-  public function failedPrerequisiteInBeforeClassSkipsTest() {
+  public function unmetPrerequisiteInBeforeClassSkipsTest() {
     $t= newinstance(TestCase::class, ['fixture'], '{
 
       #[@beforeClass]
@@ -82,6 +84,26 @@ abstract class BeforeAndAfterClassTest extends TestCase {
     $r= $this->suite->runTest($t)->outComeOf($t);
     $this->assertInstanceOf(TestSkipped::class, $r);
     $this->assertInstanceOf(PrerequisitesNotMetError::class, $r->reason);
+    $this->assertEquals('Test data not available', $r->reason->getMessage());
+  }
+
+  #[@test]
+  public function failedPrerequisiteInBeforeClassFailsTest() {
+    $t= newinstance(TestCase::class, ['fixture'], '{
+
+      #[@beforeClass]
+      public static function prepareTestData() {
+        throw new \unittest\PrerequisitesFailedError("Test data not available", null, ["data"]);
+      }
+
+      #[@test]
+      public function fixture() {
+        $this->fail("Will not be run");
+      }
+    }');
+    $r= $this->suite->runTest($t)->outComeOf($t);
+    $this->assertInstanceOf(TestFailure::class, $r);
+    $this->assertInstanceOf(PrerequisitesFailedError::class, $r->reason);
     $this->assertEquals('Test data not available', $r->reason->getMessage());
   }
 
