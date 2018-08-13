@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.6.0 / 2018-08-13
+
+* Merged pull request #31: Add possibility to fail all tests from within
+  `@beforeClass` methods
+  (@thekid)
+
 ## 9.5.1 / 2018-07-30
 
 * Fixed #30: Cannot find any test cases in xp.unittest.sources.FolderSource
