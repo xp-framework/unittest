@@ -5,7 +5,7 @@ use util\profiling\Timer;
 /**
  * Indicates prerequisites have failed
  *
- * @see  xp://unittest.TestPrerequisitesNotMet
+ * @see  xp://unittest.TestPrerequisitesFailed
  */
 class PrerequisitesFailedError extends PrerequisitesNotMetError {
 
