@@ -302,14 +302,10 @@ class TestRun {
   public function one(TestGroup $group) {
     try {
       $group->before();
-    } catch (PrerequisitesFailedError $e) {
-      foreach ($group->tests() as $test) {
-        $this->record('testFailed', new TestPrerequisitesFailed($test, $e, 0.0));
-      }
-      return;
     } catch (PrerequisitesNotMetError $e) {
+      $timer= new Timer();
       foreach ($group->tests() as $test) {
-        $this->record('testSkipped', new TestPrerequisitesNotMet($test, $e, 0.0));
+        $this->record($e->type(), $e->outcome($test, $timer));
       }
       return;
     }
