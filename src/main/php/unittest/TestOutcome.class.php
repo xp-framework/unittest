@@ -1,7 +1,10 @@
 <?php namespace unittest;
 
+use lang\Value;
+use util\Objects;
+
 /** Outcome from a test */
-abstract class TestOutcome implements \lang\Value {
+abstract class TestOutcome implements Value {
   public $test, $elapsed;
 
   /**
