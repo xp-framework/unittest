@@ -89,7 +89,11 @@ class TestResultTest extends TestCase {
 
   #[@test]
   public function string_representation() {
-    $this->assertNotEquals('', (new TestResult())->toString());
+    $t= new TestResult();
+    $t->record(new TestSuccess($this, 0.0));
+    $t->record(new TestSkipped($this, 0.0));
+    $t->record(new TestError($this, new AssertionFailedError('Fail!'), 0.0));
+    $this->assertNotEquals('', $t->toString());
   }
 
   #[@test]
