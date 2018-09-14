@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.6.1 / 2018-08-14
+
+* Fixed *lang.Error (Class 'unittest\Objects' not found)* error when
+  comparing two test outcomes
+  (@thekid)
+
 ## 9.6.0 / 2018-08-13
 
 * Merged pull request #31: Add possibility to fail all tests from within
