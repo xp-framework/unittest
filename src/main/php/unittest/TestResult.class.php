@@ -6,6 +6,7 @@ use util\Objects;
  * Test result
  *
  * @see   xp://unittest.TestSuite
+ * @test  xp://unittest.tests.TestResultTest
  */
 class TestResult implements \lang\Value {
   public
