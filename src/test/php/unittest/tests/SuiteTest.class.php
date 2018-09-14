@@ -1,18 +1,18 @@
 <?php namespace unittest\tests;
 
-use unittest\TestCase;
-use unittest\TestResult;
-use unittest\TestPrerequisitesNotMet;
+use lang\ClassLoader;
 use lang\Error;
+use lang\FormatException;
+use lang\IllegalArgumentException;
 use lang\MethodNotImplementedException;
-use util\NoSuchElementException;
+use unittest\AssertionFailedError;
+use unittest\PrerequisitesNotMetError;
+use unittest\TestCase;
+use unittest\TestPrerequisitesNotMet;
+use unittest\TestResult;
 use unittest\TestSuite;
 use unittest\actions\RuntimeVersion;
-use unittest\PrerequisitesNotMetError;
-use unittest\AssertionFailedError;
-use lang\IllegalArgumentException;
-use lang\FormatException;
-use lang\ClassLoader;
+use util\NoSuchElementException;
 
 /**
  * Test TestSuite class methods
@@ -125,6 +125,16 @@ class SuiteTest extends TestCase {
   #[@test]
   public function adding_a_testclass_by_name_returns_added_class() {
     $this->assertEquals(typeof($this), $this->suite->addTestClass(self::class));
+  }
+
+  #[@test]
+  public function number_of_tests_initially_zero() {
+    $this->assertEquals(0, $this->suite->numTests());
+  }
+
+  #[@test]
+  public function no_test_initially() {
+    $this->assertNull($this->suite->testAt(0));
   }
 
   #[@test]

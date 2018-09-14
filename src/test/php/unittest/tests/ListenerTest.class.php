@@ -1,39 +1,40 @@
 <?php namespace unittest\tests;
 
-use unittest\TestExpectationMet;
-use unittest\TestResult;
-use unittest\TestAssertionFailed;
-use unittest\TestError;
-use unittest\TestWarning;
-use unittest\TestPrerequisitesNotMet;
-use unittest\TestNotRun;
-use unittest\TestCase;
-use unittest\TestSuite;
-use unittest\PrerequisitesNotMetError;
 use lang\IllegalArgumentException;
+use unittest\PrerequisitesNotMetError;
+use unittest\TestAssertionFailed;
+use unittest\TestCase;
+use unittest\TestError;
+use unittest\TestExpectationMet;
+use unittest\TestFailure;
+use unittest\TestListener;
+use unittest\TestNotRun;
+use unittest\TestPrerequisitesNotMet;
+use unittest\TestResult;
+use unittest\TestSkipped;
+use unittest\TestSuccess;
+use unittest\TestSuite;
+use unittest\TestWarning;
 
 /**
  * TestCase
  *
  * @see   xp://unittest.TestListener
  */
-class ListenerTest extends TestCase implements \unittest\TestListener {
+class ListenerTest extends TestCase implements TestListener {
   private $suite, $invocations;
     
   /** @return void */
   public function setUp() {
     $this->invocations= [];
     $this->suite= new TestSuite();
-    $this->suite->addListener($this);
   }
 
-  /**
-   * Remove listener again at tearDown.
-   */
+  /** @return void */
   public function tearDown() {
     $this->suite->removeListener($this);
   }
-  
+
   /**
    * Called when a test case starts.
    *
@@ -48,7 +49,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    *
    * @param   unittest.TestFailure failure
    */
-  public function testFailed(\unittest\TestFailure $failure) {
+  public function testFailed(TestFailure $failure) {
     $this->invocations[__FUNCTION__]= [$failure];
   }
 
@@ -57,7 +58,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    *
    * @param   unittest.TestFailure error
    */
-  public function testError(\unittest\TestError $error) {
+  public function testError(TestError $error) {
     $this->invocations[__FUNCTION__]= [$error];
   }
 
@@ -66,7 +67,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    *
    * @param   unittest.TestWarning warning
    */
-  public function testWarning(\unittest\TestWarning $warning) {
+  public function testWarning(TestWarning $warning) {
     $this->invocations[__FUNCTION__]= [$warning];
   }
 
@@ -75,7 +76,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    *
    * @param   unittest.TestSuccess success
    */
-  public function testSucceeded(\unittest\TestSuccess $success) {
+  public function testSucceeded(TestSuccess $success) {
     $this->invocations[__FUNCTION__]= [$success];
   }
 
@@ -85,7 +86,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    *
    * @param   unittest.TestSkipped skipped
    */
-  public function testSkipped(\unittest\TestSkipped $skipped) {
+  public function testSkipped(TestSkipped $skipped) {
     $this->invocations[__FUNCTION__]= [$skipped];
   }
 
@@ -95,7 +96,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    *
    * @param   unittest.TestSkipped ignore
    */
-  public function testNotRun(\unittest\TestSkipped $ignore) {
+  public function testNotRun(TestSkipped $ignore) {
     $this->invocations[__FUNCTION__]= [$ignore];
   }
 
@@ -114,8 +115,37 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
    * @param   unittest.TestSuite suite
    * @param   unittest.TestResult result
    */
-  public function testRunFinished(TestSuite $suite, \unittest\TestResult $result) {
+  public function testRunFinished(TestSuite $suite, TestResult $result) {
     $this->invocations[__FUNCTION__]= [$suite, $result];
+  }
+
+  #[@test]
+  public function add_listener() {
+    $this->assertEquals($this, $this->suite->addListener($this));
+  }
+
+  #[@test]
+  public function remove_listener() {
+    $this->suite->addListener($this);
+    $this->assertTrue($this->suite->removeListener($this));
+  }
+
+  #[@test]
+  public function remove_non_existant_listener() {
+    $this->assertFalse($this->suite->removeListener($this));
+  }
+
+  #[@test]
+  public function string_representation() {
+    $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
+      '#[@test] fixture' => function() { /** NOOP */ }
+    ]));
+    $this->assertNotEquals('', $this->suite->toString());
+  }
+
+  #[@test]
+  public function hash_code() {
+    $this->assertNotEquals('', $this->suite->hashCode());
   }
 
   #[@test]
@@ -123,6 +153,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
     $case= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(true); }
     ]);
+    $this->suite->addListener($this);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
     $this->assertEquals($case, $this->invocations['testStarted'][0]);
@@ -136,6 +167,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
     $case= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(false); }
     ]);
+    $this->suite->addListener($this);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
     $this->assertEquals($case, $this->invocations['testStarted'][0]);
@@ -149,6 +181,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
     $case= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { throw new IllegalArgumentException('Test'); }
     ]);
+    $this->suite->addListener($this);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
     $this->assertEquals($case, $this->invocations['testStarted'][0]);
@@ -162,6 +195,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
     $case= newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { trigger_error('Test error'); }
     ]);
+    $this->suite->addListener($this);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
     $this->assertEquals($case, $this->invocations['testStarted'][0]);
@@ -176,6 +210,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
       'setUp' => function() { throw new PrerequisitesNotMetError('SKIP', null, $this->name); },
       '#[@test] fixture' => function() { /* Intentionally empty */ }
     ]);
+    $this->suite->addListener($this);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
     $this->assertEquals($case, $this->invocations['testStarted'][0]);
@@ -189,6 +224,7 @@ class ListenerTest extends TestCase implements \unittest\TestListener {
     $case= newinstance(TestCase::class, ['fixture'], [
       '#[@test, @ignore] fixture' => function() { /* Intentionally empty */ }
     ]);
+    $this->suite->addListener($this);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
     $this->assertEquals($case, $this->invocations['testStarted'][0]);
