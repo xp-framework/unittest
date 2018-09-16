@@ -3,11 +3,16 @@
 use lang\Runtime;
 
 class MemoryUsed extends Metric {
-  private $used, $peak;
+  private $runtime, $used, $peak;
+
+  /** @param lang.Runtime $runtime */
+  public function __construct($runtime= null) {
+    $this->runtime= $runtime;
+  }
 
   /** @return void */
   protected function calculate() {
-    $rt= Runtime::getInstance();
+    $rt= $this->runtime ?: Runtime::getInstance();
     $this->used= $rt->memoryUsage();
     $this->peak= $rt->peakMemoryUsage();
   }

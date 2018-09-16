@@ -1,5 +1,6 @@
 <?php namespace unittest\tests;
 
+use lang\Runtime;
 use unittest\TestCase;
 use unittest\TestResult;
 use unittest\metrics\MemoryUsed;
@@ -68,7 +69,10 @@ class MetricsTest extends TestCase {
 
   #[@test]
   public function memory_used() {
-    $t= new MemoryUsed();
-    $this->assertEquals(memory_get_usage(), $t->calculated());
+    $t= new MemoryUsed(newinstance(Runtime::class, [], [
+      'memoryUsage'     => function() { return 6100; },
+      'peakMemoryUsage' => function() { return 9999; },
+    ]));
+    $this->assertEquals(6100, $t->calculated());
   }
 }
