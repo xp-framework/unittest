@@ -1,7 +1,9 @@
 <?php namespace unittest;
 
-use lang\Runtime;
 use lang\Value;
+use unittest\metrics\MemoryUsed;
+use unittest\metrics\Metric;
+use unittest\metrics\TimeTaken;
 use util\Objects;
 
 /**
@@ -19,13 +21,8 @@ class TestResult implements Value {
 
   /** Initializes metrics */
   public function __construct() {
-    $this->metrics['Memory used']= function() {
-      $rt= Runtime::getInstance();
-      return sprintf('%.2f kB (%.2f kB peak)', $rt->memoryUsage() / 1024, $rt->peakMemoryUsage() / 1024);
-    };
-    $this->metrics['Time taken']= function() {
-      return sprintf('%.3f seconds', $this->elapsed());
-    };
+    $this->metrics['Memory used']= new MemoryUsed();
+    $this->metrics['Time taken']= new TimeTaken($this);
   }
 
   /**
@@ -176,14 +173,11 @@ class TestResult implements Value {
    * Register a metric
    *
    * @param  string $name
-   * @param  function(): string|var $metric
+   * @param  unttest.metrics.Metric
    * @return self
    */
-  public function metric($name, $metric) {
-    $this->metrics[$name]= $metric instanceof \Closure
-      ? $metric
-      : function() use($metric) { return $metric; }
-    ;
+  public function metric($name, Metric $metric) {
+    $this->metrics[$name]= $metric;
     return $this;
   }
 

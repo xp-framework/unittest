@@ -7,6 +7,7 @@ use unittest\TestError;
 use unittest\TestResult;
 use unittest\TestSkipped;
 use unittest\TestSuccess;
+use unittest\metrics\Metric;
 
 class TestResultTest extends TestCase {
 
@@ -117,10 +118,14 @@ class TestResultTest extends TestCase {
     $this->assertTrue(isset($metrics[$name]));
   }
 
-  #[@test, @values(['Tested', function() { return 'Tested'; }])]
-  public function record_metric($metric) {
-    $metric= (new TestResult())->metric('Test', $metric)->metrics()['Test'];
-    $this->assertEquals('Tested', $metric());
+  #[@test]
+  public function record_metric() {
+    $metric= newinstance(Metric::class, [], [
+      'calculate' => function() {  },
+      'value'     => function() { return 6100; },
+      'format'    => function() { return 'Test'; }
+    ]);
+    $this->assertEquals($metric, (new TestResult())->metric('Test', $metric)->metrics()['Test']);
   }
 
   /** @deprecated */

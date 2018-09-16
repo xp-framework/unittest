@@ -184,7 +184,7 @@ class DefaultListener implements TestListener, ColorizingListener {
       $this->colored ? "\033[0m" : ''
     );
     foreach ($result->metrics() as $name => $metric) {
-      $this->out->writeLine($name, ': ', $metric());
+      $this->out->writeLine($name, ': ', $metric->formatted());
     }
   }
 }

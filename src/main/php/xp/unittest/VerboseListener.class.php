@@ -134,7 +134,7 @@ class VerboseListener implements TestListener {
       $result->failureCount()
     );
     foreach ($result->metrics() as $name => $metric) {
-      $this->out->writeLine('===> ', $name, ': ', $metric());
+      $this->out->writeLine('===> ', $name, ': ', $metric->formatted());
     }
   }
 }
