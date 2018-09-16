@@ -1,9 +1,8 @@
 <?php namespace xp\unittest;
 
-use unittest\TestListener;
-use unittest\TestCase;
 use io\streams\OutputStreamWriter;
-use lang\Runtime;
+use unittest\TestCase;
+use unittest\TestListener;
 
 /**
  * Verbose listener
@@ -134,14 +133,8 @@ class VerboseListener implements TestListener {
       $result->successCount(),
       $result->failureCount()
     );
-    $this->out->writeLinef(
-      '===> Memory used: %.2f kB (%.2f kB peak)',
-      Runtime::getInstance()->memoryUsage() / 1024,
-      Runtime::getInstance()->peakMemoryUsage() / 1024
-    );
-    $this->out->writeLinef(
-      '===> Time taken: %.3f seconds',
-      $result->elapsed()
-    );
+    foreach ($result->metrics() as $name => $metric) {
+      $this->out->writeLine('===> ', $name, ': ', $metric());
+    }
   }
 }

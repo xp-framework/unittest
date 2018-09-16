@@ -1,17 +1,16 @@
 <?php namespace xp\unittest;
 
-use unittest\TestListener;
-use unittest\ColorizingListener;
-use io\streams\OutputStreamWriter;
 use io\streams\ConsoleOutputStream;
-use lang\Runtime;
+use io\streams\OutputStreamWriter;
+use unittest\ColorizingListener;
+use unittest\TestListener;
 
 /**
  * Default listener
  * ----------------
  * Only shows details for failed tests. This listener has no options.
  */
-class DefaultListener  implements TestListener, ColorizingListener {
+class DefaultListener implements TestListener, ColorizingListener {
   const OUTPUT_WIDTH= 72;
 
   public $out= null;
@@ -184,14 +183,8 @@ class DefaultListener  implements TestListener, ColorizingListener {
       $result->failureCount(),
       $this->colored ? "\033[0m" : ''
     );
-    $this->out->writeLinef(
-      'Memory used: %.2f kB (%.2f kB peak)',
-      Runtime::getInstance()->memoryUsage() / 1024,
-      Runtime::getInstance()->peakMemoryUsage() / 1024
-    );
-    $this->out->writeLinef(
-      'Time taken: %.3f seconds',
-      $result->elapsed()
-    );
+    foreach ($result->metrics() as $name => $metric) {
+      $this->out->writeLine($name, ': ', $metric());
+    }
   }
 }

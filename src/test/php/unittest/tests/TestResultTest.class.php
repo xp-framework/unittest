@@ -111,6 +111,18 @@ class TestResultTest extends TestCase {
     $this->assertNotEquals($this, new TestResult());
   }
 
+  #[@test, @values(['Memory used', 'Time taken'])]
+  public function default_metric($name) {
+    $metrics= (new TestResult())->metrics();
+    $this->assertTrue(isset($metrics[$name]));
+  }
+
+  #[@test, @values(['Tested', function() { return 'Tested'; }])]
+  public function record_metric($metric) {
+    $metric= (new TestResult())->metric('Test', $metric)->metrics()['Test'];
+    $this->assertEquals('Tested', $metric());
+  }
+
   /** @deprecated */
   #[@test]
   public function set() {
