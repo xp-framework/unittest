@@ -3,6 +3,13 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.7.0 / 2018-09-16
+
+* Merged pull request #34: Add metrics to TestResult. This adds the
+  possibility for listeners to integrate metrics inside the test result
+  output, e.g. coverage. See also issue #33
+  (@thekid)
+
 ## 9.6.1 / 2018-08-14
 
 * Fixed *lang.Error (Class 'unittest\Objects' not found)* error when
