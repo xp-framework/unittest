@@ -7,6 +7,7 @@ use unittest\TestError;
 use unittest\TestResult;
 use unittest\TestSkipped;
 use unittest\TestSuccess;
+use unittest\metrics\Metric;
 
 class TestResultTest extends TestCase {
 
@@ -109,6 +110,22 @@ class TestResultTest extends TestCase {
   #[@test]
   public function does_not_equal_other() {
     $this->assertNotEquals($this, new TestResult());
+  }
+
+  #[@test, @values(['Memory used', 'Time taken'])]
+  public function default_metric($name) {
+    $metrics= (new TestResult())->metrics();
+    $this->assertTrue(isset($metrics[$name]));
+  }
+
+  #[@test]
+  public function record_metric() {
+    $metric= newinstance(Metric::class, [], [
+      'calculate' => function() {  },
+      'value'     => function() { return 6100; },
+      'format'    => function() { return 'Test'; }
+    ]);
+    $this->assertEquals($metric, (new TestResult())->metric('Test', $metric)->metrics()['Test']);
   }
 
   /** @deprecated */
