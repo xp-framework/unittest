@@ -1,5 +1,9 @@
 <?php namespace unittest;
 
+use lang\Value;
+use unittest\metrics\MemoryUsed;
+use unittest\metrics\Metric;
+use unittest\metrics\TimeTaken;
 use util\Objects;
 
 /**
@@ -8,11 +12,18 @@ use util\Objects;
  * @see   xp://unittest.TestSuite
  * @test  xp://unittest.tests.TestResultTest
  */
-class TestResult implements \lang\Value {
+class TestResult implements Value {
   public
     $succeeded    = [],
     $failed       = [],
-    $skipped      = [];
+    $skipped      = [],
+    $metrics      = [];
+
+  /** Initializes metrics */
+  public function __construct() {
+    $this->metrics['Memory used']= new MemoryUsed();
+    $this->metrics['Time taken']= new TimeTaken($this);
+  }
 
   /**
    * Record outcome for a given test
@@ -157,6 +168,21 @@ class TestResult implements \lang\Value {
     }
     return $total;
   }
+
+  /**
+   * Register a metric
+   *
+   * @param  string $name
+   * @param  unttest.metrics.Metric
+   * @return self
+   */
+  public function metric($name, Metric $metric) {
+    $this->metrics[$name]= $metric;
+    return $this;
+  }
+
+  /** @return [:function(): string] */
+  public function metrics() { return $this->metrics; }
   
   /**
    * Create a nice string representation

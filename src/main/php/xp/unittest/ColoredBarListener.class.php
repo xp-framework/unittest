@@ -1,6 +1,7 @@
 <?php namespace xp\unittest;
 
 use io\streams\OutputStreamWriter;
+use unittest\TestListener;
 
 /**
  * Colorful verbose test listener
@@ -14,8 +15,9 @@ use io\streams\OutputStreamWriter;
  *   information out instantly)
  *
  */
-class ColoredBarListener implements \unittest\TestListener {
+class ColoredBarListener implements TestListener {
   const PROGRESS_WIDTH= 10;
+
   private $out= null;
   private $cur, $sum, $len, $status;
   private $stats;
@@ -225,14 +227,8 @@ class ColoredBarListener implements \unittest\TestListener {
       $result->successCount(),
       $result->failureCount()
     );
-    $this->out->writeLinef(
-      'Memory used: %.2f kB (%.2f kB peak)',
-      \lang\Runtime::getInstance()->memoryUsage() / 1024,
-      \lang\Runtime::getInstance()->peakMemoryUsage() / 1024
-    );
-    $this->out->writeLinef(
-      'Time taken: %.3f seconds',
-      $result->elapsed()
-    );
+    foreach ($result->metrics() as $name => $metric) {
+      $this->out->writeLine($name, ': ', $metric->formatted());
+    }
   }
 }
