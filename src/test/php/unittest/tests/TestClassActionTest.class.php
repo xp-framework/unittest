@@ -17,6 +17,7 @@ class TestClassActionTest extends \unittest\TestCase {
 
   #[@test]
   public function beforeTestClass_and_afterTestClass_invocation_order() {
+    TestWithClassAction::$run= [];
     $this->suite->runTest(new TestWithClassAction('fixture'));
     $this->assertEquals(['before', 'test', 'after'], TestWithClassAction::$run);
   }
