@@ -78,10 +78,10 @@ class ComparisonFailedMessage implements AssertionFailedMessage {
       $la= strlen($this->actual);
       $le= strlen($this->expect);
       for ($i= 0, $l= min($le, $la); $i < $l; $i++) {                     // Search from beginning
-        if ($this->expect{$i} !== $this->actual{$i}) break;
+        if ($this->expect[$i] !== $this->actual[$i]) break;
       }
       for ($j= $le- 1, $k= $la- 1; $k >= $i && $j >= $i; $k--, $j--) {    // Search from end
-        if ($this->expect{$j} !== $this->actual{$k}) break;
+        if ($this->expect[$j] !== $this->actual[$k]) break;
       }
       $expect= $this->compact($this->expect, $i, $j+ 1, $le);
       $actual= $this->compact($this->actual, $i, $k+ 1, $la);

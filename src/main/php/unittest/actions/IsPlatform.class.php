@@ -1,7 +1,7 @@
 <?php namespace unittest\actions;
 
-use unittest\TestCase;
 use unittest\PrerequisitesNotMetError;
+use unittest\TestCase;
 
 /**
  * Only runs this testcase on a given platform
@@ -42,7 +42,7 @@ class IsPlatform implements \unittest\TestAction {
    */
   public function verify($os= null) {
     $os ?: $os= self::$os;
-    if ('!' === $this->platform{0}) {
+    if ('!' === $this->platform[0]) {
       return !preg_match('/^'.substr($this->platform, 1).'/i', $os);
     } else {
       return (bool)preg_match('/^'.$this->platform.'/i', $os);

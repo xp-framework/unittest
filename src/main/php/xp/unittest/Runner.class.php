@@ -1,24 +1,24 @@
 <?php namespace xp\unittest;
 
-use lang\XPClass;
-use lang\Throwable;
+use io\File;
+use io\Folder;
+use io\streams\FileOutputStream;
+use io\streams\InputStream;
+use io\streams\OutputStream;
+use io\streams\Streams;
+use io\streams\StringReader;
+use io\streams\StringWriter;
 use lang\ClassLoader;
 use lang\IllegalArgumentException;
 use lang\MethodNotImplementedException;
+use lang\Throwable;
+use lang\XPClass;
 use lang\reflect\Package;
 use lang\reflect\TargetInvocationException;
-use io\File;
-use io\Folder;
-use io\streams\Streams;
-use io\streams\InputStream;
-use io\streams\OutputStream;
-use io\streams\FileOutputStream;
-use io\streams\StringWriter;
-use io\streams\StringReader;
-use unittest\TestSuite;
 use unittest\ColorizingListener;
-use util\Properties;
+use unittest\TestSuite;
 use util\NoSuchElementException;
+use util\Properties;
 use util\cmd\Console;
 use xp\unittest\sources\ClassFileSource;
 use xp\unittest\sources\ClassSource;
@@ -170,7 +170,7 @@ class Runner {
           $options['<'.$name.'>']= $method;
         } else {
           $name= isset($arg['name']) ? $arg['name'] : $name;
-          $short= isset($arg['short']) ? $arg['short'] : $name{0};
+          $short= isset($arg['short']) ? $arg['short'] : $name[0];
           $param= ($method->numParameters() > 0 ? ' <'.$method->getParameter(0)->getName().'>' : '');
           $options[$name.'|'.$short.$param]= $method;
         }
@@ -279,7 +279,7 @@ class Runner {
                 $options[$arg['position']]= $method;
               } else {
                 $name= isset($arg['name']) ? $arg['name'] : strtolower(preg_replace('/^set/', '', $method->getName()));
-                $short= isset($arg['short']) ? $arg['short'] : $name{0};
+                $short= isset($arg['short']) ? $arg['short'] : $name[0];
                 $options[$name]= $options[$short]= $method;
               }
             }
