@@ -3,6 +3,11 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 9.7.1 / 2019-08-22
+
+* Made compatible with PHP 7.4 - refrain using `{}` for string offsets
+  (@thekid)
+
 ## 9.7.0 / 2018-09-16
 
 * Merged pull request #34: Add metrics to TestResult. This adds the
