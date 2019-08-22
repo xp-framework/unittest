@@ -28,13 +28,13 @@ class VerifyThat implements TestAction, TestClassAction {
     } else if (0 === strncmp($callable, 'self::', 6)) {
       $method= substr($callable, 6);
       $this->verify= function() use($method) {
-        if (method_exists(self::class, $method)) return self::$method();
+        if (method_exists(get_called_class(), $method)) return self::$method();
         throw new MethodNotImplementedException('No such method', $method);
       };
       $this->prerequisite= $callable;
     } else if (false !== ($p= strpos($callable, '::'))) {
       $class= literal(substr($callable, 0, $p));
-      $method= substr($callable, $p+ 2);
+      $method= substr($callable, $p + 2);
       $this->verify= function() use($class, $method) {
         if (method_exists($class, $method)) return $class::$method();
         throw new MethodNotImplementedException('No such method', $method);
