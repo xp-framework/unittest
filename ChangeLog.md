@@ -5,6 +5,9 @@ Unittests change log
 
 ## 9.7.1 / 2019-08-22
 
+* Rewrote `unittest.actions.VerifyThat` to no longer user the deprecated
+  `call_user_func()` function.
+  (@thekid)
 * Made compatible with PHP 7.4 - refrain using `{}` for string offsets
   (@thekid)
 

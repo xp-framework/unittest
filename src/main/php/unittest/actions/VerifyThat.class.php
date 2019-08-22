@@ -1,15 +1,17 @@
 <?php namespace unittest\actions;
 
-use unittest\TestCase;
-use unittest\PrerequisitesNotMetError;
 use lang\Throwable;
+use unittest\PrerequisitesNotMetError;
+use unittest\TestAction;
+use unittest\TestCase;
+use unittest\TestClassAction;
 
 /**
  * Verifies a certain callable works
  *
  * @test  xp://net.xp_framework.unittest.tests.VerifyThatTest
  */
-class VerifyThat implements \unittest\TestAction, \unittest\TestClassAction {
+class VerifyThat implements TestAction, TestClassAction {
   protected $verify;
   protected $prerequisite;
 
@@ -24,15 +26,15 @@ class VerifyThat implements \unittest\TestAction, \unittest\TestClassAction {
       $this->prerequisite= '<function()>';
     } else if (0 === strncmp($callable, 'self::', 6)) {
       $method= substr($callable, 6);
-      $this->verify= function() use($method) { return call_user_func(['self', $method]); };
+      $this->verify= function() use($method) { return self::$method(); };
       $this->prerequisite= $callable;
     } else if (false !== ($p= strpos($callable, '::'))) {
       $class= literal(substr($callable, 0, $p));
       $method= substr($callable, $p+ 2);
-      $this->verify= function() use($class, $method) { return call_user_func([$class, $method]); };
+      $this->verify= function() use($class, $method) { return $class::$method(); };
       $this->prerequisite= $callable;
     } else {
-      $this->verify= function() use($callable) { return call_user_func([$this, $callable]); };
+      $this->verify= function() use($callable) { return $this->$callable(); };
       $this->prerequisite= '$this->'.$callable;
     }
   }
@@ -49,6 +51,8 @@ class VerifyThat implements \unittest\TestAction, \unittest\TestClassAction {
       $verified= $this->verify->bindTo($t, $t)->__invoke();
     } catch (Throwable $e) {
       throw new PrerequisitesNotMetError('Verification raised '.$e->compoundMessage(), null, [$this->prerequisite]);
+    } catch (\Throwable $e) {
+      throw new PrerequisitesNotMetError('Verification raised '.$e->getMessage(), null, [$this->prerequisite]);
     }
 
     if (!$verified) {

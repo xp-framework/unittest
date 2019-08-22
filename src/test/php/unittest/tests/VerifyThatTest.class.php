@@ -1,8 +1,8 @@
 <?php namespace unittest\tests;
 
+use unittest\TestCase;
 use unittest\TestExpectationMet;
 use unittest\TestPrerequisitesNotMet;
-use unittest\TestCase;
 use unittest\TestSuite;
 use util\Objects;
 
@@ -270,7 +270,7 @@ class VerifyThatTest extends TestCase {
     $this->assertSucceeds(newinstance('#[@action(new \unittest\actions\VerifyThat("self::verify"))] unittest.TestCase', ['fixture'], '{
       protected static $initialized= false;
 
-      protected function verify() { return self::$initialized; }
+      protected static function verify() { return self::$initialized; }
 
       #[@beforeClass]
       public static function initialize() { self::$initialized= true; }
