@@ -2,7 +2,7 @@
 
 use lang\Throwable;
 
-class TestClassInstance implements Test {
+class TestClassInstance extends Test {
   public $instance, $method;
 
   public function __construct($instance) {

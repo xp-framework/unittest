@@ -1,6 +1,6 @@
 <?php namespace unittest;
 
-class TestTarget implements Test {
+class TestTarget extends Test {
   public $instance, $method;
 
   public function __construct($instance, $method) {

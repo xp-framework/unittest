@@ -7,7 +7,7 @@ use util\Objects;
  *
  * @see   xp://unittest.TestCase
  */
-class TestVariation implements Test {
+class TestVariation extends Test {
   private $base, $variation;
 
   /**
@@ -37,14 +37,5 @@ class TestVariation implements Test {
 
   public function hashCode() {
     return md5($this->base->hashCode().$this->variation);
-  }
-
-  /**
-   * Creates a string representation of this testcase
-   *
-   * @return  string
-   */
-  public function toString() {
-    return nameof($this).'<'.$this->base->getName($compound).'>';
   }
 }
