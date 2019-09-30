@@ -79,32 +79,16 @@ class TestRun {
   private function run($test) {
     $this->notify('testStarted', [$test]);
 
-    $annotations= $test->annotations();
-
     // Check for @ignore
-    if (isset($annotations['ignore'])) {
-      $this->record('testNotRun', new TestNotRun($test, new IgnoredBecause($annotations['ignore'][0])));
+    if ($reason= $test->ignored()) {
+      $this->record('testNotRun', new TestNotRun($test, new IgnoredBecause($reason)));
       return;
     }
 
-    // Check for @expect
-    $expected= null;
-    if (isset($annotations['expect'][0]['class'])) {
-      $message= $annotations['expect'][0]['withMessage'];
-      if ('' === $message || '/' === $message[0]) {
-        $pattern= $message;
-      } else {
-        $pattern= '/'.preg_quote($message, '/').'/';
-      }
-      $expected= [XPClass::forName($annotations['expect'][0]['class']), $pattern];
-    } else if (isset($annotations['expect'])) {
-      $expected= [XPClass::forName($annotations['expect'][0]), null];
-    }
-    
-    // Check for @limit
-    $eta= isset($annotations['limit']) ? $annotations['limit'][0]['time'] : 0;
-
     $timer= new Timer();
+    $expected= $test->expected();
+    $timeLimit= $test->timeLimit();
+
     Errors::clear();
     foreach ($test->variations() as $t) {
       $timer->start();
@@ -141,8 +125,8 @@ class TestRun {
 
       // Check outcome
       $time= $timer->elapsedTime();
-      if ($eta && $time > $eta) {
-        $this->record('testFailed', new TestAssertionFailed($t, new TimedOut($eta, $time), $time));
+      if ($timeLimit && $time > $timeLimit) {
+        $this->record('testFailed', new TestAssertionFailed($t, new TimedOut($timeLimit, $time), $time));
       } else if ($thrown) {
         if ($expected && $expected[0]->isInstance($thrown)) {
           if ($expected[1] && !preg_match($expected[1], $thrown->getMessage())) {

@@ -1,22 +1,6 @@
 <?php namespace unittest;
 
 class TestTarget extends Test {
-  public $instance, $method, $actions;
-
-  public function __construct($instance, $method, $actions= []) {
-    $this->instance= $instance;
-    $this->method= $method;
-    $this->actions= $actions;
-  }
-
-  /** @return [:var] */
-  public function annotations() {
-    $return= [];
-    foreach ($this->method->getAnnotations() as $name => $value) {
-      $return[$name]= [$value];
-    }
-    return $return;
-  }
 
   /**
    * Runs this test target

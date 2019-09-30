@@ -4,6 +4,13 @@ use lang\Value;
 use lang\XPClass;
 
 abstract class Test implements Value {
+  public $instance, $method, $actions;
+
+  public function __construct($instance, $method, $actions= []) {
+    $this->instance= $instance;
+    $this->method= $method;
+    $this->actions= $actions;
+  }
 
   /**
    * Get this test's name
@@ -20,9 +27,35 @@ abstract class Test implements Value {
    */
   public abstract function hashCode();
 
-  public function variations() {
+  /** @return ?string */
+  public function ignored() {
+    return $this->method->hasAnnotation('ignore') ? ($this->method->getAnnotation('ignore') ?: '(w/o reason)') : null;
+  }
 
-    // Check for @values
+  /** @return ?int */
+  public function timeLimit() {
+    return $this->method->hasAnnotation('limit') ? $this->method->getAnnotation('limit', 'time') : 0;
+  }
+
+  /** @return ?var[] */
+  public function expected() {
+    if ($this->method->hasAnnotation('expect', 'class')) {
+      $message= $this->method->getAnnotation('expect', 'withMessage');
+      if ('' === $message || '/' === $message[0]) {
+        $pattern= $message;
+      } else {
+        $pattern= '/'.preg_quote($message, '/').'/';
+      }
+      return [XPClass::forName($this->method->getAnnotation('expect', 'class')), $pattern];
+    } else if ($this->method->hasAnnotation('expect')) {
+      return [XPClass::forName($this->method->getAnnotation('expect')), null];
+    } else {
+      return null;
+    }
+  }
+
+  /** @return iterable */
+  public function variations() {
     if ($this->method->hasAnnotation('values')) {
       foreach ($this->valuesFor($this->instance, $this->method->getAnnotation('values')) as $args) {
         yield new TestVariation($this, is_array($args) ? $args : [$args]);
@@ -71,7 +104,7 @@ abstract class Test implements Value {
     } else {
       $class= new XPClass($ref);
     }
-    return $class->getMethod(substr($source, $p+ 2))->invoke(null, $args);
+    return $class->getMethod(substr($source, $p + 2))->invoke(null, $args);
   }
 
   /**

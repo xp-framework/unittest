@@ -22,9 +22,6 @@ class TestVariation extends Test {
     $this->args= $args;
   }
 
-  /** @return [:var] */
-  public function annotations() { return $this->base->annotations(); }
-
   /** @return string */
   private function variation() {
     if (null === $this->variation) {

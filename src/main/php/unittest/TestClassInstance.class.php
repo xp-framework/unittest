@@ -3,21 +3,9 @@
 use lang\Throwable;
 
 class TestClassInstance extends Test {
-  public $instance, $method, $actions;
 
   public function __construct($instance, $method= null, $actions= []) {
-    $this->instance= $instance;
-    $this->method= $method ?: typeof($instance)->getMethod($instance->name);
-    $this->actions= $actions;
-  }
-
-  /** @return [:var] */
-  public function annotations() {
-    $return= [];
-    foreach ($this->method->getAnnotations() as $name => $value) {
-      $return[$name]= [$value];
-    }
-    return $return;
+    parent::__construct($instance, $method ?: typeof($instance)->getMethod($instance->name), $actions);
   }
 
   /**
