@@ -66,7 +66,7 @@ class TestActionTest extends TestCase {
   #[@test]
   public function beforeTest_can_skip_test() {
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @action(new \unittest\tests\SkipThisTest())] fixture' => function() {
+      '#[@test, @action(new \unittest\tests\SkipThis())] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -82,7 +82,7 @@ class TestActionTest extends TestCase {
       'afterTest'  => function(Test $t) use(&$actions) { $actions[]= 'freed'; }
     ]);
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @action([new \unittest\tests\AllocateMemory(), new \unittest\tests\SkipThisTest()])] fixture' => function() {
+      '#[@test, @action([new \unittest\tests\AllocateMemory(), new \unittest\tests\SkipThis()])] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);

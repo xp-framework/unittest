@@ -8,7 +8,7 @@ use unittest\TestAction;
 /**
  * This class is used in the TestActionTest 
  */
-class SkipThisTest implements TestAction {
+class SkipThis implements TestAction {
 
   /**
    * Before test: Update field

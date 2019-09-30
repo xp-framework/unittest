@@ -90,22 +90,22 @@ class SuiteTest extends TestCase {
 
   #[@test, @expect(IllegalArgumentException::class), @action(new RuntimeVersion('<7.0.0-dev'))]
   public function addNonTest() {
-    $this->suite->addTest(new NotATest());
+    $this->suite->addTest(new NotATestClass());
   }
 
   #[@test, @expect(Error::class), @action(new RuntimeVersion('>=7.0.0-dev'))]
   public function addNonTest7() {
-    $this->suite->addTest(new NotATest());
+    $this->suite->addTest(new NotATestClass());
   }
 
   #[@test, @expect(IllegalArgumentException::class), @action(new RuntimeVersion('<7.0.0-dev'))]
   public function runNonTest() {
-    $this->suite->runTest(new NotATest());
+    $this->suite->runTest(new NotATestClass());
   }
 
   #[@test, @expect(Error::class), @action(new RuntimeVersion('>=7.0.0-dev'))]
   public function runNonTest7() {
-    $this->suite->runTest(new NotATest());
+    $this->suite->runTest(new NotATestClass());
   }
 
   #[@test, @expect(MethodNotImplementedException::class)]

@@ -23,7 +23,7 @@ class TestTargets extends TestGroup {
       throw new IllegalArgumentException('Cannot instantiate '.$type->getName());
     }
 
-    $this->instance= $type->newInstance(...$this->arguments);
+    $this->instance= $type->newInstance(...$arguments);
     $this->actions= iterator_to_array($this->actionsFor($type, TestAction::class));
     foreach ($type->getMethods() as $method) {
       if ($method->hasAnnotation('test')) {
