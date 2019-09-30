@@ -44,11 +44,10 @@ class TestTargets extends TestGroup {
         $method->invoke($this->instance, []);
       } catch (TargetInvocationException $e) {
         $cause= $e->getCause();
-        if ($cause instanceof PrerequisitesNotMetError) {
-          throw $cause;
-        } else {
-          throw new PrerequisitesNotMetError('Exception in @before method '.$method->getName(), $cause);
-        }
+        throw $cause instanceof PrerequisitesNotMetError
+          ? $cause
+          : new PrerequisitesNotMetError('Exception in @before method '.$method->getName(), $cause);
+        ;
       }
     }
   }
