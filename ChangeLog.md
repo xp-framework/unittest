@@ -3,6 +3,14 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 10.0.0 / ????-??-??
+
+* Added support for XP 10 and newer versions of library dependencies
+  (@thekid)
+* Implemented xp-framework/rfc#334: Drop PHP 5.6. The minimum required
+  PHP version is now 7.0.0!
+  (@thekid)
+
 ## 9.7.1 / 2019-08-22
 
 * Rewrote `unittest.actions.VerifyThat` to no longer user the deprecated
