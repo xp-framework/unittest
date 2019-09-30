@@ -195,13 +195,13 @@ class TestRun {
       $group->before();
     } catch (PrerequisitesNotMetError $e) {
       $timer= new Timer();
-      foreach ($group->targets() as $test) {
+      foreach ($group->tests() as $test) {
         $this->record($e->type(), $e->outcome($test, $timer));
       }
       return;
     }
 
-    foreach ($group->targets() as $test) {
+    foreach ($group->tests() as $test) {
       $this->run($test);
     }
     $group->after();

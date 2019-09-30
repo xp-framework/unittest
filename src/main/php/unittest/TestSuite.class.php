@@ -76,7 +76,7 @@ class TestSuite implements \lang\Value {
    * Returns test at a given position
    *
    * @param  int $pos
-   * @return unittest.TestCase or NULL if none was found
+   * @return unittest.Test or NULL if none was found
    */
   public function testAt($pos) {
     $num= 0;

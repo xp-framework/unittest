@@ -62,19 +62,6 @@ class TestTargets extends TestGroup {
 
   /** @return iterable */
   public function tests() {
-    $instance= $this->instance;
-    foreach ($this->tests as $method) {
-      $name= $method->getName();
-      yield newinstance(TestCase::class, [$name], [
-        $name => function() use($instance, $name) {
-          return $instance->{$name}();
-        }
-      ]);
-    }
-  }
-
-  /** @return iterable */
-  public function targets() {
     foreach ($this->tests as $method) {
       yield new TestTarget($this->instance, $method, array_merge(
         $this->actions,
