@@ -29,9 +29,7 @@ class PackageSource extends ClassesSource {
     }
     if ($this->recursive) {
       foreach ($package->getPackages() as $child) {
-        foreach ($this->classesIn($child) as $class) {
-          yield $class;
-        }
+        yield from $this->classesIn($child);
       }
     }
   }

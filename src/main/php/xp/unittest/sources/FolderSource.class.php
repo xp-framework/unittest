@@ -47,17 +47,13 @@ class FolderSource extends ClassesSource {
           yield $loader->loadUri($uri);
         }
       } else if ($entry->isFolder()) {
-        foreach ($this->classesIn($entry->asFolder()) as $class) {
-          yield $class;
-        }
+        yield from $this->classesIn($entry->asFolder());
       }
     }
   }
 
   /** @return iterable */
-  protected function classes() {
-    return $this->classesIn($this->folder);
-  }
+  protected function classes() { return $this->classesIn($this->folder); }
 
   /**
    * Creates a string representation of this source
