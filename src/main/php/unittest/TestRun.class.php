@@ -1,7 +1,7 @@
 <?php namespace unittest;
 
-use lang\{Throwable, XPClass};
 use lang\reflect\TargetInvocationException;
+use lang\{Throwable, XPClass};
 use util\profiling\Timer;
 
 class TestRun {
@@ -112,8 +112,6 @@ class TestRun {
       $block($arg);
     } catch (Throwable $e) {
       throw $e;
-    } catch (\Exception $e) {
-      throw Throwable::wrap($e);
     } catch (\Throwable $e) {
       throw Throwable::wrap($e);
     }
