@@ -7,22 +7,22 @@ use util\Objects;
  *
  * @see   xp://unittest.TestCase
  */
-class TestVariation extends TestCase {
-  protected $base= null;
+class TestVariation extends Test {
+  private $base, $variation;
 
   /**
    * Constructor
    *
-   * @param   unittest.TestCase base
-   * @param   var[] args
+   * @param  unittest.Test $base
+   * @param  var[] $args
    */
   public function __construct($base, $args) {
-    $uniq= '';
-    foreach ((array)$args as $arg) {
-      $uniq.= ', '.Objects::stringOf($arg);
-    }
-    parent::__construct($base->getName().'('.substr($uniq, 2).')');
     $this->base= $base;
+    $v= '';
+    foreach ((array)$args as $arg) {
+      $v.= ', '.Objects::stringOf($arg);
+    }
+    $this->variation= substr($v, 2);
   }
 
   /**
@@ -32,7 +32,11 @@ class TestVariation extends TestCase {
    * @return  string
    */
   public function getName($compound= false) {
-    return $compound ? nameof($this->base).'::'.$this->name : $this->name;
+    return $this->base->getName($compound).'('.$this->variation.')';
+  }
+
+  public function hashCode() {
+    return md5($this->base->hashCode().$this->variation);
   }
 
   /**
@@ -41,6 +45,6 @@ class TestVariation extends TestCase {
    * @return  string
    */
   public function toString() {
-    return nameof($this).'<'.nameof($this->base).'::'.$this->name.'>';
+    return nameof($this).'<'.$this->base->getName($compound).'>';
   }
 }

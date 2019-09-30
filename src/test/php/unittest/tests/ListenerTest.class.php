@@ -2,6 +2,7 @@
 
 use lang\IllegalArgumentException;
 use unittest\PrerequisitesNotMetError;
+use unittest\Test;
 use unittest\TestAssertionFailed;
 use unittest\TestCase;
 use unittest\TestError;
@@ -38,10 +39,10 @@ class ListenerTest extends TestCase implements TestListener {
   /**
    * Called when a test case starts.
    *
-   * @param   unittest.TestCase failure
+   * @param   unittest.Test $test
    */
-  public function testStarted(TestCase $case) {
-    $this->invocations[__FUNCTION__]= [$case];
+  public function testStarted(Test $test) {
+    $this->invocations[__FUNCTION__]= [$test->asCase()];
   }
 
   /**

@@ -10,11 +10,11 @@ class TestPrerequisitesFailed extends TestFailure {
   /**
    * Constructor
    *
-   * @param  unittest.TestCase $test
+   * @param  unittest.Test $test
    * @param  unittest.PrerequisitesNotMetError $reason
    * @param  double $elapsed
    */
-  public function __construct(TestCase $test, PrerequisitesFailedError $reason, $elapsed) {
+  public function __construct(Test $test, PrerequisitesFailedError $reason, $elapsed) {
     parent::__construct($test, $elapsed);
     $this->reason= $reason;
   }

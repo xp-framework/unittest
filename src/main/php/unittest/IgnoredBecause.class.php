@@ -20,7 +20,7 @@ class IgnoredBecause extends TestAborted {
   public function type() { return 'testSkipped'; }
 
   /** @return unittest.TestOutcome */
-  public function outcome(TestCase $test, Timer $timer) {
+  public function outcome(Test $test, Timer $timer) {
     return new TestNotRun($test, $this, $timer->elapsedTime());
   }
 

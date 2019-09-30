@@ -60,7 +60,10 @@ class TestClass extends TestGroup {
   public function targets() {
     $constructor= $this->class->getConstructor();
     foreach ($this->testMethods as $name) {
-      yield new Target($name, $constructor->newInstance(array_merge([$name], $this->arguments)));
+      yield new Test(
+        $constructor->newInstance(array_merge([$name], $this->arguments)),
+        $this->class->getMethod($name)
+      );
     }
   }
 }

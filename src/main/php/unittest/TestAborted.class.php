@@ -18,10 +18,10 @@ abstract class TestAborted extends \lang\XPException {
   /**
    * Returns the outcome class
    *
-   * @param  unittest.TestCase $test
+   * @param  unittest.Test $test
    * @param  util.profiling.Timer $timer
    * @return unittest.TestOutcome
    */ 
-  public abstract function outcome(TestCase $test, Timer $timer);
+  public abstract function outcome(Test $test, Timer $timer);
 
 }

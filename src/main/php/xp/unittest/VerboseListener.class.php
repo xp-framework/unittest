@@ -1,7 +1,7 @@
 <?php namespace xp\unittest;
 
 use io\streams\OutputStreamWriter;
-use unittest\TestCase;
+use unittest\Test;
 use unittest\TestListener;
 
 /**
@@ -25,9 +25,9 @@ class VerboseListener implements TestListener {
   /**
    * Called when a test case starts.
    *
-   * @param   unittest.TestCase failure
+   * @param  unittest.Test $test
    */
-  public function testStarted(TestCase $case) {
+  public function testStarted(Test $test) {
     // NOOP
   }
 

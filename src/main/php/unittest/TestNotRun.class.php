@@ -10,11 +10,11 @@ class TestNotRun extends TestSkipped {
   /**
    * Constructor
    *
-   * @param  unittest.TestCase $test
+   * @param  unittest.Test $test
    * @param  string $reason
    * @param  double $elapsed
    */
-  public function __construct(TestCase $test, $reason) {
+  public function __construct(Test $test, $reason) {
     parent::__construct($test, 0.0);
     $this->reason= $reason;
   }

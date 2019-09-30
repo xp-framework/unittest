@@ -41,8 +41,8 @@ class TestRun {
   /**
    * Returns values
    *
-   * @param  unittest.TestCase test
-   * @param  var annotation
+   * @param  object $test
+   * @param  var $annotation
    * @return var values a traversable structure
    */
   private function valuesFor($test, $annotation) {
@@ -135,54 +135,51 @@ class TestRun {
   /**
    * Run a test case.
    *
-   * @param  unittest.Target $target
+   * @param  unittest.Test $test
    * @param  unittest.TestResult $result
    * @return void
    */
-  private function run($target) {
-    $test= $target->instance;
-    $class= typeof($test);
-    $method= $class->getMethod($target->name);
+  private function run($test) {
     $this->notify('testStarted', [$test]);
-    
+
     // Check for @ignore
-    if ($method->hasAnnotation('ignore')) {
-      $this->record('testNotRun', new TestNotRun($test, new IgnoredBecause($method->getAnnotation('ignore'))));
+    if ($test->method->hasAnnotation('ignore')) {
+      $this->record('testNotRun', new TestNotRun($test, new IgnoredBecause($test->method->getAnnotation('ignore'))));
       return;
     }
 
     // Check for @expect
     $expected= null;
-    if ($method->hasAnnotation('expect', 'class')) {
-      $message= $method->getAnnotation('expect', 'withMessage');
+    if ($test->method->hasAnnotation('expect', 'class')) {
+      $message= $test->method->getAnnotation('expect', 'withMessage');
       if ('' === $message || '/' === $message{0}) {
         $pattern= $message;
       } else {
         $pattern= '/'.preg_quote($message, '/').'/';
       }
-      $expected= [XPClass::forName($method->getAnnotation('expect', 'class')), $pattern];
-    } else if ($method->hasAnnotation('expect')) {
-      $expected= [XPClass::forName($method->getAnnotation('expect')), null];
+      $expected= [XPClass::forName($test->method->getAnnotation('expect', 'class')), $pattern];
+    } else if ($test->method->hasAnnotation('expect')) {
+      $expected= [XPClass::forName($test->method->getAnnotation('expect')), null];
     }
     
     // Check for @limit
     $eta= 0;
-    if ($method->hasAnnotation('limit')) {
-      $eta= $method->getAnnotation('limit', 'time');
+    if ($test->method->hasAnnotation('limit')) {
+      $eta= $test->method->getAnnotation('limit', 'time');
     }
 
     // Check for @values
-    if ($method->hasAnnotation('values')) {
-      $annotation= $method->getAnnotation('values');
+    if ($test->method->hasAnnotation('values')) {
+      $annotation= $test->method->getAnnotation('values');
       $variation= true;
-      $values= $this->valuesFor($test, $annotation);
+      $values= $this->valuesFor($test->instance, $annotation);
     } else {
       $variation= false;
       $values= [[]];
     }
 
     // Check for @actions
-    $actions= array_merge($this->actionsFor($class), $this->actionsFor($method));
+    $actions= array_merge($this->actionsFor(typeof($test->instance)), $this->actionsFor($test->method));
 
     $timer= new Timer();
     Errors::clear();
@@ -195,7 +192,7 @@ class TestRun {
 
         // Before and after tests
         foreach ($actions as $action) {
-          $this->invoke([$action, 'beforeTest'], $test);
+          $this->invoke([$action, 'beforeTest'], $test->asCase());
           $tearDown= function($test, $error) use($tearDown, $action) {
             $propagated= $tearDown($test, $error);
             try {
@@ -209,7 +206,7 @@ class TestRun {
         }
 
         // Setup and teardown
-        $this->invoke([$test, 'setUp'], $test);
+        $this->invoke([$test->asCase(), 'setUp'], null);
         $tearDown= function($test, $error) use($tearDown) {
           try {
             $this->invoke([$test, 'tearDown'], null);
@@ -221,16 +218,16 @@ class TestRun {
         };
 
         // Run test
-        $method->invoke($test, is_array($args) ? $args : [$args]);
-        $thrown= $tearDown($test, null);
+        $test->method->invoke($test->instance, is_array($args) ? $args : [$args]);
+        $thrown= $tearDown($test->asCase(), null);
       } catch (TestAborted $aborted) {
-        $tearDown($test, $aborted);
+        $tearDown($test->asCase(), $aborted);
         $this->record($aborted->type(), $aborted->outcome($t, $timer));
         continue;
       } catch (TargetInvocationException $invoke) {
-        $thrown= $tearDown($test, $invoke->getCause());
+        $thrown= $tearDown($test->asCase(), $invoke->getCause());
       } catch (Throwable $error) {
-        $thrown= $tearDown($test, $error);
+        $thrown= $tearDown($test->asCase(), $error);
       }
 
       // Check outcome
@@ -305,14 +302,14 @@ class TestRun {
       $group->before();
     } catch (PrerequisitesNotMetError $e) {
       $timer= new Timer();
-      foreach ($group->tests() as $test) {
+      foreach ($group->targets() as $test) {
         $this->record($e->type(), $e->outcome($test, $timer));
       }
       return;
     }
 
-    foreach ($group->targets() as $target) {
-      $this->run($target);
+    foreach ($group->targets() as $test) {
+      $this->run($test);
     }
     $group->after();
   }

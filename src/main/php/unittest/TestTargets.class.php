@@ -30,7 +30,7 @@ class TestTargets extends TestGroup {
       foreach ($this->type->getMethods() as $method) {
         if ($method->hasAnnotation('test')) {
           $name= $method->getName();
-          $this->instances[$name]= newinstance(TestCase::class, [$name], [
+          $this->instances[]= newinstance(TestCase::class, [$name], [
             $name => function() use($instance, $method) {
               try {
                 return $method->invoke($instance, []);
@@ -52,12 +52,15 @@ class TestTargets extends TestGroup {
   public function numTests() { return sizeof($this->instances()); }
 
   /** @return iterable */
-  public function tests() { return array_values($this->instances()); }
+  public function tests() { return $this->instances(); }
 
   /** @return iterable */
   public function targets() {
-    foreach ($this->instances() as $name => $instance) {
-      yield new Target($name, $instance);
+    $instance= $this->type->newInstance(...$this->arguments);
+    foreach ($this->type->getMethods() as $method) {
+      if ($method->hasAnnotation('test')) {
+        yield new Test($instance, $method);
+      }
     }
   }
 }

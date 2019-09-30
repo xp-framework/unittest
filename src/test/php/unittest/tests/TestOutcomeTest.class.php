@@ -1,16 +1,18 @@
 <?php namespace unittest\tests;
  
-use unittest\TestSuite;
-use unittest\TestExpectationMet;
-use unittest\TestAssertionFailed;
-use unittest\TestError;
-use unittest\TestPrerequisitesNotMet;
-use unittest\TestNotRun;
-use unittest\TestWarning;
-use unittest\TestVariation;
-use unittest\PrerequisitesNotMetError;
-use unittest\AssertionFailedError;
 use lang\Error;
+use unittest\AssertionFailedError;
+use unittest\PrerequisitesNotMetError;
+use unittest\Test;
+use unittest\TestAssertionFailed;
+use unittest\TestCase;
+use unittest\TestError;
+use unittest\TestExpectationMet;
+use unittest\TestNotRun;
+use unittest\TestPrerequisitesNotMet;
+use unittest\TestSuite;
+use unittest\TestVariation;
+use unittest\TestWarning;
 use util\Objects;
 
 /**
@@ -18,17 +20,18 @@ use util\Objects;
  *
  * @see      xp://unittest.TestOutcome
  */
-class TestOutcomeTest extends \unittest\TestCase {
+class TestOutcomeTest extends TestCase {
 
   /**
    * Creates fixtures
    *
-   * @return unittest.TestCase[]
+   * @return iterable
    */
   public function fixtures() {
+    $test= new Test($this, typeof($this)->getMethod($this->name));
     return [
-      [$this, ''],
-      [new TestVariation($this, ['v']), '("v")']
+      [$test, ''],
+      [new TestVariation($test, ['v']), '("v")']
     ];
   }
 

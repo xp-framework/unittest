@@ -1,12 +1,12 @@
 <?php namespace unittest\tests;
 
-use unittest\TestPrerequisitesNotMet;
 use lang\ClassLoader;
-use lang\XPClass;
 use lang\IllegalStateException;
-use unittest\TestSuite;
-use unittest\TestCase;
+use lang\XPClass;
 use unittest\PrerequisitesNotMetError;
+use unittest\TestCase;
+use unittest\TestPrerequisitesNotMet;
+use unittest\TestSuite;
 
 /**
  * Test test actions
@@ -96,7 +96,7 @@ class TestActionTest extends TestCase {
     $r= $this->suite->run();
     $result= [];
     foreach ($r->succeeded as $outcome) {
-      $result= array_merge($result, $outcome->test->run);
+      $result= array_merge($result, $outcome->test->instance->run);
     }
 
     $this->assertEquals(['before', 'one', 'after', 'before', 'two', 'after'], $result );
