@@ -56,7 +56,7 @@ class TestRun {
       return $values;
     } else if (isset($annotation['source'])) {  // values(source= "src" [, args= ...])
       $source= $annotation['source'];
-      $args= isset($annotation['args']) ? $annotation['args'] : [];
+      $args= $annotation['args'] ?? [];
     } else {                                    // values([1, 2, 3])
       return $annotation;
     }
