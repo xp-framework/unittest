@@ -26,7 +26,7 @@ class TestInstance extends TestGroup {
     }
 
     $this->instance= $instance;
-    $this->target= new TestClassInstance($instance, $method, array_merge(
+    $this->target= new TestCaseInstance($instance, $method, array_merge(
       iterator_to_array($this->actionsFor($class, TestAction::class)),
       iterator_to_array($this->actionsFor($method, TestAction::class))
     ));

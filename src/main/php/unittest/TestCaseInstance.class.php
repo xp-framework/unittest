@@ -2,7 +2,7 @@
 
 use lang\Throwable;
 
-class TestClassInstance extends Test {
+class TestCaseInstance extends Test {
 
   public function __construct($instance, $method= null, $actions= []) {
     parent::__construct($instance, $method ?: typeof($instance)->getMethod($instance->name), $actions);

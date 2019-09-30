@@ -3,7 +3,7 @@
 use unittest\AssertionFailedError;
 use unittest\PrerequisitesNotMetError;
 use unittest\TestCase;
-use unittest\TestClassInstance;
+use unittest\TestCaseInstance;
 use unittest\TestError;
 use unittest\TestResult;
 use unittest\TestSkipped;
@@ -15,7 +15,7 @@ class TestResultTest extends TestCase {
 
   /** @return void */
   public function setUp() {
-    $this->test= new TestClassInstance($this);
+    $this->test= new TestCaseInstance($this);
   }
 
   #[@test]

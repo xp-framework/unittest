@@ -1,7 +1,7 @@
 <?php namespace unittest\tests;
 
 use unittest\TestCase;
-use unittest\TestClassInstance;
+use unittest\TestCaseInstance;
 use unittest\actions\RuntimeVersion;
 
 /**
@@ -126,6 +126,6 @@ class RuntimeVersionTest extends TestCase {
 
   #[@test, @expect(class= 'unittest.PrerequisitesNotMetError', withMessage= '/Test not intended for this version/')]
   public function beforeTest_throws_exception() {
-    (new RuntimeVersion('1.0.0'))->beforeTest(new TestClassInstance($this));
+    (new RuntimeVersion('1.0.0'))->beforeTest(new TestCaseInstance($this));
   }
 }

@@ -61,7 +61,7 @@ class TestClass extends TestGroup {
   public function targets() {
     $constructor= $this->class->getConstructor();
     foreach ($this->tests as $name => $method) {
-      yield new TestClassInstance(
+      yield new TestCaseInstance(
         $constructor->newInstance(array_merge([$name], $this->arguments)),
         $method,
         array_merge($this->actions, iterator_to_array($this->actionsFor($method, TestAction::class)))

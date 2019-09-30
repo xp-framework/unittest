@@ -5,7 +5,7 @@ use unittest\AssertionFailedError;
 use unittest\PrerequisitesNotMetError;
 use unittest\TestAssertionFailed;
 use unittest\TestCase;
-use unittest\TestClassInstance;
+use unittest\TestCaseInstance;
 use unittest\TestError;
 use unittest\TestExpectationMet;
 use unittest\TestNotRun;
@@ -28,7 +28,7 @@ class TestOutcomeTest extends TestCase {
    * @return iterable
    */
   public function fixtures() {
-    $test= new TestClassInstance($this);
+    $test= new TestCaseInstance($this);
     return [
       [$test, ''],
       [new TestVariation($test, ['v']), '("v")']
