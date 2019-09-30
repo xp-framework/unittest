@@ -20,7 +20,7 @@ class TestTargets extends TestGroup {
       throw new IllegalArgumentException('Cannot instantiate '.$type->getName());
     }
 
-    $this->instance= $this->type->newInstance(...$this->arguments);
+    $this->instance= $type->newInstance(...$this->arguments);
     foreach ($type->getMethods() as $method) {
       if ($method->hasAnnotation('test')) {
         $this->tests[]= $method;
@@ -32,8 +32,42 @@ class TestTargets extends TestGroup {
     }
   }
 
+  /**
+   * Runs actions before this group
+   *
+   * @return void
+   * @throws unittest.PrerequisitesNotMetError
+   */
+  public function before() {
+    foreach ($this->before as $method) {
+      try {
+        $method->invoke($this->instance, []);
+      } catch (TargetInvocationException $e) {
+        $cause= $e->getCause();
+        if ($cause instanceof PrerequisitesNotMetError) {
+          throw $cause;
+        } else {
+          throw new PrerequisitesNotMetError('Exception in @before method '.$method->getName(), $cause);
+        }
+      }
+    }
+  }
+
+  /**
+   * Runs actions after this group
+   *
+   * @return void
+   */
+  public function after() {
+    foreach ($this->after as $method) {
+      try {
+        $method->invoke($this->instance, []);
+      } catch (TargetInvocationException $ignored) { }
+    }
+  }
+
   /** @return lang.XPClass */
-  public function type() { return $this->type; }
+  public function type() { return typeof($this->instance); }
 
   /** @return int */
   public function numTests() { return sizeof($this->tests); }
