@@ -57,7 +57,4 @@ class TestClassInstance implements Test {
   public function hashCode() {
     return $this->instance->hashCode();
   }
-
-  /** @deprecated */
-  public function asCase() { return $this->instance; }
 }

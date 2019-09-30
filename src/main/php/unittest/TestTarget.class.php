@@ -32,21 +32,4 @@ class TestTarget implements Test {
   public function hashCode() {
     return md5(get_class($this->instance).':'.$this->method->getName());
   }
-
-  /** @deprecated */
-  private $case= null;
-
-  /** @deprecated */
-  public function asCase() {
-    if (null === $this->case) {
-      $name= $this->method->getName();
-      $instance= $this->instance;
-      $this->case= newinstance(TestCase::class, [$name], [
-        $name => function() use($instance, $name) {
-          return $instance->{$name}();
-        }
-      ]);
-    }
-    return $this->case;
-  }
 }
