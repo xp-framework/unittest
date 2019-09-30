@@ -29,7 +29,7 @@ abstract class Test implements Value {
 
   /** @return ?string */
   public function ignored() {
-    return $this->method->hasAnnotation('ignore') ? ($this->method->getAnnotation('ignore') ?: '(w/o reason)') : null;
+    return $this->method->hasAnnotation('ignore') ? ($this->method->getAnnotation('ignore') ?: '(n/a)') : null;
   }
 
   /** @return ?int */

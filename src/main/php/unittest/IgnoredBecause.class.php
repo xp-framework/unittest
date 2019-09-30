@@ -7,15 +7,6 @@ use util\profiling\Timer;
  */
 class IgnoredBecause extends TestAborted {
     
-  /**
-   * Constructor
-   *
-   * @param  string $value The annotation value
-   */
-  public function __construct($value) {
-    parent::__construct($value ? (string)$value : 'n/a');
-  }
-
   /** @return string */
   public function type() { return 'testSkipped'; }
 
