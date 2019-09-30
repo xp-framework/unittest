@@ -1,7 +1,8 @@
 <?php namespace unittest\actions;
 
 use unittest\PrerequisitesNotMetError;
-use unittest\TestCase;
+use unittest\Test;
+use unittest\TestAction;
 
 /**
  * Only runs this testcase on a given platform
@@ -13,7 +14,7 @@ use unittest\TestCase;
  *
  * @test  xp://net.xp_framework.unittest.tests.IsPlatformTest
  */
-class IsPlatform implements \unittest\TestAction {
+class IsPlatform implements TestAction {
   protected $platform= '';
   protected static $os= '';
 
@@ -53,10 +54,10 @@ class IsPlatform implements \unittest\TestAction {
    * This method gets invoked before a test method is invoked, and before
    * the setUp() method is called.
    *
-   * @param  unittest.TestCase $t
+   * @param  unittest.Test $t
    * @throws unittest.PrerequisitesNotMetError
    */
-  public function beforeTest(TestCase $t) { 
+  public function beforeTest(Test $t) { 
     if (!$this->verify()) {
       throw new PrerequisitesNotMetError('Test not intended for this platform ('.self::$os.')', null, [$this->platform]);
     }
@@ -66,9 +67,9 @@ class IsPlatform implements \unittest\TestAction {
    * This method gets invoked after the test method is invoked and regard-
    * less of its outcome, after the tearDown() call has run.
    *
-   * @param  unittest.TestCase $t
+   * @param  unittest.Test $t
    */
-  public function afterTest(TestCase $t) {
+  public function afterTest(Test $t) {
     // Empty
   }
 }

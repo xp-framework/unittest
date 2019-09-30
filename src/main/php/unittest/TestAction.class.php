@@ -1,28 +1,23 @@
 <?php namespace unittest;
 
-/**
- * Test action
- *
- * @see   xp://unittest.TestCase
- */
 interface TestAction {
 
   /**
    * This method gets invoked before a test method is invoked, and before
    * the setUp() method is called.
    *
-   * @param  unittest.TestCase $t
+   * @param  unittest.Test $t
    * @return void
    * @throws unittest.PrerequisitesNotMetError
    */
-  public function beforeTest(TestCase $t);
+  public function beforeTest(Test $t);
 
   /**
    * This method gets invoked after the test method is invoked and regard-
    * less of its outcome, after the tearDown() call has run.
    *
-   * @param  unittest.TestCase $t
+   * @param  unittest.Test $t
    * @return void
    */
-  public function afterTest(TestCase $t);
+  public function afterTest(Test $t);
 }

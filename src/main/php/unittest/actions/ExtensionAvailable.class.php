@@ -2,7 +2,8 @@
 
 use lang\Runtime;
 use unittest\PrerequisitesNotMetError;
-use unittest\TestCase;
+use unittest\Test;
+use unittest\TestAction;
 
 /**
  * Only runs this testcase if a given PHP extension is available
@@ -10,7 +11,7 @@ use unittest\TestCase;
  * @test  xp://net.xp_framework.unittest.tests.ExtensionAvailableTest
  * @see   xp://lang.Runtime#extensionAvailable
  */
-class ExtensionAvailable implements \unittest\TestAction {
+class ExtensionAvailable implements TestAction {
   protected $extension= '';
 
   /**
@@ -35,10 +36,10 @@ class ExtensionAvailable implements \unittest\TestAction {
    * This method gets invoked before a test method is invoked, and before
    * the setUp() method is called.
    *
-   * @param  unittest.TestCase $t
+   * @param  unittest.Test $t
    * @throws unittest.PrerequisitesNotMetError
    */
-  public function beforeTest(TestCase $t) { 
+  public function beforeTest(Test $t) { 
     if (!$this->verify()) {
       throw new PrerequisitesNotMetError('PHP Extension not available', null, [$this->extension]);
     }
@@ -48,9 +49,9 @@ class ExtensionAvailable implements \unittest\TestAction {
    * This method gets invoked after the test method is invoked and regard-
    * less of its outcome, after the tearDown() call has run.
    *
-   * @param  unittest.TestCase $t
+   * @param  unittest.Test $t
    */
-  public function afterTest(TestCase $t) {
+  public function afterTest(Test $t) {
     // Empty
   }
 }

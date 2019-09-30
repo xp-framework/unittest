@@ -1,7 +1,8 @@
 <?php namespace unittest\actions;
 
 use unittest\PrerequisitesNotMetError;
-use unittest\TestCase;
+use unittest\Test;
+use unittest\TestAction;
 
 /**
  * Only runs this testcase on a given runtime version, e.g. PHP 5.4.0
@@ -9,7 +10,7 @@ use unittest\TestCase;
  * @test xp://net.xp_framework.unittest.tests.RuntimeVersionTest
  * @see  http://getcomposer.org/doc/01-basic-usage.md#package-versions
  */
-class RuntimeVersion implements \unittest\TestAction {
+class RuntimeVersion implements TestAction {
   protected $compare= [];
 
   /**
@@ -85,10 +86,10 @@ class RuntimeVersion implements \unittest\TestAction {
    * This method gets invoked before a test method is invoked, and before
    * the setUp() method is called.
    *
-   * @param  unittest.TestCase $t
+   * @param  unittest.Test $t
    * @throws unittest.PrerequisitesNotMetError
    */
-  public function beforeTest(TestCase $t) { 
+  public function beforeTest(Test $t) { 
     if (!$this->verify()) {
       $compare= '';
       foreach ($this->compare as $f) {
@@ -107,9 +108,9 @@ class RuntimeVersion implements \unittest\TestAction {
    * This method gets invoked after the test method is invoked and regard-
    * less of its outcome, after the tearDown() call has run.
    *
-   * @param  unittest.TestCase $t
+   * @param  unittest.Test $t
    */
-  public function afterTest(TestCase $t) {
+  public function afterTest(Test $t) {
     // Empty
   }
 }

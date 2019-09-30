@@ -192,7 +192,7 @@ class TestRun {
 
         // Before and after tests
         foreach ($actions as $action) {
-          $this->invoke([$action, 'beforeTest'], $test->asCase());
+          $this->invoke([$action, 'beforeTest'], $test);
           $tearDown= function($test, $error) use($tearDown, $action) {
             $propagated= $tearDown($test, $error);
             try {
@@ -206,15 +206,15 @@ class TestRun {
         }
 
         $test->run(is_array($args) ? $args : [$args]);
-        $thrown= $tearDown($test->asCase(), null);
+        $thrown= $tearDown($test, null);
       } catch (TestAborted $aborted) {
-        $tearDown($test->asCase(), $aborted);
+        $tearDown($test, $aborted);
         $this->record($aborted->type(), $aborted->outcome($t, $timer));
         continue;
       } catch (TargetInvocationException $invoke) {
-        $thrown= $tearDown($test->asCase(), $invoke->getCause());
+        $thrown= $tearDown($test, $invoke->getCause());
       } catch (Throwable $error) {
-        $thrown= $tearDown($test->asCase(), $error);
+        $thrown= $tearDown($test, $error);
       }
 
       // Check outcome
