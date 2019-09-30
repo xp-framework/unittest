@@ -1,11 +1,6 @@
 <?php namespace unittest\tests;
 
-use unittest\PrerequisitesFailedError;
-use unittest\PrerequisitesNotMetError;
-use unittest\TestCase;
-use unittest\TestFailure;
-use unittest\TestSkipped;
-use unittest\TestSuite;
+use unittest\{PrerequisitesFailedError, PrerequisitesNotMetError, TestCase, TestFailure, TestSkipped, TestSuite};
 
 /**
  * Tests @beforeClass and @afterClass methods

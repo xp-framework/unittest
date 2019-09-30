@@ -1,7 +1,6 @@
 <?php namespace unittest\tests;
 
-use unittest\TestCase;
-use unittest\TestSuite;
+use unittest\{TestCase, TestSuite};
 
 /**
  * Test TestSuite class methods

@@ -1,9 +1,7 @@
 <?php namespace unittest;
 
 use lang\Value;
-use unittest\metrics\MemoryUsed;
-use unittest\metrics\Metric;
-use unittest\metrics\TimeTaken;
+use unittest\metrics\{MemoryUsed, Metric, TimeTaken};
 use util\Objects;
 
 /**

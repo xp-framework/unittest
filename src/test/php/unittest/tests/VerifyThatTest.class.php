@@ -1,9 +1,6 @@
 <?php namespace unittest\tests;
 
-use unittest\TestCase;
-use unittest\TestExpectationMet;
-use unittest\TestPrerequisitesNotMet;
-use unittest\TestSuite;
+use unittest\{TestCase, TestExpectationMet, TestPrerequisitesNotMet, TestSuite};
 use util\Objects;
 
 /**

@@ -1,8 +1,7 @@
 <?php namespace xp\unittest;
 
 use io\streams\OutputStreamWriter;
-use unittest\TestCase;
-use unittest\TestListener;
+use unittest\{TestCase, TestListener};
 
 /**
  * Verbose listener

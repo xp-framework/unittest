@@ -1,7 +1,6 @@
 <?php namespace unittest;
 
-use lang\Generic;
-use lang\Value;
+use lang\{Generic, Value};
 use util\Objects;
 
 /**

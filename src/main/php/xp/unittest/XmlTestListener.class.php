@@ -1,10 +1,10 @@
 <?php namespace unittest;
 
 use io\streams\OutputStreamWriter;
-use xml\Tree;
-use util\collections\HashTable;
 use lang\XPClass;
 use util\Objects;
+use util\collections\HashTable;
+use xml\Tree;
 
 /**
  * Creates an XML file suitable for importing into continuous integration

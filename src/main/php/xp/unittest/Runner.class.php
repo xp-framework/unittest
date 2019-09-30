@@ -1,31 +1,13 @@
 <?php namespace xp\unittest;
 
-use io\File;
-use io\Folder;
-use io\streams\FileOutputStream;
-use io\streams\InputStream;
-use io\streams\OutputStream;
-use io\streams\Streams;
-use io\streams\StringReader;
-use io\streams\StringWriter;
-use lang\ClassLoader;
-use lang\IllegalArgumentException;
-use lang\MethodNotImplementedException;
-use lang\Throwable;
-use lang\XPClass;
-use lang\reflect\Package;
-use lang\reflect\TargetInvocationException;
-use unittest\ColorizingListener;
-use unittest\TestSuite;
-use util\NoSuchElementException;
-use util\Properties;
+use io\{File, Folder};
+use io\streams\{FileOutputStream, InputStream, OutputStream, Streams, StringReader, StringWriter};
+use lang\{ClassLoader, IllegalArgumentException, MethodNotImplementedException, Throwable, XPClass};
+use lang\reflect\{Package, TargetInvocationException};
+use unittest\{ColorizingListener, TestSuite};
+use util\{NoSuchElementException, Properties};
 use util\cmd\Console;
-use xp\unittest\sources\ClassFileSource;
-use xp\unittest\sources\ClassSource;
-use xp\unittest\sources\EvaluationSource;
-use xp\unittest\sources\FolderSource;
-use xp\unittest\sources\PackageSource;
-use xp\unittest\sources\PropertySource;
+use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderSource, PackageSource, PropertySource};
 
 /**
  * Unittest command

@@ -1,7 +1,6 @@
 <?php namespace unittest;
 
-use lang\Throwable;
-use lang\XPClass;
+use lang\{Throwable, XPClass};
 use lang\reflect\TargetInvocationException;
 use util\profiling\Timer;
 

@@ -1,12 +1,7 @@
 <?php namespace unittest\actions;
 
-use lang\MethodNotImplementedException;
-use lang\Throwable;
-use lang\XPClass;
-use unittest\PrerequisitesNotMetError;
-use unittest\TestAction;
-use unittest\TestCase;
-use unittest\TestClassAction;
+use lang\{MethodNotImplementedException, Throwable, XPClass};
+use unittest\{PrerequisitesNotMetError, TestAction, TestCase, TestClassAction};
 
 /**
  * Verifies a certain callable works

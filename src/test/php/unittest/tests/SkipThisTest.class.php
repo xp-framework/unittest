@@ -1,8 +1,7 @@
 <?php namespace unittest\tests;
 
-use unittest\TestCase;
-use unittest\PrerequisitesNotMetError;
 use lang\IllegalStateException;
+use unittest\{PrerequisitesNotMetError, TestCase};
 
 /**
  * This class is used in the TestActionTest 

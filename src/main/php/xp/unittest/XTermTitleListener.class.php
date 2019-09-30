@@ -1,9 +1,7 @@
 <?php namespace xp\unittest;
 
-use unittest\TestListener;
-use unittest\TestCase;
-use unittest\TestSuite;
 use io\streams\OutputStreamWriter;
+use unittest\{TestCase, TestListener, TestSuite};
 
 /**
  * XTerm Title listener

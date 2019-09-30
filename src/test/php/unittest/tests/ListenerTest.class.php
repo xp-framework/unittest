@@ -1,20 +1,7 @@
 <?php namespace unittest\tests;
 
 use lang\IllegalArgumentException;
-use unittest\PrerequisitesNotMetError;
-use unittest\TestAssertionFailed;
-use unittest\TestCase;
-use unittest\TestError;
-use unittest\TestExpectationMet;
-use unittest\TestFailure;
-use unittest\TestListener;
-use unittest\TestNotRun;
-use unittest\TestPrerequisitesNotMet;
-use unittest\TestResult;
-use unittest\TestSkipped;
-use unittest\TestSuccess;
-use unittest\TestSuite;
-use unittest\TestWarning;
+use unittest\{PrerequisitesNotMetError, TestAssertionFailed, TestCase, TestError, TestExpectationMet, TestFailure, TestListener, TestNotRun, TestPrerequisitesNotMet, TestResult, TestSkipped, TestSuccess, TestSuite, TestWarning};
 
 /**
  * TestCase

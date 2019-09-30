@@ -1,7 +1,6 @@
 <?php namespace unittest\actions;
 
-use unittest\PrerequisitesNotMetError;
-use unittest\TestCase;
+use unittest\{PrerequisitesNotMetError, TestCase};
 
 /**
  * Only runs this testcase on a given runtime version, e.g. PHP 5.4.0

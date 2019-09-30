@@ -1,16 +1,7 @@
 <?php namespace unittest\tests;
  
-use unittest\TestSuite;
-use unittest\TestExpectationMet;
-use unittest\TestAssertionFailed;
-use unittest\TestError;
-use unittest\TestPrerequisitesNotMet;
-use unittest\TestNotRun;
-use unittest\TestWarning;
-use unittest\TestVariation;
-use unittest\PrerequisitesNotMetError;
-use unittest\AssertionFailedError;
 use lang\Error;
+use unittest\{AssertionFailedError, PrerequisitesNotMetError, TestAssertionFailed, TestError, TestExpectationMet, TestNotRun, TestPrerequisitesNotMet, TestSuite, TestVariation, TestWarning};
 use util\Objects;
 
 /**

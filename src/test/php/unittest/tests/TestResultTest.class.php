@@ -1,12 +1,6 @@
 <?php namespace unittest\tests;
  
-use unittest\AssertionFailedError;
-use unittest\PrerequisitesNotMetError;
-use unittest\TestCase;
-use unittest\TestError;
-use unittest\TestResult;
-use unittest\TestSkipped;
-use unittest\TestSuccess;
+use unittest\{AssertionFailedError, PrerequisitesNotMetError, TestCase, TestError, TestResult, TestSkipped, TestSuccess};
 use unittest\metrics\Metric;
 
 class TestResultTest extends TestCase {
