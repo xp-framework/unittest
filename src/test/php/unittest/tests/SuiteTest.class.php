@@ -180,7 +180,7 @@ class SuiteTest extends TestCase {
 
   #[@test, @expect(IllegalArgumentException::class)]
   public function addingANonTestClass() {
-    $this->suite->addTestClass(\lang\XPClass::forName('unittest.tests.NotATest'));
+    $this->suite->addTestClass(\lang\XPClass::forName('lang.Value'));
   }    
 
   #[@test]

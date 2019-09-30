@@ -135,13 +135,14 @@ class TestRun {
   /**
    * Run a test case.
    *
-   * @param  unittest.TestCase $test
+   * @param  unittest.Target $target
    * @param  unittest.TestResult $result
    * @return void
    */
-  private function run($test) {
+  private function run($target) {
+    $test= $target->instance;
     $class= typeof($test);
-    $method= $class->getMethod($test->name);
+    $method= $class->getMethod($target->name);
     $this->notify('testStarted', [$test]);
     
     // Check for @ignore
@@ -310,8 +311,8 @@ class TestRun {
       return;
     }
 
-    foreach ($group->tests() as $test) {
-      $this->run($test);
+    foreach ($group->targets() as $target) {
+      $this->run($target);
     }
     $group->after();
   }

@@ -35,4 +35,7 @@ class TestInstance extends TestGroup {
 
   /** @return iterable */
   public function tests() { yield $this->instance; }
+
+  /** @return iterable */
+  public function targets() { yield new Target($this->instance->name, $this->instance); }
 }

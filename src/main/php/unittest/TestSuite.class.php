@@ -40,7 +40,11 @@ class TestSuite implements \lang\Value {
    */
   public function addTestClass($class, $arguments= []) {
     $type= $class instanceof XPClass ? $class : XPClass::forName($class);
-    $this->sources[$type->literal()][]= new TestClass($type, $arguments);
+    if ($type->isSubclassOf(TestCase::class)) {
+      $this->sources[$type->literal()][]= new TestClass($type, $arguments);
+    } else {
+      $this->sources[$type->literal()][]= new TestTargets($type, $arguments);
+    }
     return $type;
   }
 

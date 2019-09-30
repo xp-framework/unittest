@@ -1,10 +1,10 @@
 <?php namespace unittest\tests;
 
-use unittest\TestCase;
-use xp\unittest\Runner;
 use io\streams\MemoryInputStream;
 use io\streams\MemoryOutputStream;
 use lang\ClassLoader;
+use unittest\TestCase;
+use xp\unittest\Runner;
 
 /**
  * TestCase
@@ -112,7 +112,7 @@ class UnittestRunnerTest extends TestCase {
   public function runNonTest() {
     $return= $this->runner->run(['lang.Value']);
     $this->assertEquals(2, $return);
-    $this->assertOnStream($this->err, '*** Error: Given argument is not a TestCase class (lang.XPClass<lang.Value>)');
+    $this->assertOnStream($this->err, '*** Error: Cannot instantiate lang.Value');
     $this->assertEquals('', $this->out->getBytes());
   }
 

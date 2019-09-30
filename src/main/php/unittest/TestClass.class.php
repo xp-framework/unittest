@@ -55,4 +55,12 @@ class TestClass extends TestGroup {
       yield $constructor->newInstance(array_merge([$name], $this->arguments));
     }
   }
+
+  /** @return iterable */
+  public function targets() {
+    $constructor= $this->class->getConstructor();
+    foreach ($this->testMethods as $name) {
+      yield new Target($name, $constructor->newInstance(array_merge([$name], $this->arguments)));
+    }
+  }
 }
