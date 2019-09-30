@@ -4,7 +4,7 @@ use lang\IllegalArgumentException;
 use lang\reflect\TargetInvocationException;
 
 class TestTargets extends TestGroup {
-  private $type;
+  private $type, $arguments;
   private $instances= null;
 
   static function __static() { }
@@ -13,18 +13,20 @@ class TestTargets extends TestGroup {
    * Creates an instance from a type
    *
    * @param  lang.XPClass $type
+   * @param  var[] $arguments
    */
-  public function __construct($type) {
+  public function __construct($type, $arguments= []) {
     if (!$type->reflect()->isInstantiable()) {
       throw new IllegalArgumentException('Cannot instantiate '.$type->getName());
     }
     $this->type= $type;
+    $this->arguments= $arguments;
   }
 
   private function instances() {
     if (null === $this->instances) {
       $this->instances= [];
-      $instance= $this->type->newInstance();
+      $instance= $this->type->newInstance(...$this->arguments);
       foreach ($this->type->getMethods() as $method) {
         if ($method->hasAnnotation('test')) {
           $name= $method->getName();
