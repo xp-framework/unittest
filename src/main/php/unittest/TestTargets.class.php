@@ -32,36 +32,17 @@ class TestTargets extends TestGroup {
     }
   }
 
-  /**
-   * Runs actions before this group
-   *
-   * @return void
-   * @throws unittest.PrerequisitesNotMetError
-   */
-  public function before() {
-    foreach ($this->before as $method) {
-      try {
-        $method->invoke($this->instance, []);
-      } catch (TargetInvocationException $e) {
-        $cause= $e->getCause();
-        throw $cause instanceof PrerequisitesNotMetError
-          ? $cause
-          : new PrerequisitesNotMetError('Exception in @before method '.$method->getName(), $cause);
-        ;
-      }
+  /** @return iterable */
+  protected function beforeGroup() {
+    foreach ($this->before as $m) {
+      yield $m->getName() => $m->invoke($this->instance, []);
     }
   }
 
-  /**
-   * Runs actions after this group
-   *
-   * @return void
-   */
-  public function after() {
-    foreach ($this->after as $method) {
-      try {
-        $method->invoke($this->instance, []);
-      } catch (TargetInvocationException $ignored) { }
+  /** @return iterable */
+  protected function afterGroup() {
+    foreach ($this->after as $m) {
+      yield $m->getName() => $m->invoke($this->instance, []);
     }
   }
 

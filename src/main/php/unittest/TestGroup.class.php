@@ -1,7 +1,7 @@
 <?php namespace unittest;
 
-use lang\XPClass;
 use lang\IllegalStateException;
+use lang\XPClass;
 use lang\reflect\TargetInvocationException;
 
 abstract class TestGroup {
@@ -45,6 +45,20 @@ abstract class TestGroup {
     }
   }
 
+  /** @return iterable */
+  protected function beforeGroup() {
+    foreach ($this->type()->getMethods() as $m) {
+      if ($m->hasAnnotation('beforeClass')) yield $m->getName() => $m->invoke(null, []);
+    }
+  }
+
+  /** @return iterable */
+  protected function afterGroup() {
+    foreach ($this->type()->getMethods() as $m) {
+      if ($m->hasAnnotation('afterClass')) yield $m->getName() => $m->invoke(null, []);
+    }
+  }
+
   /**
    * Runs actions before this group
    *
@@ -52,20 +66,23 @@ abstract class TestGroup {
    * @throws unittest.PrerequisitesNotMetError
    */
   public function before() {
-    $class= $this->type();
-    foreach ($class->getMethods() as $m) {
-      if (!$m->hasAnnotation('beforeClass')) continue;
+    $it= $this->beforeGroup();
+    do {
       try {
-        $m->invoke(null, []);
+        $it->current();
       } catch (TargetInvocationException $e) {
         $cause= $e->getCause();
         if ($cause instanceof PrerequisitesNotMetError) {
           throw $cause;
         } else {
-          throw new PrerequisitesNotMetError('Exception in beforeClass method '.$m->getName(), $cause);
+          $name= substr(strstr($e->getMessage(), '::'), 2);
+          throw new PrerequisitesNotMetError('Exception in beforeClass method '.$name, $cause);
         }
       }
-    }
+      $it->next();
+    } while ($it->valid());
+
+    $class= $this->type();
     foreach ($this->actionsFor($class) as $action) {
       $action->beforeTestClass($class);
     }
@@ -81,12 +98,14 @@ abstract class TestGroup {
     foreach ($this->actionsFor($class) as $action) {
       $action->afterTestClass($class);
     }
-    foreach ($class->getMethods() as $m) {
-      if (!$m->hasAnnotation('afterClass')) continue;
+
+    $it= $this->afterGroup();
+    do {
       try {
-        $m->invoke(null, []);
+        $it->current();
       } catch (TargetInvocationException $ignored) { }
-    }
+      $it->next();
+    } while ($it->valid());
   }
 
   /** @return lang.XPClass */
