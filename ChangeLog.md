@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 11.0.0 / ????-??-??
+
+* Implemented xp-framework/rfc#334: Drop PHP 5.6. The minimum required
+  PHP version is now 7.0.0!
+  (@thekid)
+
 ## 10.1.1 / 2019-11-29
 
 * Added compatibility with XP 10, see xp-framework/rfc#333 - @thekid
@@ -29,7 +35,6 @@ Unittests change log
   test classes.
   - Merged PR #38: Backwards compatible Listener API
   - Merged PR #37: Baseless, single-instance tests
-  (@thekid)
 
 ## 9.7.1 / 2019-08-22
 
