@@ -3,9 +3,9 @@
 use lang\Error;
 use unittest\AssertionFailedError;
 use unittest\PrerequisitesNotMetError;
-use unittest\Test;
 use unittest\TestAssertionFailed;
 use unittest\TestCase;
+use unittest\TestClassInstance;
 use unittest\TestError;
 use unittest\TestExpectationMet;
 use unittest\TestNotRun;
@@ -28,7 +28,7 @@ class TestOutcomeTest extends TestCase {
    * @return iterable
    */
   public function fixtures() {
-    $test= new Test($this, typeof($this)->getMethod($this->name));
+    $test= new TestClassInstance($this);
     return [
       [$test, ''],
       [new TestVariation($test, ['v']), '("v")']

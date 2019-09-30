@@ -7,7 +7,7 @@ use util\Objects;
  *
  * @see   xp://unittest.TestCase
  */
-class TestVariation extends Test {
+class TestVariation implements Test {
   private $base, $variation;
 
   /**

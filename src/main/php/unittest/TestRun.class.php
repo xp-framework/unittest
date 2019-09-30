@@ -205,20 +205,7 @@ class TestRun {
           };
         }
 
-        // Setup and teardown
-        $this->invoke([$test->asCase(), 'setUp'], null);
-        $tearDown= function($test, $error) use($tearDown) {
-          try {
-            $this->invoke([$test, 'tearDown'], null);
-            return $tearDown($test, $error);
-          } catch (Throwable $t) {
-            $error && $t->setCause($error);
-            return $tearDown($test, $t);
-          }
-        };
-
-        // Run test
-        $test->method->invoke($test->instance, is_array($args) ? $args : [$args]);
+        $test->run(is_array($args) ? $args : [$args]);
         $thrown= $tearDown($test->asCase(), null);
       } catch (TestAborted $aborted) {
         $tearDown($test->asCase(), $aborted);

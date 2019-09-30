@@ -1,13 +1,6 @@
 <?php namespace unittest;
 
-class Test {
-  public $instance, $method, $actions;
-
-  public function __construct($instance, $method, $actions= []) {
-    $this->instance= $instance;
-    $this->method= $method;
-    $this->actions= $actions;
-  }
+interface Test {
 
   /**
    * Get this test target's name
@@ -15,36 +8,8 @@ class Test {
    * @param  bool $compound whether to use compound format
    * @return string
    */
-  public function getName($compound= false) {
-    return $compound ? nameof($this->instance).'::'.$this->method->getName() : $this->method->getName();
-  }
+  public function getName($compound= false);
 
-  public function hashCode() {
-    if ($this->instance instanceof TestCase) {
-      return $this->instance->hashCode();
-    } else {
-      return md5(get_class($this->instance).':'.$this->method->getName());
-    }
-  }
+  public function hashCode();
 
-  /** @deprecated */
-  private $case= null;
-
-  /** @deprecated */
-  public function asCase() {
-    if (null === $this->case) {
-      if ($this->instance instanceof TestCase) {
-        $this->case= $this->instance;
-      } else {
-        $name= $this->method->getName();
-        $instance= $this->instance;
-        $this->case= newinstance(TestCase::class, [$name], [
-          $name => function() use($instance, $name) {
-            return $instance->{$name}();
-          }
-        ]);
-      }
-    }
-    return $this->case;
-  }
 }

@@ -37,10 +37,5 @@ class TestInstance extends TestGroup {
   public function tests() { yield $this->instance; }
 
   /** @return iterable */
-  public function targets() {
-    yield new Test(
-      $this->instance,
-      typeof($this->instance)->getMethod($this->instance->name)
-    );
-  }
+  public function targets() { yield new TestClassInstance($this->instance); }
 }

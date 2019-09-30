@@ -68,7 +68,7 @@ class TestTargets extends TestGroup {
   /** @return iterable */
   public function targets() {
     foreach ($this->tests as $method) {
-      yield new Test($this->instance, $method);
+      yield new TestTarget($this->instance, $method);
     }
   }
 }
