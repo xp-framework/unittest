@@ -20,11 +20,11 @@ class RuntimeVersion implements TestAction {
    */
   public function __construct($pattern) {
     foreach (explode(',', $pattern) as $specifier) {
-      if ('*' === $specifier{strlen($specifier)- 1}) {
+      if ('*' === $specifier[strlen($specifier)- 1]) {
         $this->compare[]= function($compare) use($specifier) {
           return 0 === strncmp($compare, $specifier, strlen($specifier)- 1);
         };
-      } else if ('~' === $specifier{0}) {
+      } else if ('~' === $specifier[0]) {
         $c= sscanf($specifier, '~%d.%d.%d', $s, $m, $p);
         $lower= substr($specifier, 1);
         switch ($c) {
@@ -34,8 +34,8 @@ class RuntimeVersion implements TestAction {
         $this->compare[]= function($compare) use($lower, $upper) {
           return version_compare($compare, $lower, 'ge') && version_compare($compare, $upper, 'lt');
         };
-      } else if ('<' === $specifier{0}) {
-        if ('=' === $specifier{1}) {
+      } else if ('<' === $specifier[0]) {
+        if ('=' === $specifier[1]) {
           $op= 'le';
           $specifier= substr($specifier, 2);
         } else {
@@ -45,8 +45,8 @@ class RuntimeVersion implements TestAction {
         $this->compare[]= function($compare) use($specifier, $op) {
           return version_compare($compare, $specifier, $op);
         };
-      } else if ('>' === $specifier{0}) {
-        if ('=' === $specifier{1}) {
+      } else if ('>' === $specifier[0]) {
+        if ('=' === $specifier[1]) {
           $op= 'ge';
           $specifier= substr($specifier, 2);
         } else {
@@ -56,7 +56,7 @@ class RuntimeVersion implements TestAction {
         $this->compare[]= function($compare) use($specifier, $op) {
           return version_compare($compare, $specifier, $op);
         };
-      } else if ('!=' === $specifier{0}.$specifier{1}) {
+      } else if ('!=' === $specifier[0].$specifier[1]) {
         $this->compare[]= function($compare) use($specifier) {
           return $compare !== substr($specifier, 2);
         };
