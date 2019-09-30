@@ -36,7 +36,7 @@ class TestTargets extends TestGroup {
     }
 
     if (empty($this->tests)) {
-      throw new NoSuchElementException('No tests found in '.$class->getName());
+      throw new NoSuchElementException('No tests found in '.$type->getName());
     }
   }
 
