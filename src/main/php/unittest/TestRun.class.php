@@ -39,48 +39,6 @@ class TestRun {
   }
 
   /**
-   * Returns values
-   *
-   * @param  object $test
-   * @param  var $annotation
-   * @return var values a traversable structure
-   */
-  private function valuesFor($test, $annotation) {
-    if (!is_array($annotation)) {               // values("source")
-      $source= $annotation;
-      $args= [];
-    } else if (isset($annotation['map'])) {     // values(map= ["test" => true, ...])
-      $values= [];
-      foreach ($annotation['map'] as $key => $value) {
-        $values[]= [$key, $value];
-      }
-      return $values;
-    } else if (isset($annotation['source'])) {  // values(source= "src" [, args= ...])
-      $source= $annotation['source'];
-      $args= isset($annotation['args']) ? $annotation['args'] : [];
-    } else {                                    // values([1, 2, 3])
-      return $annotation;
-    }
-
-    // Route "ClassName::methodName" -> static method of the given class,
-    // "self::method" -> static method of the test class, and "method" 
-    // -> the run test's instance method
-    if (false === ($p= strpos($source, '::'))) {
-      return typeof($test)->getMethod($source)->setAccessible(true)->invoke($test, $args);
-    }
-
-    $ref= substr($source, 0, $p);
-    if ('self' === $ref) {
-      $class= typeof($test);
-    } else if (strstr($ref, '.')) {
-      $class= XPClass::forName($ref);
-    } else {
-      $class= new XPClass($ref);
-    }
-    return $class->getMethod(substr($source, $p+ 2))->invoke(null, $args);
-  }
-
-  /**
    * Invoke a block, wrap PHP5 and PHP7 native base exceptions in lang.Error
    *
    * @param  function(?): void $block
@@ -146,20 +104,9 @@ class TestRun {
     // Check for @limit
     $eta= isset($annotations['limit']) ? $annotations['limit'][0]['time'] : 0;
 
-    // Check for @values
-    if (isset($annotations['values'])) {
-      $annotation= $annotations['values'][0];
-      $variation= true;
-      $values= $this->valuesFor($test->instance, $annotation);
-    } else {
-      $variation= false;
-      $values= [[]];
-    }
-
     $timer= new Timer();
     Errors::clear();
-    foreach ($values as $args) {
-      $t= $variation ? new TestVariation($test, $args) : $test;
+    foreach ($test->variations() as $t) {
       $timer->start();
 
       $tearDown= function($test, $error) { return $error; };
@@ -180,7 +127,7 @@ class TestRun {
           };
         }
 
-        $test->run(is_array($args) ? $args : [$args]);
+        $t->run([]);
         $thrown= $tearDown($test, null);
       } catch (TestAborted $aborted) {
         $tearDown($test, $aborted);

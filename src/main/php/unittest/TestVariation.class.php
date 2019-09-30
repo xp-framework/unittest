@@ -8,7 +8,8 @@ use util\Objects;
  * @see   xp://unittest.TestCase
  */
 class TestVariation extends Test {
-  private $base, $variation;
+  private $base, $args;
+  private $variation= null;
 
   /**
    * Constructor
@@ -18,15 +19,34 @@ class TestVariation extends Test {
    */
   public function __construct($base, $args) {
     $this->base= $base;
-    $v= '';
-    foreach ((array)$args as $arg) {
-      $v.= ', '.Objects::stringOf($arg);
-    }
-    $this->variation= substr($v, 2);
+    $this->args= $args;
   }
 
   /** @return [:var] */
   public function annotations() { return $this->base->annotations(); }
+
+  /** @return string */
+  private function variation() {
+    if (null === $this->variation) {
+      $v= '';
+      foreach ($this->args as $arg) {
+        $v.= ', '.Objects::stringOf($arg);
+      }
+      $this->variation= substr($v, 2);
+    }
+    return $this->variation;
+  }
+
+  /**
+   * Runs this test target
+   *
+   * @param  var[] $args
+   * @return void
+   * @throws lang.Throwable
+   */
+  public function run($args) {
+    $this->base->run($this->args);
+  }
 
   /**
    * Get this test cases' name
@@ -35,11 +55,11 @@ class TestVariation extends Test {
    * @return  string
    */
   public function getName($compound= false) {
-    return $this->base->getName($compound).'('.$this->variation.')';
+    return $this->base->getName($compound).'('.$this->variation().')';
   }
 
   /** @return string */
   public function hashCode() {
-    return md5($this->base->hashCode().$this->variation);
+    return md5($this->base->hashCode().$this->variation());
   }
 }

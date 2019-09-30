@@ -19,7 +19,7 @@ class TestTarget extends Test {
   }
 
   /**
-   * Runs this testcase
+   * Runs this test target
    *
    * @param  var[] $args
    * @return void
