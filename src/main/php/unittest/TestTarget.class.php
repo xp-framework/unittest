@@ -1,11 +1,12 @@
 <?php namespace unittest;
 
 class TestTarget extends Test {
-  public $instance, $method;
+  public $instance, $method, $actions;
 
-  public function __construct($instance, $method) {
+  public function __construct($instance, $method, $actions= []) {
     $this->instance= $instance;
     $this->method= $method;
+    $this->actions= $actions;
   }
 
   /** @return [:var] */

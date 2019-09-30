@@ -2,9 +2,10 @@
 
 use lang\IllegalArgumentException;
 use lang\reflect\TargetInvocationException;
+use util\NoSuchElementException;
 
 class TestTargets extends TestGroup {
-  private $instance;
+  private $instance, $actions;
   private $tests= [], $before= [], $after= [];
 
   static function __static() { }
@@ -14,6 +15,8 @@ class TestTargets extends TestGroup {
    *
    * @param  lang.XPClass $type
    * @param  var[] $arguments
+   * @throws lang.IllegalArgumentException in case given argument is not instantiable
+   * @throws util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function __construct($type, $arguments= []) {
     if (!$type->reflect()->isInstantiable()) {
@@ -21,6 +24,7 @@ class TestTargets extends TestGroup {
     }
 
     $this->instance= $type->newInstance(...$this->arguments);
+    $this->actions= iterator_to_array($this->actionsFor($type, TestAction::class));
     foreach ($type->getMethods() as $method) {
       if ($method->hasAnnotation('test')) {
         $this->tests[]= $method;
@@ -29,6 +33,10 @@ class TestTargets extends TestGroup {
       } else if ($method->hasAnnotation('after')) {
         $this->after[]= $method;
       }
+    }
+
+    if (empty($this->tests)) {
+      throw new NoSuchElementException('No tests found in '.$class->getName());
     }
   }
 
@@ -68,7 +76,10 @@ class TestTargets extends TestGroup {
   /** @return iterable */
   public function targets() {
     foreach ($this->tests as $method) {
-      yield new TestTarget($this->instance, $method);
+      yield new TestTarget($this->instance, $method, array_merge(
+        $this->actions,
+        iterator_to_array($this->actionsFor($method, TestAction::class))
+      ));
     }
   }
 }

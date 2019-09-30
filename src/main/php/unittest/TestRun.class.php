@@ -81,27 +81,6 @@ class TestRun {
   }
 
   /**
-   * Returns values
-   *
-   * @param  var $annotatable
-   * @return var[]
-   */
-  private function actionsFor($annotatable) {
-    $r= [];
-    if ($annotatable->hasAnnotation('action')) {
-      $action= $annotatable->getAnnotation('action');
-      if (is_array($action)) {
-        foreach ($action as $a) {
-          if ($a instanceof TestAction) $r[]= $a;
-        }
-      } else {
-        if ($action instanceof TestAction) $r[]= $action;
-      }
-    }
-    return $r;
-  }
-
-  /**
    * Invoke a block, wrap PHP5 and PHP7 native base exceptions in lang.Error
    *
    * @param  function(?): void $block
@@ -177,9 +156,6 @@ class TestRun {
       $values= [[]];
     }
 
-    // Check for @actions
-    $actions= array_merge($this->actionsFor(typeof($test->instance)), $this->actionsFor($test->method));
-
     $timer= new Timer();
     Errors::clear();
     foreach ($values as $args) {
@@ -190,7 +166,7 @@ class TestRun {
       try {
 
         // Before and after tests
-        foreach ($actions as $action) {
+        foreach ($test->actions as $action) {
           $this->invoke([$action, 'beforeTest'], $test);
           $tearDown= function($test, $error) use($tearDown, $action) {
             $propagated= $tearDown($test, $error);

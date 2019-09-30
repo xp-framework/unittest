@@ -3,11 +3,12 @@
 use lang\Throwable;
 
 class TestClassInstance extends Test {
-  public $instance, $method;
+  public $instance, $method, $actions;
 
-  public function __construct($instance) {
+  public function __construct($instance, $method= null, $actions= []) {
     $this->instance= $instance;
-    $this->method= typeof($instance)->getMethod($instance->name);
+    $this->method= $method ?: typeof($instance)->getMethod($instance->name);
+    $this->actions= $actions;
   }
 
   /** @return [:var] */

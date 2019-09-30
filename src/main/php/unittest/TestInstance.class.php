@@ -3,7 +3,7 @@
 use lang\MethodNotImplementedException;
 
 class TestInstance extends TestGroup {
-  private $instance;
+  private $instance, $target;
 
   static function __static() { }
 
@@ -20,11 +20,16 @@ class TestInstance extends TestGroup {
       throw new MethodNotImplementedException('Test method does not exist', $instance->name);
     }
 
+    $method= $class->getMethod($instance->name);
     if (self::$base->hasMethod($instance->name)) {
-      throw $this->cannotOverride($class->getMethod($instance->name));
+      throw $this->cannotOverride($method);
     }
 
     $this->instance= $instance;
+    $this->target= new TestClassInstance($instance, $method, array_merge(
+      iterator_to_array($this->actionsFor($class, TestAction::class)),
+      iterator_to_array($this->actionsFor($method, TestAction::class))
+    ));
   }
 
   /** @return lang.XPClass */
@@ -37,5 +42,5 @@ class TestInstance extends TestGroup {
   public function tests() { yield $this->instance; }
 
   /** @return iterable */
-  public function targets() { yield new TestClassInstance($this->instance); }
+  public function targets() { yield $this->target; }
 }
