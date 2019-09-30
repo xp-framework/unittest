@@ -4,8 +4,8 @@ use lang\IllegalArgumentException;
 use lang\reflect\TargetInvocationException;
 
 class TestTargets extends TestGroup {
-  private $type, $arguments;
-  private $instances= null;
+  private $instance;
+  private $tests= [], $before= [], $after= [];
 
   static function __static() { }
 
@@ -19,48 +19,42 @@ class TestTargets extends TestGroup {
     if (!$type->reflect()->isInstantiable()) {
       throw new IllegalArgumentException('Cannot instantiate '.$type->getName());
     }
-    $this->type= $type;
-    $this->arguments= $arguments;
-  }
 
-  private function instances() {
-    if (null === $this->instances) {
-      $this->instances= [];
-      $instance= $this->type->newInstance(...$this->arguments);
-      foreach ($this->type->getMethods() as $method) {
-        if ($method->hasAnnotation('test')) {
-          $name= $method->getName();
-          $this->instances[]= newinstance(TestCase::class, [$name], [
-            $name => function() use($instance, $method) {
-              try {
-                return $method->invoke($instance, []);
-              } catch (TargetInvocationException $e) {
-                throw $e->getCause();
-              }
-            }
-          ]);
-        }
+    $this->instance= $this->type->newInstance(...$this->arguments);
+    foreach ($type->getMethods() as $method) {
+      if ($method->hasAnnotation('test')) {
+        $this->tests[]= $method;
+      } else if ($method->hasAnnotation('before')) {
+        $this->before[]= $method;
+      } else if ($method->hasAnnotation('after')) {
+        $this->after[]= $method;
       }
     }
-    return $this->instances;
   }
 
   /** @return lang.XPClass */
   public function type() { return $this->type; }
 
   /** @return int */
-  public function numTests() { return sizeof($this->instances()); }
+  public function numTests() { return sizeof($this->tests); }
 
   /** @return iterable */
-  public function tests() { return $this->instances(); }
+  public function tests() {
+    $instance= $this->instance;
+    foreach ($this->tests as $method) {
+      $name= $method->getName();
+      yield newinstance(TestCase::class, [$name], [
+        $name => function() use($instance, $name) {
+          return $instance->{$name}();
+        }
+      ]);
+    }
+  }
 
   /** @return iterable */
   public function targets() {
-    $instance= $this->type->newInstance(...$this->arguments);
-    foreach ($this->type->getMethods() as $method) {
-      if ($method->hasAnnotation('test')) {
-        yield new Test($instance, $method);
-      }
+    foreach ($this->tests as $method) {
+      yield new Test($this->instance, $method);
     }
   }
 }
