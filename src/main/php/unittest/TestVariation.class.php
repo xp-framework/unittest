@@ -25,6 +25,9 @@ class TestVariation extends Test {
     $this->variation= substr($v, 2);
   }
 
+  /** @return [:var] */
+  public function annotations() { return $this->base->annotations(); }
+
   /**
    * Get this test cases' name
    *
@@ -35,6 +38,7 @@ class TestVariation extends Test {
     return $this->base->getName($compound).'('.$this->variation.')';
   }
 
+  /** @return string */
   public function hashCode() {
     return md5($this->base->hashCode().$this->variation);
   }

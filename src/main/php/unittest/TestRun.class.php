@@ -142,35 +142,34 @@ class TestRun {
   private function run($test) {
     $this->notify('testStarted', [$test]);
 
+    $annotations= $test->annotations();
+
     // Check for @ignore
-    if ($test->method->hasAnnotation('ignore')) {
-      $this->record('testNotRun', new TestNotRun($test, new IgnoredBecause($test->method->getAnnotation('ignore'))));
+    if (isset($annotations['ignore'])) {
+      $this->record('testNotRun', new TestNotRun($test, new IgnoredBecause($annotations['ignore'][0])));
       return;
     }
 
     // Check for @expect
     $expected= null;
-    if ($test->method->hasAnnotation('expect', 'class')) {
-      $message= $test->method->getAnnotation('expect', 'withMessage');
-      if ('' === $message || '/' === $message{0}) {
+    if (isset($annotations['expect'][0]['class'])) {
+      $message= $annotations['expect'][0]['withMessage'];
+      if ('' === $message || '/' === $message[0]) {
         $pattern= $message;
       } else {
         $pattern= '/'.preg_quote($message, '/').'/';
       }
-      $expected= [XPClass::forName($test->method->getAnnotation('expect', 'class')), $pattern];
-    } else if ($test->method->hasAnnotation('expect')) {
-      $expected= [XPClass::forName($test->method->getAnnotation('expect')), null];
+      $expected= [XPClass::forName($annotations['expect'][0]['class']), $pattern];
+    } else if (isset($annotations['expect'])) {
+      $expected= [XPClass::forName($annotations['expect'][0]), null];
     }
     
     // Check for @limit
-    $eta= 0;
-    if ($test->method->hasAnnotation('limit')) {
-      $eta= $test->method->getAnnotation('limit', 'time');
-    }
+    $eta= isset($annotations['limit']) ? $annotations['limit'][0]['time'] : 0;
 
     // Check for @values
-    if ($test->method->hasAnnotation('values')) {
-      $annotation= $test->method->getAnnotation('values');
+    if (isset($annotations['values'])) {
+      $annotation= $annotations['values'][0];
       $variation= true;
       $values= $this->valuesFor($test->instance, $annotation);
     } else {

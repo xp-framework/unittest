@@ -10,6 +10,15 @@ class TestClassInstance extends Test {
     $this->method= typeof($instance)->getMethod($instance->name);
   }
 
+  /** @return [:var] */
+  public function annotations() {
+    $return= [];
+    foreach ($this->method->getAnnotations() as $name => $value) {
+      $return[$name]= [$value];
+    }
+    return $return;
+  }
+
   /**
    * Invoke a block, wrap PHP5 and PHP7 native base exceptions in lang.Error
    *
@@ -54,6 +63,7 @@ class TestClassInstance extends Test {
     return $this->instance->getName($compound);
   }
 
+  /** @return string */
   public function hashCode() {
     return $this->instance->hashCode();
   }

@@ -8,6 +8,15 @@ class TestTarget extends Test {
     $this->method= $method;
   }
 
+  /** @return [:var] */
+  public function annotations() {
+    $return= [];
+    foreach ($this->method->getAnnotations() as $name => $value) {
+      $return[$name]= [$value];
+    }
+    return $return;
+  }
+
   /**
    * Runs this testcase
    *
@@ -29,6 +38,7 @@ class TestTarget extends Test {
     return $compound ? nameof($this->instance).'::'.$this->method->getName() : $this->method->getName();
   }
 
+  /** @return string */
   public function hashCode() {
     return md5(get_class($this->instance).':'.$this->method->getName());
   }
