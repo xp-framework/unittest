@@ -12,16 +12,16 @@ Unittests for the XP Framework
 
 Writing a test
 --------------
-Tests reside inside a testcase class and are annotated with the `@test` annotation.
+Tests reside inside a class and are annotated with the `@test` annotation.
 
 ```php
-use unittest\TestCase;
+use unittest\Assert;
 
-class CalculatorTest extends TestCase {
+class CalculatorTest {
 
   #[@test]
   public function addition() {
-    $this->assertEquals(2, 1 + 1);
+    Assert::equals(2, 1 + 1);
   }
 }
 ```
@@ -33,7 +33,7 @@ $ xp test CalculatorTest
 [.]
 
 ♥: 1/1 run (0 skipped), 1 succeeded, 0 failed
-Memory used: 1173.51 kB (1307.40 kB peak)
+Memory used: 1672.58 kB (1719.17 kB peak)
 Time taken: 0.000 seconds
 ```
 
@@ -42,46 +42,46 @@ Assertion methods
 The unittest package provides the following six assertion methods:
 
 ```php
-public void assertEquals(var $expected, var $actual, [string $error= "equals"])
-public void assertNotEquals(var $expected, var $actual, [string $error= "!equals"])
-public void assertTrue(var $actual, [string $error= "==="])
-public void assertFalse(var $actual, [string $error= "==="])
-public void assertNull(var $actual, [string $error= "==="])
-public void assertInstanceOf(var $type, var $actual, [string $error= "instanceof"])
+public abstract class unittest.Assert {
+  public static void equals(var $expected, var $actual, string $error)
+  public static void notEquals(var $expected, var $actual, string $error)
+  public static void true(var $actual, string $error)
+  public static void false(var $actual, string $error)
+  public static void null(var $actual, string $error)
+  public static void instance(string|lang.Type $type, var $actual, string $error)
+}
 ```
-
-To manually skip a test, call `$this->fail('Reason')` anywhere inside your test code.
 
 *If you need more than that, you can use [xp-forge/assert](https://github.com/xp-forge/assert) on top of this library.*
 
 Setup and teardown
 ------------------
-In order to run a method before and after every test, overwrite the base class' `setUp()` and `tearDown()` methods:
+In order to run a method before and after the tests are run, annotate methods with the `@before` and `@after` annotations:
 
 ```php
-use unittest\TestCase;
+use unittest\Assert;
 
-class CalculatorTest extends TestCase {
+class CalculatorTest {
   private $fixture;
 
-  /** @return void */
-  public function setUp() {
+  #[@before]
+  public function newFixture() {
     $this->fixture= new Calculator();
   }
 
-  /** @return void */
-  public function tearDown() {
+  #[@after]
+  public function cleanUp() {
     unset($this->fixture);
   }
 
   #[@test]
   public function addition() {
-    $this->assertEquals(2, $this->fixture->add(1, 1));
+    Assert::equals(2, $this->fixture->add(1, 1));
   }
 }
 ```
 
-*Note: The `unset` above isn't really necessary, a fresh instance of the testcase class is created before every run and disposed thereafter, thus PHP's garbage collection takes care of freeing all members.*
+*Note: All test methods are run with the same instance of CalculatorTest!*
 
 Expected exceptions
 -------------------
@@ -89,9 +89,8 @@ The `@expect` annotation is a shorthand for catching exceptions and verifying th
 
 ```php
 use lang\IllegalArgumentException;
-use unittest\TestCase;
 
-class CalculatorTest extends TestCase {
+class CalculatorTest {
 
   #[@test, @expect(IllegalArgumentException::class)]
   public function cannot_divide_by_zero() {
@@ -105,9 +104,7 @@ Ignoring tests
 The `@ignore` annotation can be used to ignore tests. This can be necessary as a temporary measure or when overriding a test base class and not wanting to run one of its methods.
 
 ```php
-use unittest\TestCase;
-
-class EncodingTest extends TestCase {
+class EncodingTest {
 
   #[@test, @ignore('Does not work with all iconv implementations')]
   public function transliteration() {
@@ -116,17 +113,14 @@ class EncodingTest extends TestCase {
 }
 ```
 
-To manually skip a test, call `$this->skip('Reason')` anywhere inside your test code.
-
 Parameterization
 -----------------
 The `@values` annotation can be used to run a test with a variety of values which are passed as parameters.
 
 ```php
 use lang\IllegalArgumentException;
-use unittest\TestCase;
 
-class CalculatorTest extends TestCase {
+class CalculatorTest {
 
   #[@test, @expect(IllegalArgumentException::class), @values([1, 0, -1])]
   public function cannot_divide_by_zero($dividend) {
@@ -145,11 +139,9 @@ To execute code before and after tests, test actions can be used. The unittest l
 * `unittest.actions.VerifyThat(function(): var|string $callable)` - Runs the given function, verifying it neither raises an exception nor return a false value.
 
 ```php
-use unittest\actions\IsPlatform;
-use unittest\actions\VerifyThat;
-use unittest\TestCase;
+use unittest\actions\{IsPlatform, VerifyThat};
 
-class FileSystemTest extends TestCase {
+class FileSystemTest {
 
   #[@test, @action(new IsPlatform('!WIN'))
   public function not_run_on_windows() {
