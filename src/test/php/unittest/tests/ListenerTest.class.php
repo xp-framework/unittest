@@ -1,29 +1,23 @@
 <?php namespace unittest\tests;
 
 use lang\IllegalArgumentException;
+use unittest\Listener;
 use unittest\PrerequisitesNotMetError;
-use unittest\Test;
 use unittest\TestAssertionFailed;
 use unittest\TestCase;
-use unittest\TestCaseInstance;
 use unittest\TestError;
 use unittest\TestExpectationMet;
 use unittest\TestFailure;
-use unittest\TestListener;
 use unittest\TestNotRun;
 use unittest\TestPrerequisitesNotMet;
 use unittest\TestResult;
 use unittest\TestSkipped;
+use unittest\TestStart;
 use unittest\TestSuccess;
 use unittest\TestSuite;
 use unittest\TestWarning;
 
-/**
- * TestCase
- *
- * @see   xp://unittest.TestListener
- */
-class ListenerTest extends TestCase implements TestListener {
+class ListenerTest extends TestCase implements Listener {
   private $suite, $invocations;
     
   /** @return void */
@@ -40,10 +34,10 @@ class ListenerTest extends TestCase implements TestListener {
   /**
    * Called when a test case starts.
    *
-   * @param   unittest.Test $test
+   * @param   unittest.TestStart $start
    */
-  public function testStarted(Test $test) {
-    $this->invocations[__FUNCTION__]= [$test];
+  public function testStarted(TestStart $start) {
+    $this->invocations[__FUNCTION__]= [$start];
   }
 
   /**
@@ -158,7 +152,7 @@ class ListenerTest extends TestCase implements TestListener {
     $this->suite->addListener($this);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
-    $this->assertEquals(new TestCaseInstance($case), $this->invocations['testStarted'][0]);
+    $this->assertInstanceOf(TestStart::class, $this->invocations['testStarted'][0]);
     $this->assertInstanceOf(TestExpectationMet::class, $this->invocations['testSucceeded'][0]);
     $this->assertEquals($this->suite, $this->invocations['testRunFinished'][0]);
     $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
@@ -172,7 +166,7 @@ class ListenerTest extends TestCase implements TestListener {
     $this->suite->addListener($this);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
-    $this->assertEquals(new TestCaseInstance($case), $this->invocations['testStarted'][0]);
+    $this->assertInstanceOf(TestStart::class, $this->invocations['testStarted'][0]);
     $this->assertInstanceOf(TestAssertionFailed::class, $this->invocations['testFailed'][0]);
     $this->assertEquals($this->suite, $this->invocations['testRunFinished'][0]);
     $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
@@ -186,7 +180,7 @@ class ListenerTest extends TestCase implements TestListener {
     $this->suite->addListener($this);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
-    $this->assertEquals(new TestCaseInstance($case), $this->invocations['testStarted'][0]);
+    $this->assertInstanceOf(TestStart::class, $this->invocations['testStarted'][0]);
     $this->assertInstanceOf(TestError::class, $this->invocations['testError'][0]);
     $this->assertEquals($this->suite, $this->invocations['testRunFinished'][0]);
     $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
@@ -200,7 +194,7 @@ class ListenerTest extends TestCase implements TestListener {
     $this->suite->addListener($this);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
-    $this->assertEquals(new TestCaseInstance($case), $this->invocations['testStarted'][0]);
+    $this->assertInstanceOf(TestStart::class, $this->invocations['testStarted'][0]);
     $this->assertInstanceOf(TestWarning::class, $this->invocations['testWarning'][0]);
     $this->assertEquals($this->suite, $this->invocations['testRunFinished'][0]);
     $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
@@ -215,7 +209,7 @@ class ListenerTest extends TestCase implements TestListener {
     $this->suite->addListener($this);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
-    $this->assertEquals(new TestCaseInstance($case), $this->invocations['testStarted'][0]);
+    $this->assertInstanceOf(TestStart::class, $this->invocations['testStarted'][0]);
     $this->assertInstanceOf(TestPrerequisitesNotMet::class, $this->invocations['testSkipped'][0]);
     $this->assertEquals($this->suite, $this->invocations['testRunFinished'][0]);
     $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
@@ -229,7 +223,7 @@ class ListenerTest extends TestCase implements TestListener {
     $this->suite->addListener($this);
     $this->suite->runTest($case);
     $this->assertEquals($this->suite, $this->invocations['testRunStarted'][0]);
-    $this->assertEquals(new TestCaseInstance($case), $this->invocations['testStarted'][0]);
+    $this->assertInstanceOf(TestStart::class, $this->invocations['testStarted'][0]);
     $this->assertInstanceOf(TestNotRun::class, $this->invocations['testNotRun'][0]);
     $this->assertEquals($this->suite, $this->invocations['testRunFinished'][0]);
     $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
