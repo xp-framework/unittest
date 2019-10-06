@@ -2,7 +2,7 @@
 
 use io\streams\OutputStreamWriter;
 use unittest\Listener;
-use unittest\Test;
+use unittest\TestStart;
 
 /**
  * Verbose listener
