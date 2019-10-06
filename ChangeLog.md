@@ -3,6 +3,18 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 10.0.0 / 2019-10-06
+
+* Implemented feature #36 (*Baseless, single-instance test classes*).
+  **Heads up:** This breaks API compatibility if you have written your
+  own test actions: These now accept `unittest.Test` instances instead
+  of *unittest.TestCase*! The unittest runner itself remains unchanged
+  and can now run both TestCase instances as well as the new baseless
+  test classes.
+  - Merged PR #38: Backwards compatible Listener API
+  - Merged PR #37: Baseless, single-instance tests
+  (@thekid)
+
 ## 9.7.1 / 2019-08-22
 
 * Rewrote `unittest.actions.VerifyThat` to no longer user the deprecated
