@@ -77,7 +77,7 @@ class TestRun {
    * @return void
    */
   private function run($test) {
-    $this->notify('testStarted', [$test]);
+    $this->notify('testStarted', [new TestStart($test)]);
 
     // Check for @ignore
     if ($reason= $test->ignored()) {
