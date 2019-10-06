@@ -3,6 +3,7 @@
 use unittest\AssertionFailedError;
 use unittest\PrerequisitesNotMetError;
 use unittest\TestCase;
+use unittest\TestCaseInstance;
 use unittest\TestError;
 use unittest\TestResult;
 use unittest\TestSkipped;
@@ -10,6 +11,12 @@ use unittest\TestSuccess;
 use unittest\metrics\Metric;
 
 class TestResultTest extends TestCase {
+  private $test;
+
+  /** @return void */
+  public function setUp() {
+    $this->test= new TestCaseInstance($this);
+  }
 
   #[@test]
   public function can_create() {
@@ -18,34 +25,34 @@ class TestResultTest extends TestCase {
 
   #[@test]
   public function record_success() {
-    $outcome= new TestSuccess($this, 0.0);
+    $outcome= new TestSuccess($this->test, 0.0);
     $this->assertEquals($outcome, (new TestResult())->record($outcome));
   }
 
   #[@test]
   public function record_skipped() {
-    $outcome= new TestSkipped($this, 0.0);
+    $outcome= new TestSkipped($this->test, 0.0);
     $this->assertEquals($outcome, (new TestResult())->record($outcome));
   }
 
   #[@test]
   public function record_failure() {
-    $outcome= new TestError($this, new AssertionFailedError('Fail!'), 0.0);
+    $outcome= new TestError($this->test, new AssertionFailedError('Fail!'), 0.0);
     $this->assertEquals($outcome, (new TestResult())->record($outcome));
   }
 
   #[@test]
   public function outcome_of_recorded_test() {
-    $outcome= new TestSuccess($this, 0.0);
+    $outcome= new TestSuccess($this->test, 0.0);
     $t= new TestResult();
     $t->record($outcome);
-    $this->assertEquals($outcome, $t->outcomeOf($this));
+    $this->assertEquals($outcome, $t->outcomeOf($this->test));
   }
 
   #[@test]
   public function outcome_of_non_existant_test() {
     $t= new TestResult();
-    $this->assertNull($t->outcomeOf($this));
+    $this->assertNull($t->outcomeOf($this->test));
   }
 
   #[@test]
@@ -60,7 +67,7 @@ class TestResultTest extends TestCase {
   #[@test]
   public function one_succeeded_test() {
     $t= new TestResult();
-    $t->record(new TestSuccess($this, 0.0));
+    $t->record(new TestSuccess($this->test, 0.0));
     $this->assertEquals(
       [1, 0, 0, 1, 1],
       [$t->successCount(), $t->skipCount(), $t->failureCount(), $t->runCount(), $t->count()]
@@ -70,9 +77,9 @@ class TestResultTest extends TestCase {
   #[@test]
   public function succeed_skipped_and_failed_tests() {
     $t= new TestResult();
-    $t->record(new TestSuccess($this, 0.0));
-    $t->record(new TestSkipped($this, 0.0));
-    $t->record(new TestError($this, new AssertionFailedError('Fail!'), 0.0));
+    $t->record(new TestSuccess($this->test, 0.0));
+    $t->record(new TestSkipped($this->test, 0.0));
+    $t->record(new TestError($this->test, new AssertionFailedError('Fail!'), 0.0));
     $this->assertEquals(
       [1, 1, 1, 2, 3],
       [$t->successCount(), $t->skipCount(), $t->failureCount(), $t->runCount(), $t->count()]
@@ -82,18 +89,18 @@ class TestResultTest extends TestCase {
   #[@test]
   public function elapsed() {
     $t= new TestResult();
-    $t->record(new TestSuccess($this, 1.0));
-    $t->record(new TestSkipped($this, 0.1));
-    $t->record(new TestError($this, new AssertionFailedError('Fail!'), 0.5));
+    $t->record(new TestSuccess($this->test, 1.0));
+    $t->record(new TestSkipped($this->test, 0.1));
+    $t->record(new TestError($this->test, new AssertionFailedError('Fail!'), 0.5));
     $this->assertEquals(1.6, $t->elapsed());
   }
 
   #[@test]
   public function string_representation() {
     $t= new TestResult();
-    $t->record(new TestSuccess($this, 0.0));
-    $t->record(new TestSkipped($this, 0.0));
-    $t->record(new TestError($this, new AssertionFailedError('Fail!'), 0.0));
+    $t->record(new TestSuccess($this->test, 0.0));
+    $t->record(new TestSkipped($this->test, 0.0));
+    $t->record(new TestError($this->test, new AssertionFailedError('Fail!'), 0.0));
     $this->assertNotEquals('', $t->toString());
   }
 
@@ -126,30 +133,5 @@ class TestResultTest extends TestCase {
       'format'    => function() { return 'Test'; }
     ]);
     $this->assertEquals($metric, (new TestResult())->metric('Test', $metric)->metrics()['Test']);
-  }
-
-  /** @deprecated */
-  #[@test]
-  public function set() {
-    $outcome= new TestSuccess($this, 0.0);
-    $this->assertEquals($outcome, (new TestResult())->set($this, $outcome));
-  }
-
-  /** @deprecated */
-  #[@test]
-  public function setSucceeded() {
-    (new TestResult())->setSucceeded($this, 0.0);
-  }
-
-  /** @deprecated */
-  #[@test]
-  public function setSkipped() {
-    (new TestResult())->setSkipped($this, new PrerequisitesNotMetError('Ignored'), 0.0);
-  }
-
-  /** @deprecated */
-  #[@test]
-  public function setFailed() {
-    (new TestResult())->setFailed($this, new AssertionFailedError('Failed'), 0.0);
   }
 }

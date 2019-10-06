@@ -10,7 +10,7 @@ class BeforeAndAfterClassWithRunTest extends BeforeAndAfterClassTest {
   /**
    * Runs a test and returns the outcome
    *
-   * @param   unittest.TestCase $test
+   * @param   unittest.Test $test
    * @return  unittest.TestOutcome
    */
   protected function runTest($test) {

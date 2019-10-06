@@ -3,6 +3,7 @@
 use io\streams\ConsoleOutputStream;
 use io\streams\OutputStreamWriter;
 use unittest\ColorizingListener;
+use unittest\Test;
 use unittest\TestListener;
 
 /**
@@ -73,9 +74,9 @@ class DefaultListener implements TestListener, ColorizingListener {
   /**
    * Called when a test case starts.
    *
-   * @param   unittest.TestCase failure
+   * @param  unittest.Test $test
    */
-  public function testStarted(\unittest\TestCase $case) {
+  public function testStarted(Test $test) {
     // NOOP
   }
 

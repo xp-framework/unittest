@@ -7,22 +7,42 @@ use util\Objects;
  *
  * @see   xp://unittest.TestCase
  */
-class TestVariation extends TestCase {
-  protected $base= null;
+class TestVariation extends Test {
+  private $base, $args;
+  private $variation= null;
 
   /**
    * Constructor
    *
-   * @param   unittest.TestCase base
-   * @param   var[] args
+   * @param  unittest.Test $base
+   * @param  var[] $args
    */
   public function __construct($base, $args) {
-    $uniq= '';
-    foreach ((array)$args as $arg) {
-      $uniq.= ', '.Objects::stringOf($arg);
-    }
-    parent::__construct($base->getName().'('.substr($uniq, 2).')');
     $this->base= $base;
+    $this->args= $args;
+  }
+
+  /** @return string */
+  private function variation() {
+    if (null === $this->variation) {
+      $v= '';
+      foreach ($this->args as $arg) {
+        $v.= ', '.Objects::stringOf($arg);
+      }
+      $this->variation= substr($v, 2);
+    }
+    return $this->variation;
+  }
+
+  /**
+   * Runs this test target
+   *
+   * @param  var[] $args
+   * @return void
+   * @throws lang.Throwable
+   */
+  public function run($args) {
+    $this->base->run($this->args);
   }
 
   /**
@@ -32,15 +52,11 @@ class TestVariation extends TestCase {
    * @return  string
    */
   public function getName($compound= false) {
-    return $compound ? nameof($this->base).'::'.$this->name : $this->name;
+    return $this->base->getName($compound).'('.$this->variation().')';
   }
 
-  /**
-   * Creates a string representation of this testcase
-   *
-   * @return  string
-   */
-  public function toString() {
-    return nameof($this).'<'.nameof($this->base).'::'.$this->name.'>';
+  /** @return string */
+  public function hashCode() {
+    return md5($this->base->hashCode().$this->variation());
   }
 }

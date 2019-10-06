@@ -1,6 +1,6 @@
 <?php namespace unittest\tests;
 
-use unittest\TestCase;
+use unittest\Test;
 
 /**
  * This class is used in the TestActionTest 
@@ -20,20 +20,20 @@ class RecordActionInvocation implements \unittest\TestAction {
   /**
    * Before test: Update field
    *
-   * @param  unittest.TestCase $t
+   * @param  unittest.Test $t
    */
-  public function beforeTest(TestCase $t) {
-    $f= typeof($t)->getField($this->field);
-    $f->set($t, array_merge($f->get($t), ['before']));
+  public function beforeTest(Test $t) {
+    $f= typeof($t->instance)->getField($this->field);
+    $f->set($t->instance, array_merge($f->get($t->instance), ['before']));
   }
 
   /**
    * After test: Update field
    *
-   * @param  unittest.TestCase $t
+   * @param  unittest.Test $t
    */
-  public function afterTest(TestCase $t) {
-    $f= typeof($t)->getField($this->field);
-    $f->set($t, array_merge($f->get($t), ['after']));
+  public function afterTest(Test $t) {
+    $f= typeof($t->instance)->getField($this->field);
+    $f->set($t->instance, array_merge($f->get($t->instance), ['after']));
   }
 }

@@ -1,12 +1,13 @@
 <?php namespace unittest\tests;
 
-use unittest\TestPrerequisitesNotMet;
 use lang\ClassLoader;
-use lang\XPClass;
 use lang\IllegalStateException;
-use unittest\TestSuite;
-use unittest\TestCase;
+use lang\XPClass;
 use unittest\PrerequisitesNotMetError;
+use unittest\Test;
+use unittest\TestCase;
+use unittest\TestPrerequisitesNotMet;
+use unittest\TestSuite;
 
 /**
  * Test test actions
@@ -65,7 +66,7 @@ class TestActionTest extends TestCase {
   #[@test]
   public function beforeTest_can_skip_test() {
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @action(new \unittest\tests\SkipThisTest())] fixture' => function() {
+      '#[@test, @action(new \unittest\tests\SkipThis())] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -77,11 +78,11 @@ class TestActionTest extends TestCase {
   public function afterTest_is_invoked_for_succeeding_actions() {
     $actions= [];
     ClassLoader::defineClass('unittest.tests.AllocateMemory', $this->parent, ['unittest.TestAction'], [
-      'beforeTest' => function(TestCase $t) use(&$actions) { $actions[]= 'allocated'; },
-      'afterTest' => function(TestCase $t) use(&$actions) { $actions[]= 'freed'; }
+      'beforeTest' => function(Test $t) use(&$actions) { $actions[]= 'allocated'; },
+      'afterTest'  => function(Test $t) use(&$actions) { $actions[]= 'freed'; }
     ]);
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @action([new \unittest\tests\AllocateMemory(), new \unittest\tests\SkipThisTest()])] fixture' => function() {
+      '#[@test, @action([new \unittest\tests\AllocateMemory(), new \unittest\tests\SkipThis()])] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -96,7 +97,7 @@ class TestActionTest extends TestCase {
     $r= $this->suite->run();
     $result= [];
     foreach ($r->succeeded as $outcome) {
-      $result= array_merge($result, $outcome->test->run);
+      $result= array_merge($result, $outcome->test->instance->run);
     }
 
     $this->assertEquals(['before', 'one', 'after', 'before', 'two', 'after'], $result );
@@ -111,13 +112,13 @@ class TestActionTest extends TestCase {
         $this->platform= $platform;
       }
 
-      public function beforeTest(\unittest\TestCase $t) {
+      public function beforeTest(\unittest\Test $t) {
         if (PHP_OS !== $this->platform) {
           throw new \unittest\PrerequisitesNotMetError("Skip", NULL, $this->platform);
         }
       }
 
-      public function afterTest(\unittest\TestCase $t) {
+      public function afterTest(\unittest\Test $t) {
         // NOOP
       }
     }');
@@ -134,8 +135,8 @@ class TestActionTest extends TestCase {
   #[@test]
   public function skip_test_via_skip() {
     ClassLoader::defineClass('unittest.tests.SkipTest', $this->parent, ['unittest.TestAction'], [
-      'beforeTest' => function(TestCase $t) { $t->skip('Not run'); },
-      'afterTest' => function(TestCase $t) { }
+      'beforeTest' => function(Test $t) { $t->instance->skip('Not run'); },
+      'afterTest'  => function(Test $t) { }
     ]);
     $test= newinstance(TestCase::class, ['fixture'], [
       '#[@test, @action([new \unittest\tests\SkipTest()])] fixture' => function() {
@@ -168,11 +169,11 @@ class TestActionTest extends TestCase {
   #[@test]
   public function afterTest_can_raise_AssertionFailedErrors() {
     ClassLoader::defineClass('unittest.tests.FailOnTearDown', $this->parent, ['unittest.TestAction'], '{
-      public function beforeTest(\unittest\TestCase $t) {
+      public function beforeTest(\unittest\Test $t) {
         // NOOP
       }
 
-      public function afterTest(\unittest\TestCase $t) {
+      public function afterTest(\unittest\Test $t) {
         throw new \unittest\AssertionFailedError("Skip");
       }
     }');
@@ -194,11 +195,11 @@ class TestActionTest extends TestCase {
         $this->message= $message;
       }
 
-      public function beforeTest(\unittest\TestCase $t) {
+      public function beforeTest(\unittest\Test $t) {
         // NOOP
       }
 
-      public function afterTest(\unittest\TestCase $t) {
+      public function afterTest(\unittest\Test $t) {
         throw new \unittest\AssertionFailedError($this->message);
       }
     }');

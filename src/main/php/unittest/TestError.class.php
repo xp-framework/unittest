@@ -12,11 +12,11 @@ class TestError extends TestFailure {
   /**
    * Constructor
    *
-   * @param  unittest.TestCase $test
+   * @param  unittest.Test $test
    * @param  lang.Throwable $reason
    * @param  double $elapsed
    */
-  public function __construct(TestCase $test, Throwable $reason, $elapsed) {
+  public function __construct(Test $test, Throwable $reason, $elapsed) {
     parent::__construct($test, $elapsed);
     $this->reason= $reason;
   }

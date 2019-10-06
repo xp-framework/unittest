@@ -5,8 +5,8 @@ use util\NoSuchElementException;
 use util\Objects;
 
 class TestClass extends TestGroup {
-  private $class, $arguments;
-  private $testMethods= [];
+  private $class, $actions, $arguments;
+  private $tests= [];
 
   static function __static() { }
 
@@ -30,15 +30,16 @@ class TestClass extends TestGroup {
         if (self::$base->hasMethod($name)) {
           throw $this->cannotOverride($method);
         }
-        $this->testMethods[]= $name;
+        $this->tests[$name]= $method;
       }
     }
 
-    if (empty($this->testMethods)) {
+    if (empty($this->tests)) {
       throw new NoSuchElementException('No tests found in '.$class->getName());
     }
 
     $this->class= $class;
+    $this->actions= iterator_to_array($this->actionsFor($class, TestAction::class));
     $this->arguments= (array)$arguments;
   }
 
@@ -46,13 +47,17 @@ class TestClass extends TestGroup {
   public function type() { return $this->class; }
 
   /** @return int */
-  public function numTests() { return sizeof($this->testMethods); }
+  public function numTests() { return sizeof($this->tests); }
 
-  /** @return php.Generator */
+  /** @return iterable */
   public function tests() {
     $constructor= $this->class->getConstructor();
-    foreach ($this->testMethods as $name) {
-      yield $constructor->newInstance(array_merge([$name], $this->arguments));
+    foreach ($this->tests as $name => $method) {
+      yield new TestCaseInstance(
+        $constructor->newInstance(array_merge([$name], $this->arguments)),
+        $method,
+        array_merge($this->actions, iterator_to_array($this->actionsFor($method, TestAction::class)))
+      );
     }
   }
 }

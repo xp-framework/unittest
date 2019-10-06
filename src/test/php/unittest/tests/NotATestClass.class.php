@@ -1,5 +1,5 @@
 <?php namespace unittest\tests;
 
-class NotATest {
+class NotATestClass {
   
 }

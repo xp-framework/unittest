@@ -8,6 +8,7 @@ use lang\MethodNotImplementedException;
 use unittest\AssertionFailedError;
 use unittest\PrerequisitesNotMetError;
 use unittest\TestCase;
+use unittest\TestCaseInstance;
 use unittest\TestPrerequisitesNotMet;
 use unittest\TestResult;
 use unittest\TestSuite;
@@ -89,22 +90,22 @@ class SuiteTest extends TestCase {
 
   #[@test, @expect(IllegalArgumentException::class), @action(new RuntimeVersion('<7.0.0-dev'))]
   public function addNonTest() {
-    $this->suite->addTest(new NotATest());
+    $this->suite->addTest(new NotATestClass());
   }
 
   #[@test, @expect(Error::class), @action(new RuntimeVersion('>=7.0.0-dev'))]
   public function addNonTest7() {
-    $this->suite->addTest(new NotATest());
+    $this->suite->addTest(new NotATestClass());
   }
 
   #[@test, @expect(IllegalArgumentException::class), @action(new RuntimeVersion('<7.0.0-dev'))]
   public function runNonTest() {
-    $this->suite->runTest(new NotATest());
+    $this->suite->runTest(new NotATestClass());
   }
 
   #[@test, @expect(Error::class), @action(new RuntimeVersion('>=7.0.0-dev'))]
   public function runNonTest7() {
-    $this->suite->runTest(new NotATest());
+    $this->suite->runTest(new NotATestClass());
   }
 
   #[@test, @expect(MethodNotImplementedException::class)]
@@ -145,8 +146,8 @@ class SuiteTest extends TestCase {
     ]);
     $this->suite->addTestClass($class);
     $this->assertEquals(2, $this->suite->numTests());
-    $this->assertInstanceOf(TestCase::class, $this->suite->testAt(0));
-    $this->assertInstanceOf(TestCase::class, $this->suite->testAt(1));
+    $this->assertInstanceOf(TestCaseInstance::class, $this->suite->testAt(0));
+    $this->assertInstanceOf(TestCaseInstance::class, $this->suite->testAt(1));
   }
 
   #[@test]
@@ -180,7 +181,7 @@ class SuiteTest extends TestCase {
 
   #[@test, @expect(IllegalArgumentException::class)]
   public function addingANonTestClass() {
-    $this->suite->addTestClass(\lang\XPClass::forName('unittest.tests.NotATest'));
+    $this->suite->addTestClass(\lang\XPClass::forName('lang.Value'));
   }    
 
   #[@test]
@@ -199,14 +200,14 @@ class SuiteTest extends TestCase {
   #[@test]
   public function tests_after_adding_one() {
     $this->suite->addTest($this);
-    $this->assertEquals([$this], iterator_to_array($this->suite->tests()));
+    $this->assertEquals([new TestCaseInstance($this)], iterator_to_array($this->suite->tests()));
   }
 
   #[@test]
   public function tests_after_adding_two() {
     $this->suite->addTest($this);
     $this->suite->addTest($this);
-    $this->assertEquals([$this, $this], iterator_to_array($this->suite->tests()));
+    $this->assertEquals([new TestCaseInstance($this), new TestCaseInstance($this)], iterator_to_array($this->suite->tests()));
   }
 
   #[@test]

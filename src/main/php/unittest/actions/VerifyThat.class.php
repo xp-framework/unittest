@@ -4,8 +4,8 @@ use lang\MethodNotImplementedException;
 use lang\Throwable;
 use lang\XPClass;
 use unittest\PrerequisitesNotMetError;
+use unittest\Test;
 use unittest\TestAction;
-use unittest\TestCase;
 use unittest\TestClassAction;
 
 /**
@@ -53,12 +53,12 @@ class VerifyThat implements TestAction, TestClassAction {
    * This method gets invoked before a test method is invoked, and before
    * the setUp() method is called.
    *
-   * @param  unittest.TestCase $t
+   * @param  unittest.Test $t
    * @throws unittest.PrerequisitesNotMetError
    */
-  public function beforeTest(TestCase $t) {
+  public function beforeTest(Test $t) {
     try {
-      $verified= $this->verify->bindTo($t, $t)->__invoke();
+      $verified= $this->verify->bindTo($t->instance, $t->instance)->__invoke();
     } catch (Throwable $e) {
       throw new PrerequisitesNotMetError('Verification raised '.$e->compoundMessage(), null, [$this->prerequisite]);
     }
@@ -72,9 +72,9 @@ class VerifyThat implements TestAction, TestClassAction {
    * This method gets invoked after the test method is invoked and regard-
    * less of its outcome, after the tearDown() call has run.
    *
-   * @param  unittest.TestCase $t
+   * @param  unittest.Test $t
    */
-  public function afterTest(TestCase $t) {
+  public function afterTest(Test $t) {
     // Empty
   }
 

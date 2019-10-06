@@ -10,11 +10,11 @@ class TestWarning extends TestFailure {
   /**
    * Constructor
    *
-   * @param  unittest.TestCase $test
+   * @param  unittest.Test $test
    * @param  string[] $warnings
    * @param  double $elapsed
    */
-  public function __construct(TestCase $test, array $warnings, $elapsed) {
+  public function __construct(Test $test, array $warnings, $elapsed) {
     parent::__construct($test, $elapsed);
     $this->reason= new Warnings($warnings);
   }

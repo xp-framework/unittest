@@ -10,15 +10,15 @@ abstract class TestOutcome implements Value {
   /**
    * Constructor
    *
-   * @param  unittest.TestCase test
-   * @param  double elapsed
+   * @param  unittest.Test $test
+   * @param  float $elapsed
    */
-  public function __construct(TestCase $test, $elapsed) {
+  public function __construct(Test $test, $elapsed) {
     $this->test= $test;
     $this->elapsed= $elapsed;
   }
 
-  /** @return unittest.TestCase */
+  /** @return unittest.TestO */
   public function test() { return $this->test; }
 
   /** @return double */

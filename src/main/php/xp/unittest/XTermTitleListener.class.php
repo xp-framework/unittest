@@ -1,9 +1,9 @@
 <?php namespace xp\unittest;
 
-use unittest\TestListener;
-use unittest\TestCase;
-use unittest\TestSuite;
 use io\streams\OutputStreamWriter;
+use unittest\Test;
+use unittest\TestListener;
+use unittest\TestSuite;
 
 /**
  * XTerm Title listener
@@ -28,27 +28,26 @@ class XTermTitleListener implements TestListener {
   /**
    * Write status of currently executing test case
    *
-   * @param   unittest.TestCase case
+   * @param   unittest.Test $test
    */
-  private function writeStatus(TestCase $case) {
+  private function writeStatus(Test $test) {
     $this->cur++;
 
     $perc= floor($this->cur / $this->sum * self::PROGRESS_WIDTH);
 
-    $this->out->writef("\033]2;Running: [%s%s] %s::%s()\007",
+    $this->out->writef("\033]2;Running: [%s%s] %s()\007",
       str_repeat('*', $perc), str_repeat('-', self::PROGRESS_WIDTH- $perc),
-      nameof($case),
-      $case->getName()
+      $test->getName(true)
     );
   }
 
   /**
    * Called when a test case starts.
    *
-   * @param   unittest.TestCase failure
+   * @param  unittest.Test $test
    */
-  public function testStarted(TestCase $case) {
-    $this->writeStatus($case);
+  public function testStarted(Test $test) {
+    $this->writeStatus($test);
   }
 
   /**

@@ -40,7 +40,11 @@ class TestSuite implements \lang\Value {
    */
   public function addTestClass($class, $arguments= []) {
     $type= $class instanceof XPClass ? $class : XPClass::forName($class);
-    $this->sources[$type->literal()][]= new TestClass($type, $arguments);
+    if ($type->isSubclassOf(TestCase::class)) {
+      $this->sources[$type->literal()][]= new TestClass($type, $arguments);
+    } else {
+      $this->sources[$type->literal()][]= new TestTargets($type, $arguments);
+    }
     return $type;
   }
 
@@ -72,7 +76,7 @@ class TestSuite implements \lang\Value {
    * Returns test at a given position
    *
    * @param  int $pos
-   * @return unittest.TestCase or NULL if none was found
+   * @return unittest.Test or NULL if none was found
    */
   public function testAt($pos) {
     $num= 0;

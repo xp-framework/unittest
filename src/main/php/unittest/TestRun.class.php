@@ -39,69 +39,6 @@ class TestRun {
   }
 
   /**
-   * Returns values
-   *
-   * @param  unittest.TestCase test
-   * @param  var annotation
-   * @return var values a traversable structure
-   */
-  private function valuesFor($test, $annotation) {
-    if (!is_array($annotation)) {               // values("source")
-      $source= $annotation;
-      $args= [];
-    } else if (isset($annotation['map'])) {     // values(map= ["test" => true, ...])
-      $values= [];
-      foreach ($annotation['map'] as $key => $value) {
-        $values[]= [$key, $value];
-      }
-      return $values;
-    } else if (isset($annotation['source'])) {  // values(source= "src" [, args= ...])
-      $source= $annotation['source'];
-      $args= isset($annotation['args']) ? $annotation['args'] : [];
-    } else {                                    // values([1, 2, 3])
-      return $annotation;
-    }
-
-    // Route "ClassName::methodName" -> static method of the given class,
-    // "self::method" -> static method of the test class, and "method" 
-    // -> the run test's instance method
-    if (false === ($p= strpos($source, '::'))) {
-      return typeof($test)->getMethod($source)->setAccessible(true)->invoke($test, $args);
-    }
-
-    $ref= substr($source, 0, $p);
-    if ('self' === $ref) {
-      $class= typeof($test);
-    } else if (strstr($ref, '.')) {
-      $class= XPClass::forName($ref);
-    } else {
-      $class= new XPClass($ref);
-    }
-    return $class->getMethod(substr($source, $p+ 2))->invoke(null, $args);
-  }
-
-  /**
-   * Returns values
-   *
-   * @param  var $annotatable
-   * @return var[]
-   */
-  private function actionsFor($annotatable) {
-    $r= [];
-    if ($annotatable->hasAnnotation('action')) {
-      $action= $annotatable->getAnnotation('action');
-      if (is_array($action)) {
-        foreach ($action as $a) {
-          if ($a instanceof TestAction) $r[]= $a;
-        }
-      } else {
-        if ($action instanceof TestAction) $r[]= $action;
-      }
-    }
-    return $r;
-  }
-
-  /**
    * Invoke a block, wrap PHP5 and PHP7 native base exceptions in lang.Error
    *
    * @param  function(?): void $block
@@ -135,65 +72,32 @@ class TestRun {
   /**
    * Run a test case.
    *
-   * @param  unittest.TestCase $test
+   * @param  unittest.Test $test
    * @param  unittest.TestResult $result
    * @return void
    */
   private function run($test) {
-    $class= typeof($test);
-    $method= $class->getMethod($test->name);
     $this->notify('testStarted', [$test]);
-    
+
     // Check for @ignore
-    if ($method->hasAnnotation('ignore')) {
-      $this->record('testNotRun', new TestNotRun($test, new IgnoredBecause($method->getAnnotation('ignore'))));
+    if ($reason= $test->ignored()) {
+      $this->record('testNotRun', new TestNotRun($test, new IgnoredBecause($reason)));
       return;
     }
 
-    // Check for @expect
-    $expected= null;
-    if ($method->hasAnnotation('expect', 'class')) {
-      $message= $method->getAnnotation('expect', 'withMessage');
-      if ('' === $message || '/' === $message{0}) {
-        $pattern= $message;
-      } else {
-        $pattern= '/'.preg_quote($message, '/').'/';
-      }
-      $expected= [XPClass::forName($method->getAnnotation('expect', 'class')), $pattern];
-    } else if ($method->hasAnnotation('expect')) {
-      $expected= [XPClass::forName($method->getAnnotation('expect')), null];
-    }
-    
-    // Check for @limit
-    $eta= 0;
-    if ($method->hasAnnotation('limit')) {
-      $eta= $method->getAnnotation('limit', 'time');
-    }
-
-    // Check for @values
-    if ($method->hasAnnotation('values')) {
-      $annotation= $method->getAnnotation('values');
-      $variation= true;
-      $values= $this->valuesFor($test, $annotation);
-    } else {
-      $variation= false;
-      $values= [[]];
-    }
-
-    // Check for @actions
-    $actions= array_merge($this->actionsFor($class), $this->actionsFor($method));
-
     $timer= new Timer();
+    $expected= $test->expected();
+    $timeLimit= $test->timeLimit();
+
     Errors::clear();
-    foreach ($values as $args) {
-      $t= $variation ? new TestVariation($test, $args) : $test;
+    foreach ($test->variations() as $t) {
       $timer->start();
 
       $tearDown= function($test, $error) { return $error; };
       try {
 
         // Before and after tests
-        foreach ($actions as $action) {
+        foreach ($test->actions as $action) {
           $this->invoke([$action, 'beforeTest'], $test);
           $tearDown= function($test, $error) use($tearDown, $action) {
             $propagated= $tearDown($test, $error);
@@ -207,20 +111,7 @@ class TestRun {
           };
         }
 
-        // Setup and teardown
-        $this->invoke([$test, 'setUp'], $test);
-        $tearDown= function($test, $error) use($tearDown) {
-          try {
-            $this->invoke([$test, 'tearDown'], null);
-            return $tearDown($test, $error);
-          } catch (Throwable $t) {
-            $error && $t->setCause($error);
-            return $tearDown($test, $t);
-          }
-        };
-
-        // Run test
-        $method->invoke($test, is_array($args) ? $args : [$args]);
+        $t->run([]);
         $thrown= $tearDown($test, null);
       } catch (TestAborted $aborted) {
         $tearDown($test, $aborted);
@@ -234,8 +125,8 @@ class TestRun {
 
       // Check outcome
       $time= $timer->elapsedTime();
-      if ($eta && $time > $eta) {
-        $this->record('testFailed', new TestAssertionFailed($t, new TimedOut($eta, $time), $time));
+      if ($timeLimit && $time > $timeLimit) {
+        $this->record('testFailed', new TestAssertionFailed($t, new TimedOut($timeLimit, $time), $time));
       } else if ($thrown) {
         if ($expected && $expected[0]->isInstance($thrown)) {
           if ($expected[1] && !preg_match($expected[1], $thrown->getMessage())) {

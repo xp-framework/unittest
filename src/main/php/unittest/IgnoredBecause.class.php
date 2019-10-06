@@ -7,20 +7,11 @@ use util\profiling\Timer;
  */
 class IgnoredBecause extends TestAborted {
     
-  /**
-   * Constructor
-   *
-   * @param  string $value The annotation value
-   */
-  public function __construct($value) {
-    parent::__construct($value ? (string)$value : 'n/a');
-  }
-
   /** @return string */
   public function type() { return 'testSkipped'; }
 
   /** @return unittest.TestOutcome */
-  public function outcome(TestCase $test, Timer $timer) {
+  public function outcome(Test $test, Timer $timer) {
     return new TestNotRun($test, $this, $timer->elapsedTime());
   }
 
