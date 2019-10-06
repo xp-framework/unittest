@@ -3,15 +3,15 @@
 use io\streams\ConsoleOutputStream;
 use io\streams\OutputStreamWriter;
 use unittest\ColorizingListener;
-use unittest\Test;
-use unittest\TestListener;
+use unittest\Listener;
+use unittest\TestStart;
 
 /**
  * Default listener
  * ----------------
  * Only shows details for failed tests. This listener has no options.
  */
-class DefaultListener implements TestListener, ColorizingListener {
+class DefaultListener implements Listener, ColorizingListener {
   const OUTPUT_WIDTH= 72;
 
   public $out= null;
@@ -74,9 +74,9 @@ class DefaultListener implements TestListener, ColorizingListener {
   /**
    * Called when a test case starts.
    *
-   * @param  unittest.Test $test
+   * @param  unittest.TestStart $start
    */
-  public function testStarted(Test $test) {
+  public function testStarted(TestStart $start) {
     // NOOP
   }
 

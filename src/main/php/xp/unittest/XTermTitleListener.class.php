@@ -1,8 +1,8 @@
 <?php namespace xp\unittest;
 
 use io\streams\OutputStreamWriter;
-use unittest\Test;
-use unittest\TestListener;
+use unittest\Listener;
+use unittest\TestStart;
 use unittest\TestSuite;
 
 /**
@@ -11,7 +11,7 @@ use unittest\TestSuite;
  * Updates the window title bar of an xterm or xterm-compatible shell
  * window. This listener has no options.
  */
-class XTermTitleListener implements TestListener {
+class XTermTitleListener implements Listener {
   const PROGRESS_WIDTH= 20;
   private $out= null;
   private $cur, $sum;
@@ -44,9 +44,9 @@ class XTermTitleListener implements TestListener {
   /**
    * Called when a test case starts.
    *
-   * @param  unittest.Test $test
+   * @param  unittest.TestStart $start
    */
-  public function testStarted(Test $test) {
+  public function testStarted(TestStart $start) {
     $this->writeStatus($test);
   }
 

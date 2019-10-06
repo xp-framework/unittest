@@ -1,9 +1,12 @@
 <?php namespace xp\unittest;
 
+use io\streams\OutputStreamWriter;
+use lang\Enum;
+
 /**
  * Listeners enumeration
  */
-abstract class TestListeners extends \lang\Enum {
+abstract class TestListeners extends Enum {
   public static $DEFAULT, $VERBOSE, $QUIET;
   
   static function __static() {
@@ -40,7 +43,7 @@ abstract class TestListeners extends \lang\Enum {
    * @param   io.streams.OutputStreamWriter out
    * @return  unittest.TestListener
    */
-  public function newInstance(\io\streams\OutputStreamWriter $out) {
+  public function newInstance(OutputStreamWriter $out) {
     return $this->getImplementation()->newInstance($out);
   }
 }

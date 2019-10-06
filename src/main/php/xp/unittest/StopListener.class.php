@@ -1,11 +1,12 @@
 <?php namespace xp\unittest;
 
+use unittest\Listener;
 use unittest\StopTests;
-use unittest\Test;
 use unittest\TestError;
 use unittest\TestFailure;
 use unittest\TestResult;
 use unittest\TestSkipped;
+use unittest\TestStart;
 use unittest\TestSuccess;
 use unittest\TestSuite;
 use unittest\TestWarning;
@@ -15,7 +16,7 @@ use unittest\TestWarning;
  * -------------
  * Checks for given events and stops the run
  */
-class StopListener implements \unittest\TestListener {
+class StopListener implements Listener {
   const FAIL   = 0x0001;
   const SKIP   = 0x0002;
   const IGNORE = 0x0004;
@@ -34,9 +35,9 @@ class StopListener implements \unittest\TestListener {
   /**
    * Called when a test case starts.
    *
-   * @param  unittest.Test $test
+   * @param  unittest.TestStart $start
    */
-  public function testStarted(Test $test) {
+  public function testStarted(TestStart $start) {
     // NOOP
   }
 

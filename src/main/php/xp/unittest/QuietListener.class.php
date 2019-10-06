@@ -1,14 +1,15 @@
 <?php namespace xp\unittest;
 
 use io\streams\OutputStreamWriter;
-use unittest\Test;
+use unittest\Listener;
+use unittest\TestStart;
 
 /**
  * Quiet listener
  * --------------
  * No output at all. This listener has no options.
  */
-class QuietListener implements \unittest\TestListener {
+class QuietListener implements Listener {
 
   /**
    * Constructor
@@ -22,9 +23,9 @@ class QuietListener implements \unittest\TestListener {
   /**
    * Called when a test case starts.
    *
-   * @param  unittest.Test $test
+   * @param  unittest.TestStart $start
    */
-  public function testStarted(Test $test) {
+  public function testStarted(TestStart $start) {
     // NOOP
   }
 
