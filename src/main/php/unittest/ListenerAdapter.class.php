@@ -1,35 +1,11 @@
-<?php namespace xp\unittest;
+<?php namespace unittest;
 
-use unittest\Listener;
-use unittest\StopTests;
-use unittest\TestError;
-use unittest\TestFailure;
-use unittest\TestResult;
-use unittest\TestSkipped;
-use unittest\TestStart;
-use unittest\TestSuccess;
-use unittest\TestSuite;
-use unittest\TestWarning;
+class ListenerAdapter implements Listener {
+  private $listener;
 
-/**
- * Stop listener
- * -------------
- * Checks for given events and stops the run
- */
-class StopListener implements Listener {
-  const FAIL   = 0x0001;
-  const SKIP   = 0x0002;
-  const IGNORE = 0x0004;
-
-  private $events;
-
-  /**
-   * Stop on certain events
-   *
-   * @param  int $events Bitfield of FAIL, SKIP and IGNORE constants
-   */
-  public function __construct($events) {
-    $this->events= $events;
+  /** Creates a new adapter */
+  public function __construct(TestListener $listener) {
+    $this->listener= $listener;
   }
 
   /**
@@ -38,7 +14,17 @@ class StopListener implements Listener {
    * @param  unittest.TestStart $start
    */
   public function testStarted(TestStart $start) {
-    // NOOP
+    $test= $start->test();
+    if ($test instanceof TestCaseInstance) {
+      $this->listener->testStarted($test->instance);
+    } else {
+      $name= $test->getName();
+      return newinstance(TestCase::class, [$name], [
+        $name => function() use($test) {
+          $test->method->invoke($test->instance, []);
+        }
+      ]);
+    }
   }
 
   /**
@@ -47,20 +33,16 @@ class StopListener implements Listener {
    * @param  unittest.TestFailure $failure
    */
   public function testFailed(TestFailure $failure) {
-    if ($this->events & self::FAIL) {
-      throw new StopTests($failure->reason);
-    }
+    $this->listener->testFailed($failure);
   }
 
   /**
    * Called when a test errors.
    *
-   * @param  unittest.TestError $error
+   * @param  unittest.TestFailure $error
    */
   public function testError(TestError $error) {
-    if ($this->events & self::FAIL) {
-      throw new StopTests($error->reason);
-    }
+    $this->listener->testError($error);
   }
 
   /**
@@ -69,9 +51,7 @@ class StopListener implements Listener {
    * @param  unittest.TestWarning $warning
    */
   public function testWarning(TestWarning $warning) {
-    if ($this->events & self::FAIL) {
-      throw new StopTests($warning->reason);
-    }
+    $this->listener->testWarning($warning);
   }
   
   /**
@@ -80,9 +60,9 @@ class StopListener implements Listener {
    * @param  unittest.TestSuccess $success
    */
   public function testSucceeded(TestSuccess $success) {
-    // NOOP
+    $this->listener->testSucceeded($success);
   }
-  
+
   /**
    * Called when a test is not run because it is skipped due to a 
    * failed prerequisite.
@@ -90,21 +70,17 @@ class StopListener implements Listener {
    * @param  unittest.TestSkipped $skipped
    */
   public function testSkipped(TestSkipped $skipped) {
-    if ($this->events & self::SKIP) {
-      throw new StopTests($skipped->reason);
-    }
+    $this->listener->testSkipped($skipped);
   }
 
   /**
    * Called when a test is not run because it has been ignored by using
-   * the @ignore annotation.
+   * the `ignore` annotation.
    *
    * @param  unittest.TestSkipped $ignore
    */
   public function testNotRun(TestSkipped $ignore) {
-    if ($this->events & self::IGNORE) {
-      throw new StopTests($ignore->reason);
-    }
+    $this->listener->testNotRun($ignore);
   }
 
   /**
@@ -113,7 +89,7 @@ class StopListener implements Listener {
    * @param  unittest.TestSuite $suite
    */
   public function testRunStarted(TestSuite $suite) {
-    // NOOP
+    $this->listener->testRunStarted($suite);
   }
   
   /**
@@ -121,9 +97,8 @@ class StopListener implements Listener {
    *
    * @param  unittest.TestSuite $suite
    * @param  unittest.TestResult $result
-   * @param  unittest.StopTests $stop
    */
-  public function testRunFinished(TestSuite $suite, TestResult $result, StopTests $stop= null) {
-    // NOOP
+  public function testRunFinished(TestSuite $suite, TestResult $result) {
+    $this->listener->testRunFinished($suite, $result);
   }
 }

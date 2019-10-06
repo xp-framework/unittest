@@ -2,6 +2,7 @@
 
 use io\streams\OutputStreamWriter;
 use lang\XPClass;
+use unittest\Listener;
 use util\Objects;
 use util\collections\HashTable;
 use xml\Tree;
@@ -12,7 +13,7 @@ use xml\Tree;
  *
  * @test  xp://net.xp_framework.unittests.tests.XmlListenerTest
  */
-class XmlTestListener implements TestListener {
+class XmlTestListener implements Listener {
   public $out= null;
   protected $tree= null;
   protected $classes= [];
@@ -74,9 +75,9 @@ class XmlTestListener implements TestListener {
   /**
    * Called when a test case starts.
    *
-   * @param  unittest.Test $test
+   * @param  unittest.TestStart $start
    */
-  public function testStarted(Test $test) {
+  public function testStarted(TestStart $start) {
     // NOOP
   }
 

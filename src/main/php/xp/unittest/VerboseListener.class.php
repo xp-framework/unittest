@@ -1,8 +1,8 @@
 <?php namespace xp\unittest;
 
 use io\streams\OutputStreamWriter;
-use unittest\Test;
-use unittest\TestListener;
+use unittest\Listener;
+use unittest\TestStart;
 
 /**
  * Verbose listener
@@ -10,7 +10,7 @@ use unittest\TestListener;
  * Shows details for all tests (succeeded, failed and skipped/ignored).
  * This listener has no options.
  */
-class VerboseListener implements TestListener {
+class VerboseListener implements Listener {
   public $out= null;
   
   /**
@@ -25,9 +25,9 @@ class VerboseListener implements TestListener {
   /**
    * Called when a test case starts.
    *
-   * @param  unittest.Test $test
+   * @param  unittest.TestStart $start
    */
-  public function testStarted(Test $test) {
+  public function testStarted(TestStart $start) {
     // NOOP
   }
 

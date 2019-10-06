@@ -108,21 +108,25 @@ class TestSuite implements \lang\Value {
   /**
    * Adds a listener
    *
-   * @param  unittest.TestListener $l
-   * @return unittest.TestListener the added listener
+   * @param  unittest.Listener $l
+   * @return unittest.Listener the added listener
    */
-  public function addListener(TestListener $l) {
-    $this->listeners[]= $l;
+  public function addListener($l) {
+    if ($l instanceof Listener) {
+      $this->listeners[]= $l;
+    } else {
+      $this->listeners[]= new ListenerAdapter($l);  // Deprecated usage
+    }
     return $l;
   }
 
   /**
    * Removes a listener
    *
-   * @param  unittest.TestListener $l
+   * @param  unittest.Listener $l
    * @return bool TRUE if the listener was removed, FALSE if not.
    */
-  public function removeListener(TestListener $l) {
+  public function removeListener(Listener $l) {
     for ($i= 0, $s= sizeof($this->listeners); $i < $s; $i++) {
       if ($this->listeners[$i] !== $l) continue;
 
