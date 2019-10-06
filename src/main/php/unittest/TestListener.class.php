@@ -4,6 +4,7 @@
  * To intercept certain events during a test run, add a listener to
  * the test suite before calling its run() or runTest() methods.
  *
+ * @deprecated Use Listener instead!
  * @test  xp://net.xp_framework.unittest.tests.ListenerTest
  * @see   xp://unittest.TestSuite#addListener
  */
@@ -12,9 +13,9 @@ interface TestListener {
   /**
    * Called when a test case starts.
    *
-   * @param  unittest.Test $test
+   * @param  unittest.TestCase $test
    */
-  public function testStarted(Test $test);
+  public function testStarted(TestCase $test);
 
   /**
    * Called when a test fails.
