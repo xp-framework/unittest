@@ -5,6 +5,7 @@ use lang\Error;
 use lang\FormatException;
 use lang\IllegalArgumentException;
 use lang\MethodNotImplementedException;
+use unittest\Assert;
 use unittest\AssertionFailedError;
 use unittest\PrerequisitesNotMetError;
 use unittest\TestCase;
@@ -12,6 +13,7 @@ use unittest\TestCaseInstance;
 use unittest\TestPrerequisitesNotMet;
 use unittest\TestResult;
 use unittest\TestSuite;
+use unittest\TestTargets;
 use unittest\actions\RuntimeVersion;
 use util\NoSuchElementException;
 
@@ -98,13 +100,8 @@ class SuiteTest extends TestCase {
     $this->suite->addTest(new NotATestClass());
   }
 
-  #[@test, @expect(IllegalArgumentException::class), @action(new RuntimeVersion('<7.0.0-dev'))]
+  #[@test, @expect(IllegalArgumentException::class)]
   public function runNonTest() {
-    $this->suite->runTest(new NotATestClass());
-  }
-
-  #[@test, @expect(Error::class), @action(new RuntimeVersion('>=7.0.0-dev'))]
-  public function runNonTest7() {
     $this->suite->runTest(new NotATestClass());
   }
 
@@ -211,7 +208,7 @@ class SuiteTest extends TestCase {
   }
 
   #[@test]
-  public function runningASingleSucceedingTest() {
+  public function run_single_succeeding_testcase() {
     $r= $this->suite->runTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(true); }
     ]));
@@ -221,10 +218,37 @@ class SuiteTest extends TestCase {
     $this->assertEquals(1, $r->successCount(), 'successCount');
     $this->assertEquals(0, $r->failureCount(), 'failureCount');
     $this->assertEquals(0, $r->skipCount(), 'skipCount');
-  }    
+  }
 
   #[@test]
-  public function runningASingleFailingTest() {
+  public function run_single_succeeding_baseless_test() {
+    $r= $this->suite->runTest(ClassLoader::defineClass('BaselessSucceeding', Baseless::class, [], [
+      '#[@test] fixture' => function() { Assert::true(true); }
+    ]));
+    $this->assertInstanceOf(TestResult::class, $r);
+    $this->assertEquals(1, $r->count(), 'count');
+    $this->assertEquals(1, $r->runCount(), 'runCount');
+    $this->assertEquals(1, $r->successCount(), 'successCount');
+    $this->assertEquals(0, $r->failureCount(), 'failureCount');
+    $this->assertEquals(0, $r->skipCount(), 'skipCount');
+  }
+
+  #[@test, @values([[[]], [[1, 2, 3]]])]
+  public function run_single_succeeding_targets_with($args) {
+    $class= ClassLoader::defineClass('BaselessSucceeding', Baseless::class, [], [
+      '#[@test] fixture' => function() { Assert::true(true); }
+    ]);
+    $r= $this->suite->runTest(new TestTargets($class, $args));
+    $this->assertInstanceOf(TestResult::class, $r);
+    $this->assertEquals(1, $r->count(), 'count');
+    $this->assertEquals(1, $r->runCount(), 'runCount');
+    $this->assertEquals(1, $r->successCount(), 'successCount');
+    $this->assertEquals(0, $r->failureCount(), 'failureCount');
+    $this->assertEquals(0, $r->skipCount(), 'skipCount');
+  }
+
+  #[@test]
+  public function run_single_failing_testcase() {
     $r= $this->suite->runTest(newinstance(TestCase::class, ['fixture'], [
       '#[@test] fixture' => function() { $this->assertTrue(false); }
     ]));
@@ -234,7 +258,20 @@ class SuiteTest extends TestCase {
     $this->assertEquals(0, $r->successCount(), 'successCount');
     $this->assertEquals(1, $r->failureCount(), 'failureCount');
     $this->assertEquals(0, $r->skipCount(), 'skipCount');
-  }    
+  }
+
+  #[@test]
+  public function run_single_failing_baseless_test() {
+    $r= $this->suite->runTest(ClassLoader::defineClass('BaselessFailing', Baseless::class, [], [
+      '#[@test] fixture' => function() { Assert::true(false); }
+    ]));
+    $this->assertInstanceOf(TestResult::class, $r);
+    $this->assertEquals(1, $r->count(), 'count');
+    $this->assertEquals(1, $r->runCount(), 'runCount');
+    $this->assertEquals(0, $r->successCount(), 'successCount');
+    $this->assertEquals(1, $r->failureCount(), 'failureCount');
+    $this->assertEquals(0, $r->skipCount(), 'skipCount');
+  }
 
   #[@test]
   public function runMultipleTests() {

@@ -1,5 +1,7 @@
 <?php namespace unittest;
 
+use lang\IllegalArgumentException;
+use lang\Value;
 use lang\XPClass;
 use util\Objects;
 
@@ -11,7 +13,7 @@ use util\Objects;
  * @test   xp://net.xp_framework.unittest.tests.BeforeAndAfterClassTest
  * @see    http://junit.sourceforge.net/doc/testinfected/testing.htm
  */
-class TestSuite implements \lang\Value {
+class TestSuite implements Value {
   private $listeners= [];
   private $sources= [];
 
@@ -161,13 +163,22 @@ class TestSuite implements \lang\Value {
   /**
    * Run a single test
    *
-   * @param  unittest.TestCase $test
+   * @param  lang.XPClass|unittest.TestGroup|unittest.TestCase $test
    * @return unittest.TestResult
    * @throws lang.IllegalArgumentException in case given argument is not a testcase
    * @throws lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
-  public function runTest(TestCase $test) {
-    return $this->runThis(function($run) use($test) { $run->one(new TestInstance($test)); });
+  public function runTest($test) {
+    if ($test instanceof TestCase) {
+      $f= function($run) use($test) { $run->one(new TestInstance($test)); };
+    } else if ($test instanceof TestGroup) {
+      $f= function($run) use($test) { $run->one($test); };
+    } else if ($test instanceof XPClass) {
+      $f= function($run) use($test) { $run->one(new TestTargets($test)); };
+    } else {
+      throw new IllegalArgumentException('Expecting lang.XPClass|unittest.TestGroup|unittest.TestCase, have '.typeof($test));
+    }
+    return $this->runThis($f);
   }
 
   /**

@@ -19,11 +19,12 @@ class TestTargets extends TestGroup {
    * @throws util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function __construct($type, $arguments= []) {
-    if (!$type->reflect()->isInstantiable()) {
+    $reflect= $type->reflect();
+    if (!$reflect->isInstantiable()) {
       throw new IllegalArgumentException('Cannot instantiate '.$type->getName());
     }
 
-    $this->instance= $type->newInstance(...$arguments);
+    $this->instance= $reflect->hasMethod('__construct') ? $type->newInstance(...$arguments) : $type->newInstance();
     $this->actions= iterator_to_array($this->actionsFor($type, TestAction::class));
     foreach ($type->getMethods() as $method) {
       if ($method->hasAnnotation('test')) {

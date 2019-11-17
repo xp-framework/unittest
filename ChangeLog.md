@@ -3,6 +3,15 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 10.1.0 / 2019-11-17
+
+* Extended `TestSuite::runTest()` to accept TestGroup and XPClass
+  in addition to TestCase instances
+  (@thekid)
+* Fixed *Class T does not have a constructor, so you cannot pass any
+  constructor arguments* when running baseless tests with `-a ...`.
+  (@thekid)
+
 ## 10.0.0 / 2019-10-06
 
 * Implemented feature #36 (*Baseless, single-instance test classes*).
