@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #39: Rewrite annotations to use map syntax instead of key/
+  value pairs, implementing xp-framework/rfc#335
+  (@thekid)
+
 ## 10.1.0 / 2019-11-17
 
 * Extended `TestSuite::runTest()` to accept `TestGroup` and `XPClass`
