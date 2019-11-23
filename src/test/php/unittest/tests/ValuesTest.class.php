@@ -50,7 +50,7 @@ class ValuesTest extends TestCase {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
-      #[@test, @values(map= ["a" => "b", "c" => "d"])]
+      #[@test, @values(["map" => ["a" => "b", "c" => "d"]])]
       public function fixture($key, $value) {
         $this->values[]= [$key, $value];
       }
@@ -86,7 +86,7 @@ class ValuesTest extends TestCase {
         return range($lo, $hi);
       }
 
-      #[@test, @values(source= "range", args= [1, 4])]
+      #[@test, @values(["source" => "range", "args" => [1, 4]])]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -104,7 +104,7 @@ class ValuesTest extends TestCase {
         return range($lo, $hi);
       }
 
-      #[@test, @values(source= "range")]
+      #[@test, @values(["source" => "range"])]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -146,7 +146,7 @@ class ValuesTest extends TestCase {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
-      #[@test, @values(source= "unittest.tests.ValuesTest::range", args= [1, 10])]
+      #[@test, @values(["source" => "unittest.tests.ValuesTest::range", "args" => [1, 10]])]
       public function fixture($value) {
         $this->values[]= $value;
       }
