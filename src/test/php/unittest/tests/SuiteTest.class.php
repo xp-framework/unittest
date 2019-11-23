@@ -518,7 +518,7 @@ class SuiteTest extends TestCase {
   #[@test]
   public function catchExpectedWithMessage() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @expect(class= "lang.IllegalArgumentException", withMessage= "Test")] fixture' => function() {
+      '#[@test, @expect(["class" => "lang.IllegalArgumentException", "withMessage" => "Test"])] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
     ]));
@@ -529,7 +529,7 @@ class SuiteTest extends TestCase {
   #[@test]
   public function catchExpectedWithMismatchingMessage() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @expect(class= "lang.IllegalArgumentException", withMessage= "Hello")] fixture' => function() {
+      '#[@test, @expect(["class" => "lang.IllegalArgumentException", "withMessage" => "Hello"])] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
     ]));
@@ -544,7 +544,7 @@ class SuiteTest extends TestCase {
   #[@test]
   public function catchExpectedWithPatternMessage() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @expect(class= "lang.IllegalArgumentException", withMessage= "/[tT]est/")] fixture' => function() {
+      '#[@test, @expect(["class" => "lang.IllegalArgumentException", "withMessage" => "/[tT]est/"])] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
     ]));
@@ -555,7 +555,7 @@ class SuiteTest extends TestCase {
   #[@test]
   public function catchExpectedWithEmptyMessage() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @expect(class= "lang.IllegalArgumentException", withMessage= "")] fixture' => function() {
+      '#[@test, @expect(["class" => "lang.IllegalArgumentException", "withMessage" => ""])] fixture' => function() {
         throw new IllegalArgumentException('');
       }
     ]));

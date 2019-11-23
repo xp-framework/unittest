@@ -124,7 +124,7 @@ class RuntimeVersionTest extends TestCase {
     $this->assertFalse((new RuntimeVersion('~1.2.3'))->verify($value));
   }
 
-  #[@test, @expect(class= 'unittest.PrerequisitesNotMetError', withMessage= '/Test not intended for this version/')]
+  #[@test, @expect(['class' => 'unittest.PrerequisitesNotMetError', 'withMessage' => '/Test not intended for this version/'])]
   public function beforeTest_throws_exception() {
     (new RuntimeVersion('1.0.0'))->beforeTest(new TestCaseInstance($this));
   }

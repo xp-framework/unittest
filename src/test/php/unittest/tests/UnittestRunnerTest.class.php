@@ -295,7 +295,7 @@ class UnittestRunnerTest extends TestCase {
   public function withNamedLongListenerOption() {
     $class= ClassLoader::getDefault()->defineClass('unittest.tests.WithNamedLongListenerOptionTestFixture', 'xp.unittest.DefaultListener', [], '{
       public static $options= [];
-      #[@arg(name = "use")]
+      #[@arg(["name" => "use"])]
       public function setOption($value) { self::$options[__FUNCTION__]= $value; }
     }');
 
@@ -310,7 +310,7 @@ class UnittestRunnerTest extends TestCase {
   public function withNamedLongListenerOptionShort() {
     $class= ClassLoader::getDefault()->defineClass('unittest.tests.WithNamedLongListenerOptionShortTestFixture', 'xp.unittest.DefaultListener', [], '{
       public static $options= [];
-      #[@arg(name = "use")]
+      #[@arg(["name" => "use"])]
       public function setOption($value) { self::$options[__FUNCTION__]= $value; }
     }');
 
@@ -340,7 +340,7 @@ class UnittestRunnerTest extends TestCase {
   public function withNamedShortListenerOption() {
     $class= ClassLoader::getDefault()->defineClass('unittest.tests.WithNamedShortListenerOptionTestFixture', 'xp.unittest.DefaultListener', [], '{
       public static $options= [];
-      #[@arg(short = "O")]
+      #[@arg(["short" => "O"])]
       public function setOption($value) { self::$options[__FUNCTION__]= $value; }
     }');
 
@@ -355,7 +355,7 @@ class UnittestRunnerTest extends TestCase {
   public function withPositionalOptionListenerOption() {
     $class= ClassLoader::getDefault()->defineClass('unittest.tests.WithPositionalOptionTestFixture', 'xp.unittest.DefaultListener', [], '{
       public static $options= [];
-      #[@arg(position= 0)]
+      #[@arg(["position" => 0])]
       public function setOption($value) { self::$options[__FUNCTION__]= $value; }
     }');
 

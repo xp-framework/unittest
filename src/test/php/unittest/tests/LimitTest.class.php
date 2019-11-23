@@ -19,7 +19,7 @@ class LimitTest extends TestCase {
   #[@test]
   public function timeouts() {
     $r= $this->suite->runTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @limit(time= 0.010)] fixture' => function() {
+      '#[@test, @limit(["time" => 0.010])] fixture' => function() {
         usleep(20 * 1000);
       }
     ]));
@@ -29,7 +29,7 @@ class LimitTest extends TestCase {
   #[@test]
   public function noTimeout() {
     $r= $this->suite->runTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @limit(time= 0.010)] fixture' => function() {
+      '#[@test, @limit(["time" => 0.010])] fixture' => function() {
         /* No timeout */
       }
     ]));
