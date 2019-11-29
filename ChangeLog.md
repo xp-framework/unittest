@@ -3,6 +3,9 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 10.1.1 / 2019-11-29
+
+* Added compatibility with XP 10, see xp-framework/rfc#333 - @thekid
 * Merged PR #39: Rewrite annotations to use map syntax instead of key/
   value pairs, implementing xp-framework/rfc#335
   (@thekid)
