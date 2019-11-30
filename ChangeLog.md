@@ -3,7 +3,7 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
-## 11.0.0 / ????-??-??
+## 11.0.0 / 2019-11-30
 
 * Implemented xp-framework/rfc#334: Drop PHP 5.6. The minimum required
   PHP version is now 7.0.0!
