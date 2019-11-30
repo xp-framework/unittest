@@ -161,8 +161,8 @@ class TestRunner {
           $positional[$arg['position']]= $name;
           $options['<'.$name.'>']= $method;
         } else {
-          $name= isset($arg['name']) ? $arg['name'] : $name;
-          $short= isset($arg['short']) ? $arg['short'] : $name{0};
+          $name= $arg['name'] ?? $name;
+          $short= $arg['short'] ?? $name[0];
           $param= ($method->numParameters() > 0 ? ' <'.$method->getParameter(0)->getName().'>' : '');
           $options[$name.'|'.$short.$param]= $method;
         }
@@ -266,8 +266,8 @@ class TestRunner {
               if (isset($arg['position'])) {
                 $options[$arg['position']]= $method;
               } else {
-                $name= isset($arg['name']) ? $arg['name'] : strtolower(preg_replace('/^set/', '', $method->getName()));
-                $short= isset($arg['short']) ? $arg['short'] : $name{0};
+                $name= $arg['name'] ?? strtolower(preg_replace('/^set/', '', $method->getName()));
+                $short= $arg['short'] ?? $name{0};
                 $options[$name]= $options[$short]= $method;
               }
             }
