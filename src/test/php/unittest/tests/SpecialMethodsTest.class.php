@@ -1,8 +1,7 @@
 <?php namespace unittest\tests;
 
 use lang\IllegalStateException;
-use unittest\TestCase;
-use unittest\TestSuite;
+use unittest\{TestCase, TestSuite};
 
 /**
  * Test TestCase class special methods cannot be overwritten as test methods

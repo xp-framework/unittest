@@ -1,15 +1,6 @@
 <?php namespace xp\unittest;
 
-use unittest\Listener;
-use unittest\StopTests;
-use unittest\TestError;
-use unittest\TestFailure;
-use unittest\TestResult;
-use unittest\TestSkipped;
-use unittest\TestStart;
-use unittest\TestSuccess;
-use unittest\TestSuite;
-use unittest\TestWarning;
+use unittest\{Listener, StopTests, TestError, TestFailure, TestResult, TestSkipped, TestStart, TestSuccess, TestSuite, TestWarning};
 
 /**
  * Stop listener

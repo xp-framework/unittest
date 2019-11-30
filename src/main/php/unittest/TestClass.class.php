@@ -1,8 +1,7 @@
 <?php namespace unittest;
 
 use lang\IllegalArgumentException;
-use util\NoSuchElementException;
-use util\Objects;
+use util\{NoSuchElementException, Objects};
 
 class TestClass extends TestGroup {
   private $class, $actions, $arguments;

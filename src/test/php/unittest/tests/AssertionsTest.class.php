@@ -1,7 +1,6 @@
 <?php namespace unittest\tests;
  
-use unittest\AssertionFailedError;
-use unittest\TestCase;
+use unittest\{AssertionFailedError, TestCase};
 use util\Objects;
 
 /**

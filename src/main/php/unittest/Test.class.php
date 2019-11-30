@@ -1,7 +1,6 @@
 <?php namespace unittest;
 
-use lang\Value;
-use lang\XPClass;
+use lang\{Value, XPClass};
 
 abstract class Test implements Value {
   public $instance, $method, $actions;

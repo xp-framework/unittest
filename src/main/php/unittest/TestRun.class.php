@@ -1,7 +1,7 @@
 <?php namespace unittest;
 
-use lang\reflect\TargetInvocationException;
 use lang\{Throwable, XPClass};
+use lang\reflect\TargetInvocationException;
 use util\profiling\Timer;
 
 class TestRun {

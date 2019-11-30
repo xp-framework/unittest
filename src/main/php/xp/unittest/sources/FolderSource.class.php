@@ -1,9 +1,7 @@
 <?php namespace xp\unittest\sources;
 
 use io\Folder;
-use lang\ClassLoader;
-use lang\FileSystemClassLoader;
-use lang\IllegalArgumentException;
+use lang\{ClassLoader, FileSystemClassLoader, IllegalArgumentException};
 
 /**
  * Source that loads tests from test case classes inside a folder and

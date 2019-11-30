@@ -1,11 +1,8 @@
 <?php namespace unittest\tests;
 
 use lang\Runtime;
-use unittest\TestCase;
-use unittest\TestResult;
-use unittest\metrics\MemoryUsed;
-use unittest\metrics\Metric;
-use unittest\metrics\TimeTaken;
+use unittest\{TestCase, TestResult};
+use unittest\metrics\{MemoryUsed, Metric, TimeTaken};
 
 class MetricsTest extends TestCase {
 

@@ -1,8 +1,7 @@
 <?php namespace unittest\tests;
 
-use unittest\TestCase;
+use unittest\{ComparisonFailedMessage, TestCase};
 use unittest\actions\RuntimeVersion;
-use unittest\ComparisonFailedMessage;
 
 /**
  * TestCase

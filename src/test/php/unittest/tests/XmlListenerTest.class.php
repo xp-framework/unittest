@@ -1,13 +1,8 @@
 <?php namespace unittest\tests;
 
-use xml\Node;
-use unittest\TestSuite;
-use unittest\PrerequisitesNotMetError;
-use unittest\XmlTestListener;
-use io\streams\MemoryOutputStream;
-use io\streams\StringWriter;
-use xml\Tree;
-use xml\XMLFormatException;
+use io\streams\{MemoryOutputStream, StringWriter};
+use unittest\{PrerequisitesNotMetError, TestSuite, XmlTestListener};
+use xml\{Node, Tree, XMLFormatException};
 
 /**
  * TestCase for the XML test listener implementation

@@ -1,7 +1,6 @@
 <?php namespace unittest\tests;
 
-use unittest\TestCase;
-use unittest\TestCaseInstance;
+use unittest\{TestCase, TestCaseInstance};
 use unittest\actions\RuntimeVersion;
 
 /**

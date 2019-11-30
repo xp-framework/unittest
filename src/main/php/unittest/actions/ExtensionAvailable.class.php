@@ -1,9 +1,7 @@
 <?php namespace unittest\actions;
 
 use lang\Runtime;
-use unittest\PrerequisitesNotMetError;
-use unittest\Test;
-use unittest\TestAction;
+use unittest\{PrerequisitesNotMetError, Test, TestAction};
 
 /**
  * Only runs this testcase if a given PHP extension is available

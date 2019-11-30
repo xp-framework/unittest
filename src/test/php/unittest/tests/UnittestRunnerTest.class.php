@@ -1,7 +1,6 @@
 <?php namespace unittest\tests;
 
-use io\streams\MemoryInputStream;
-use io\streams\MemoryOutputStream;
+use io\streams\{MemoryInputStream, MemoryOutputStream};
 use lang\ClassLoader;
 use unittest\TestCase;
 use xp\unittest\Runner;

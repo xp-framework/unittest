@@ -1,21 +1,7 @@
 <?php namespace unittest\tests;
 
 use lang\IllegalArgumentException;
-use unittest\Listener;
-use unittest\PrerequisitesNotMetError;
-use unittest\TestAssertionFailed;
-use unittest\TestCase;
-use unittest\TestError;
-use unittest\TestExpectationMet;
-use unittest\TestFailure;
-use unittest\TestNotRun;
-use unittest\TestPrerequisitesNotMet;
-use unittest\TestResult;
-use unittest\TestSkipped;
-use unittest\TestStart;
-use unittest\TestSuccess;
-use unittest\TestSuite;
-use unittest\TestWarning;
+use unittest\{Listener, PrerequisitesNotMetError, TestAssertionFailed, TestCase, TestError, TestExpectationMet, TestFailure, TestNotRun, TestPrerequisitesNotMet, TestResult, TestSkipped, TestStart, TestSuccess, TestSuite, TestWarning};
 
 class ListenerTest extends TestCase implements Listener {
   private $suite, $invocations;

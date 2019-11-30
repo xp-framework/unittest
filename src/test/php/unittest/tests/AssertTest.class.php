@@ -1,7 +1,6 @@
 <?php namespace unittest\tests;
 
-use unittest\Assert;
-use unittest\AssertionFailedError;
+use unittest\{Assert, AssertionFailedError};
 
 class AssertTest {
 

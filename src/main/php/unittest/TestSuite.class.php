@@ -1,8 +1,6 @@
 <?php namespace unittest;
 
-use lang\IllegalArgumentException;
-use lang\Value;
-use lang\XPClass;
+use lang\{IllegalArgumentException, Value, XPClass};
 use util\Objects;
 
 /**

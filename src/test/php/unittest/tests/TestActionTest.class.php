@@ -1,13 +1,7 @@
 <?php namespace unittest\tests;
 
-use lang\ClassLoader;
-use lang\IllegalStateException;
-use lang\XPClass;
-use unittest\PrerequisitesNotMetError;
-use unittest\Test;
-use unittest\TestCase;
-use unittest\TestPrerequisitesNotMet;
-use unittest\TestSuite;
+use lang\{ClassLoader, IllegalStateException, XPClass};
+use unittest\{PrerequisitesNotMetError, Test, TestCase, TestPrerequisitesNotMet, TestSuite};
 
 /**
  * Test test actions

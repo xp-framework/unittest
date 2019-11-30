@@ -1,8 +1,7 @@
 <?php namespace xp\unittest;
 
 use io\streams\OutputStreamWriter;
-use unittest\Listener;
-use unittest\TestStart;
+use unittest\{Listener, TestStart};
 
 /**
  * Quiet listener

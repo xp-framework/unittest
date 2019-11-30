@@ -1,10 +1,7 @@
 <?php namespace xp\unittest;
 
-use io\streams\ConsoleOutputStream;
-use io\streams\OutputStreamWriter;
-use unittest\ColorizingListener;
-use unittest\Listener;
-use unittest\TestStart;
+use io\streams\{ConsoleOutputStream, OutputStreamWriter};
+use unittest\{ColorizingListener, Listener, TestStart};
 
 /**
  * Default listener
