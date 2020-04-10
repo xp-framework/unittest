@@ -1,12 +1,12 @@
 <?php namespace xp\unittest;
 
-use io\{File, Folder};
 use io\streams\{FileOutputStream, InputStream, OutputStream, Streams, StringReader, StringWriter};
-use lang\{ClassLoader, IllegalArgumentException, MethodNotImplementedException, Throwable, XPClass};
+use io\{File, Folder};
 use lang\reflect\{Package, TargetInvocationException};
+use lang\{ClassLoader, IllegalArgumentException, MethodNotImplementedException, Throwable, XPClass};
 use unittest\{ColorizingListener, TestSuite};
-use util\{NoSuchElementException, Properties};
 use util\cmd\Console;
+use util\{NoSuchElementException, Properties};
 use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderSource, PackageSource, PropertySource};
 
 /**
@@ -249,7 +249,7 @@ class TestRunner {
                 $options[$arg['position']]= $method;
               } else {
                 $name= $arg['name'] ?? strtolower(preg_replace('/^set/', '', $method->getName()));
-                $short= $arg['short'] ?? $name{0};
+                $short= $arg['short'] ?? $name[0];
                 $options[$name]= $options[$short]= $method;
               }
             }
