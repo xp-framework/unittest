@@ -3,6 +3,12 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 11.0.1 / 2020-04-12
+
+* Fixed "Array and string offset access syntax with curly braces is
+  deprecated" warning in TestRunner
+  (@thekid)
+
 ## 11.0.0 / 2019-11-30
 
 * Implemented xp-framework/rfc#334: Drop PHP 5.6. The minimum required
