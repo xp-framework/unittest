@@ -1,5 +1,6 @@
 <?php namespace unittest\tests;
  
+use lang\XPClass;
 use unittest\{AssertionFailedError, TestCase};
 use util\Objects;
 
@@ -157,39 +158,39 @@ class AssertionsTest extends TestCase {
 
   #[@test]
   public function thisIsAnInstanceOfTestCaseClass() {
-    $this->assertInstanceOf(\lang\XPClass::forName('unittest.TestCase'), $this);
+    $this->assertInstanceOf(XPClass::forName('unittest.TestCase'), $this);
   }    
 
   #[@test]
   public function thisIsAnInstanceOfObject() {
-    $this->assertInstanceOf(\lang\Value::class, $this);
+    $this->assertInstanceOf('lang.Value', $this);
   }    
 
   #[@test]
   public function objectIsAnInstanceOfObject() {
-    $this->assertInstanceOf(\lang\Value::class, new Value(2));
+    $this->assertInstanceOf('lang.Value', new Value(2));
   }    
 
-  #[@test, @expect(
-  #  class= AssertionFailedError::class,
-  #  withMessage= 'expected ["lang.Value"] but was ["int"]'
-  #)]
+  #[@test, @expect([
+  #  'class'       => AssertionFailedError::class,
+  #  'withMessage' => 'expected ["lang.Value"] but was ["int"]'
+  #])]
   public function zeroIsNotAnInstanceOfValue() {
-    $this->assertInstanceOf(\lang\Value::class, 0);
+    $this->assertInstanceOf('lang.Value', 0);
   }    
 
-  #[@test, @expect(
-  #  class= AssertionFailedError::class,
-  #  withMessage= 'expected ["lang.Value"] but was ["void"]'
-  #)]
+  #[@test, @expect([
+  #  'class'       => AssertionFailedError::class,
+  #  'withMessage' => 'expected ["lang.Value"] but was ["void"]'
+  #])]
   public function nullIsNotAnInstanceOfValue() {
-    $this->assertInstanceOf(\lang\Value::class, null);
+    $this->assertInstanceOf('lang.Value', null);
   }    
 
-  #[@test, @expect(
-  #  class= AssertionFailedError::class,
-  #  withMessage= 'expected ["unittest.tests.Value"] but was ["unittest.tests.AssertionsTest"]'
-  #)]
+  #[@test, @expect([
+  #  'class'       => AssertionFailedError::class,
+  #  'withMessage' => 'expected ["unittest.tests.Value"] but was ["unittest.tests.AssertionsTest"]'
+  #])]
   public function thisIsNotAnInstanceOfValue() {
     $this->assertInstanceOf(Value::class, $this);
   }    
