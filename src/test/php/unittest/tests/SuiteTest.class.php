@@ -1,8 +1,8 @@
 <?php namespace unittest\tests;
 
 use lang\{ClassLoader, Error, FormatException, IllegalArgumentException, MethodNotImplementedException};
-use unittest\{Assert, AssertionFailedError, PrerequisitesNotMetError, TestCase, TestCaseInstance, TestPrerequisitesNotMet, TestResult, TestSuite, TestTargets};
 use unittest\actions\RuntimeVersion;
+use unittest\{Assert, AssertionFailedError, PrerequisitesNotMetError, TestCase, TestCaseInstance, TestPrerequisitesNotMet, TestResult, TestSuite, TestTargets};
 use util\NoSuchElementException;
 
 /**

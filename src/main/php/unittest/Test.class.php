@@ -1,6 +1,6 @@
 <?php namespace unittest;
 
-use lang\{Value, XPClass};
+use lang\{Value, Reflect, XPClass};
 
 abstract class Test implements Value {
   public $instance, $method, $actions;
@@ -28,35 +28,45 @@ abstract class Test implements Value {
 
   /** @return ?string */
   public function ignored() {
-    return $this->method->hasAnnotation('ignore') ? ($this->method->getAnnotation('ignore') ?: '(n/a)') : null;
+    if ($annotation= $this->method->annotation(Ignore::class)) {
+      return $annotation->argument(0) ?? '(n/a)';
+    }
+    return null;
   }
 
   /** @return ?int */
   public function timeLimit() {
-    return $this->method->hasAnnotation('limit') ? $this->method->getAnnotation('limit', 'time') : 0;
+    if ($annotation= $this->method->annotation(Limit::class)) {
+      return $annotation->argument(0)['time'];
+    }
+    return null;
   }
 
   /** @return ?var[] */
   public function expected() {
-    if ($this->method->hasAnnotation('expect', 'class')) {
-      $message= $this->method->getAnnotation('expect', 'withMessage');
+    if (null === ($annotation= $this->method->annotation(Expect::class))) return null;
+
+    $arguments= $annotation->arguments();
+    if (is_array($arguments[0])) {
+      $class= $arguments[0]['class'];
+      $message= $arguments[0]['withMessage'];
       if ('' === $message || '/' === $message[0]) {
         $pattern= $message;
       } else {
         $pattern= '/'.preg_quote($message, '/').'/';
       }
-      return [XPClass::forName($this->method->getAnnotation('expect', 'class')), $pattern];
-    } else if ($this->method->hasAnnotation('expect')) {
-      return [XPClass::forName($this->method->getAnnotation('expect')), null];
     } else {
-      return null;
+      $class= $arguments[0];
+      $pattern= null;
     }
+
+    return [Reflect::of($class), $pattern];
   }
 
   /** @return iterable */
   public function variations() {
-    if ($this->method->hasAnnotation('values')) {
-      foreach ($this->valuesFor($this->instance, $this->method->getAnnotation('values')) as $args) {
+    if ($annotation= $this->method->annotation(Values::class)) {
+      foreach ($this->valuesFor($this->instance, $annotation->argument(0)) as $args) {
         yield new TestVariation($this, is_array($args) ? $args : [$args]);
       }
     } else {
@@ -91,19 +101,14 @@ abstract class Test implements Value {
     // Route "ClassName::methodName" -> static method of the given class,
     // "self::method" -> static method of the test class, and "method" 
     // -> the run test's instance method
-    if (false === ($p= strpos($source, '::'))) {
-      return typeof($test)->getMethod($source)->setAccessible(true)->invoke($test, $args);
+    $p= strpos($source, '::');
+    if (false === $p) {
+      return Reflect::of($test)->method($source)->invoke($test, $args, $test);
     }
 
-    $ref= substr($source, 0, $p);
-    if ('self' === $ref) {
-      $class= typeof($test);
-    } else if (strstr($ref, '.')) {
-      $class= XPClass::forName($ref);
-    } else {
-      $class= new XPClass($ref);
-    }
-    return $class->getMethod(substr($source, $p + 2))->invoke(null, $args);
+    $type= substr($source, 0, $p);
+    $reflect= 'self' === $type ? Reflect::of($test) : Reflect::of($type);
+    return $reflect->method(substr($source, $p + 2))->invoke(null, $args, $test);
   }
 
   /**

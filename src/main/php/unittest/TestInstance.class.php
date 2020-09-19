@@ -1,9 +1,9 @@
 <?php namespace unittest;
 
-use lang\MethodNotImplementedException;
+use lang\{Reflect, IllegalStateException, MethodNotImplementedException};
 
 class TestInstance extends TestGroup {
-  private $target;
+  private $target, $reflect;
 
   static function __static() { }
 
@@ -15,24 +15,28 @@ class TestInstance extends TestGroup {
    * @throws lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function __construct($instance) {
-    $class= typeof($instance);
-    if (!$class->hasMethod($instance->name)) {
+    $this->reflect= Reflect::of($instance);
+    if (null === ($method= $this->reflect->method($instance->name))) {
       throw new MethodNotImplementedException('Test method does not exist', $instance->name);
     }
 
-    $method= $class->getMethod($instance->name);
-    if (self::$base->hasMethod($instance->name)) {
-      throw $this->cannotOverride($method);
+    if (self::$base->method($instance->name)) {
+      throw new IllegalStateException(sprintf(
+        'Cannot override %s::%s with test method in %s',
+        self::$base->name(),
+        $instance->name,
+        $method->declaredIn()->name()
+      ));
     }
 
     $this->target= new TestCaseInstance($instance, $method, array_merge(
-      iterator_to_array($this->actionsFor($class, TestAction::class)),
+      iterator_to_array($this->actionsFor($this->reflect, TestAction::class)),
       iterator_to_array($this->actionsFor($method, TestAction::class))
     ));
   }
 
-  /** @return lang.XPClass */
-  public function type() { return typeof($this->target->instance); }
+  /** @return lang.reflection.Type */
+  public function reflect() { return $this->reflect; }
 
   /** @return int */
   public function numTests() { return 1; }

@@ -6,7 +6,7 @@ class DidNotCatch implements AssertionFailedMessage {
   /**
    * Constructor
    *
-   * @param   lang.XPClass $expected
+   * @param   lang.reflection.Type $expected
    * @param   lang.Throwable $thrown
    */
   public function __construct($expected, $thrown= null) {
@@ -22,9 +22,9 @@ class DidNotCatch implements AssertionFailedMessage {
    */
   public function format() {
     if ($this->thrown) {
-      return 'Caught '.$this->thrown->compoundMessage().' instead of expected '.$this->expected->getName();
+      return 'Caught '.$this->thrown->compoundMessage().' instead of expected '.$this->expected->name();
     } else {
-      return 'Expected '.$this->expected->getName().' not caught';
+      return 'Expected '.$this->expected->name().' not caught';
     }
   }
 }

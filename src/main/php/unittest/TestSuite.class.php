@@ -1,6 +1,6 @@
 <?php namespace unittest;
 
-use lang\{IllegalArgumentException, Value, XPClass};
+use lang\{IllegalArgumentException, Value, Reflect, XPClass};
 use util\Objects;
 
 /**
@@ -39,13 +39,13 @@ class TestSuite implements Value {
    * @throws util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function addTestClass($class, $arguments= []) {
-    $type= $class instanceof XPClass ? $class : XPClass::forName($class);
-    if ($type->isSubclassOf(TestCase::class)) {
-      $this->sources[$type->literal()][]= new TestClass($type, $arguments);
+    $reflect= Reflect::of($class);
+    if ($reflect->is(TestCase::class)) {
+      $this->sources[$reflect->literal()][]= new TestClass($reflect, $arguments);
     } else {
-      $this->sources[$type->literal()][]= new TestTargets($type, $arguments);
+      $this->sources[$reflect->literal()][]= new TestTargets($reflect, $arguments);
     }
-    return $type;
+    return $reflect->type();
   }
 
   /**
@@ -197,7 +197,7 @@ class TestSuite implements Value {
     $s= nameof($this).'['.sizeof($this->sources)."]@{\n";
     foreach ($this->sources as $classname => $groups) {
       foreach ($groups as $group) {
-        $s.= '  '.nameof($group).'<'.$group->type().'>: '.$group->numTests()." test(s)\n";
+        $s.= '  '.nameof($group).'<'.$group->reflect()->name().'>: '.$group->numTests()." test(s)\n";
       }
     }
     return $s.'}';

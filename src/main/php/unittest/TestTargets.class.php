@@ -1,11 +1,11 @@
 <?php namespace unittest;
 
-use lang\IllegalArgumentException;
-use lang\reflect\TargetInvocationException;
+use lang\reflection\Type;
+use lang\{Reflect, IllegalArgumentException};
 use util\NoSuchElementException;
 
 class TestTargets extends TestGroup {
-  private $instance, $actions;
+  private $reflect, $instance, $actions;
   private $tests= [], $before= [], $after= [];
 
   static function __static() { }
@@ -13,50 +13,50 @@ class TestTargets extends TestGroup {
   /**
    * Creates an instance from a type
    *
-   * @param  lang.XPClass $type
+   * @param  lang.XPClass|lang.reflection.Type $type
    * @param  var[] $arguments
    * @throws lang.IllegalArgumentException in case given argument is not instantiable
    * @throws util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function __construct($type, $arguments= []) {
-    $reflect= $type->reflect();
-    if (!$reflect->isInstantiable()) {
-      throw new IllegalArgumentException('Cannot instantiate '.$type->getName());
-    }
+    $reflect= $type instanceof Type ? $type : Reflect::of($type);
+    $this->instance= $reflect->newInstance(...$arguments);
+    $this->actions= iterator_to_array($this->actionsFor($reflect, TestAction::class));
 
-    $this->instance= $reflect->hasMethod('__construct') ? $type->newInstance(...$arguments) : $type->newInstance();
-    $this->actions= iterator_to_array($this->actionsFor($type, TestAction::class));
-    foreach ($type->getMethods() as $method) {
-      if ($method->hasAnnotation('test')) {
+    foreach ($reflect->methods() as $method) {
+      $annotations= $method->annotations();
+      if ($annotations->provides(Test::class)) {
         $this->tests[]= $method;
-      } else if ($method->hasAnnotation('before')) {
+      } else if ($annotations->provides(Before::class)) {
         $this->before[]= $method;
-      } else if ($method->hasAnnotation('after')) {
+      } else if ($annotations->provides(After::class)) {
         $this->after[]= $method;
       }
     }
 
     if (empty($this->tests)) {
-      throw new NoSuchElementException('No tests found in '.$type->getName());
+      throw new NoSuchElementException('No tests found in '.$reflect->name());
     }
+
+    $this->reflect= $reflect;
   }
 
   /** @return iterable */
   protected function beforeGroup() {
     foreach ($this->before as $m) {
-      yield $m->getName() => $m->invoke($this->instance, []);
+      yield $m->name() => $m->invoke($this->instance, []);
     }
   }
 
   /** @return iterable */
   protected function afterGroup() {
     foreach ($this->after as $m) {
-      yield $m->getName() => $m->invoke($this->instance, []);
+      yield $m->name() => $m->invoke($this->instance, []);
     }
   }
 
-  /** @return lang.XPClass */
-  public function type() { return typeof($this->instance); }
+  /** @return lang.reflection.Type */
+  public function reflect() { return $this->reflect; }
 
   /** @return int */
   public function numTests() { return sizeof($this->tests); }

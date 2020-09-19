@@ -1,61 +1,46 @@
 <?php namespace unittest;
 
-use lang\{IllegalStateException, XPClass};
-use lang\reflect\TargetInvocationException;
+use lang\reflection\CannotInvoke;
+use lang\{IllegalStateException, Reflect};
 
 abstract class TestGroup {
   protected static $base;
 
   static function __static() {
-    self::$base= new XPClass(TestCase::class);
-  }
-
-  /**
-   * Verify test method doesn't override a special method from TestCase
-   *
-   * @param  lang.reflect.Method $method
-   * @return lang.IllegalStateException
-   */
-  protected function cannotOverride($method) {
-    return new IllegalStateException(sprintf(
-      'Cannot override %s::%s with test method in %s',
-      self::$base->getName(),
-      $method->getName(),
-      $method->getDeclaringClass()->getName()
-    ));
+    self::$base= Reflect::of(TestCase::class);
   }
 
   /**
    * Returns actions for a given class
    *
-   * @param  lang.XPClass $class
+   * @param  lang.reflection.Type|lang.reflection.Method $annotated
    * @param  string $kind
    * @return iterable
    */
-  protected function actionsFor($class, $kind) {
-    if ($class->hasAnnotation('action')) {
-      $action= $class->getAnnotation('action');
-      if (is_array($action)) {
-        foreach ($action as $a) {
-          if ($a instanceof $kind) yield $a;
-        }
-      } else {
-        if ($action instanceof $kind) yield $action;
+  protected function actionsFor($annotated, $kind) {
+    if (null === ($annotation= $annotated->annotation('action'))) return;
+
+    $action= $annotation->argument(0);
+    if (is_array($action)) {
+      foreach ($action as $a) {
+        if ($a instanceof $kind) yield $a;
       }
+    } else {
+      if ($action instanceof $kind) yield $action;
     }
   }
 
   /** @return iterable */
   protected function beforeGroup() {
-    foreach ($this->type()->getMethods() as $m) {
-      if ($m->hasAnnotation('beforeClass')) yield $m->getName() => $m->invoke(null, []);
+    foreach ($this->reflect()->methods() as $m) {
+      if ($m->annotation(BeforeClass::class)) yield $m->name() => $m->invoke(null, []);
     }
   }
 
   /** @return iterable */
   protected function afterGroup() {
-    foreach ($this->type()->getMethods() as $m) {
-      if ($m->hasAnnotation('afterClass')) yield $m->getName() => $m->invoke(null, []);
+    foreach ($this->reflect()->methods() as $m) {
+      if ($m->annotation(AfterClass::class)) yield $m->name() => $m->invoke(null, []);
     }
   }
 
@@ -70,7 +55,7 @@ abstract class TestGroup {
     do {
       try {
         $it->current();
-      } catch (TargetInvocationException $e) {
+      } catch (CannotInvoke $e) {
         $cause= $e->getCause();
         if ($cause instanceof PrerequisitesNotMetError) {
           throw $cause;
@@ -82,9 +67,10 @@ abstract class TestGroup {
       $it->next();
     } while ($it->valid());
 
-    $class= $this->type();
-    foreach ($this->actionsFor($class, TestClassAction::class) as $action) {
-      $action->beforeTestClass($class);
+    $reflect= $this->reflect();
+    $type= $reflect->type();
+    foreach ($this->actionsFor($reflect, TestClassAction::class) as $action) {
+      $action->beforeTestClass($type);
     }
   }
 
@@ -94,22 +80,23 @@ abstract class TestGroup {
    * @return void
    */
   public function after() {
-    $class= $this->type();
-    foreach ($this->actionsFor($class, TestClassAction::class) as $action) {
-      $action->afterTestClass($class);
+    $reflect= $this->reflect();
+    $type= $reflect->type();
+    foreach ($this->actionsFor($reflect, TestClassAction::class) as $action) {
+      $action->afterTestClass($type);
     }
 
     $it= $this->afterGroup();
     do {
       try {
         $it->current();
-      } catch (TargetInvocationException $ignored) { }
+      } catch (CannotInvoke $ignored) { }
       $it->next();
     } while ($it->valid());
   }
 
-  /** @return lang.XPClass */
-  public abstract function type();
+  /** @return lang.reflection.Type */
+  public abstract function reflect();
 
   /** @return int */
   public abstract function numTests();

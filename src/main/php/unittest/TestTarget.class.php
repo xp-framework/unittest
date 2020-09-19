@@ -20,11 +20,11 @@ class TestTarget extends Test {
    * @return string
    */
   public function getName($compound= false) {
-    return $compound ? nameof($this->instance).'::'.$this->method->getName() : $this->method->getName();
+    return $compound ? nameof($this->instance).'::'.$this->method->name() : $this->method->name();
   }
 
   /** @return string */
   public function hashCode() {
-    return md5(get_class($this->instance).':'.$this->method->getName());
+    return md5(get_class($this->instance).':'.$this->method->name());
   }
 }

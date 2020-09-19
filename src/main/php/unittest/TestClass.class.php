@@ -1,10 +1,10 @@
 <?php namespace unittest;
 
-use lang\IllegalArgumentException;
-use util\{NoSuchElementException, Objects};
+use lang\{Reflect, IllegalArgumentException, IllegalStateException};
+use util\NoSuchElementException;
 
 class TestClass extends TestGroup {
-  private $class, $actions, $arguments;
+  private $reflect, $actions, $arguments;
   private $tests= [];
 
   static function __static() { }
@@ -12,45 +12,50 @@ class TestClass extends TestGroup {
   /**
    * Creates an instance from a testcase
    *
-   * @param  lang.XPClass $class
+   * @param  lang.reflection.Type $reflect
    * @param  var[] $args
    * @throws lang.IllegalArgumentException in case given argument is not a testcase class
    * @throws lang.IllegalStateException in case a test method is overridden
    * @throws util.NoSuchElementException in case given testcase class does not contain any tests
    */
-  public function __construct($class, $arguments) {
-    if (!$class->isSubclassOf(self::$base)) {
-      throw new IllegalArgumentException('Given argument is not a TestCase class ('.Objects::stringOf($class).')');
+  public function __construct($reflect, $arguments) {
+    if (!$reflect->is(self::$base)) {
+      throw new IllegalArgumentException('Given argument is not a TestCase class ('.$reflect->name().')');
     }
 
-    foreach ($class->getMethods() as $method) {
-      if ($method->hasAnnotation('test')) {
-        $name= $method->getName();
-        if (self::$base->hasMethod($name)) {
-          throw $this->cannotOverride($method);
+    foreach ($reflect->methods() as $method) {
+      if ($method->annotations()->provides(Test::class)) {
+        $name= $method->name();
+        if (self::$base->method($name)) {
+          throw new IllegalStateException(sprintf(
+            'Cannot override %s::%s with test method in %s',
+            self::$base->name(),
+            $name,
+            $method->declaredIn()->name()
+          ));
         }
         $this->tests[$name]= $method;
       }
     }
 
     if (empty($this->tests)) {
-      throw new NoSuchElementException('No tests found in '.$class->getName());
+      throw new NoSuchElementException('No tests found in '.$reflect->name());
     }
 
-    $this->class= $class;
-    $this->actions= iterator_to_array($this->actionsFor($class, TestAction::class));
+    $this->reflect= $reflect;
+    $this->actions= iterator_to_array($this->actionsFor($reflect, TestAction::class));
     $this->arguments= (array)$arguments;
   }
 
-  /** @return lang.XPClass */
-  public function type() { return $this->class; }
+  /** @return lang.reflection.Type */
+  public function reflect() { return $this->reflect; }
 
   /** @return int */
   public function numTests() { return sizeof($this->tests); }
 
   /** @return iterable */
   public function tests() {
-    $constructor= $this->class->getConstructor();
+    $constructor= $this->reflect->constructor();
     foreach ($this->tests as $name => $method) {
       yield new TestCaseInstance(
         $constructor->newInstance(array_merge([$name], $this->arguments)),
