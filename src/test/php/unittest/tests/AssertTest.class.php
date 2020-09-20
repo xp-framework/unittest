@@ -1,5 +1,6 @@
 <?php namespace unittest\tests;
 
+use lang\{IllegalAccessException, IllegalArgumentException, Throwable};
 use unittest\{Assert, AssertionFailedError};
 
 class AssertTest {
@@ -84,5 +85,33 @@ class AssertTest {
   #[@test, @expect(AssertionFailedError::class)]
   public function instanceof_raises_error_when_given_non_instance() {
     Assert::instance(Value::class, $this);
+  }
+
+  #[@test]
+  public function catch_expected() {
+    Assert::throws(IllegalAccessException::class, function() {
+      throw new IllegalAccessException('Test');
+    });
+  }
+
+  #[@test]
+  public function catch_subclass_of_expected() {
+    Assert::throws(Throwable::class, function() {
+      throw new IllegalAccessException('Test');
+    });
+  }
+
+  #[@test, @expect(AssertionFailedError::class)]
+  public function no_exception_thrown() {
+    Assert::throws(IllegalAccessException::class, function() {
+      // NOOP
+    });
+  }
+
+  #[@test, @expect(AssertionFailedError::class)]
+  public function different_exception_thrown() {
+    Assert::throws(IllegalAccessException::class, function() {
+      throw new IllegalArgumentException('Test');
+    });
   }
 }
