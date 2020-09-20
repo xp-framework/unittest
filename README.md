@@ -48,6 +48,7 @@ public abstract class unittest.Assert {
   public static void false(var $actual, string $error)
   public static void null(var $actual, string $error)
   public static void instance(string|lang.Type $type, var $actual, string $error)
+  public static void throws(string|lang.Type $type, callable $block)
 }
 ```
 
