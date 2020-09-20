@@ -1,11 +1,10 @@
 <?php namespace unittest;
 
-use lang\IllegalArgumentException;
-use lang\reflect\TargetInvocationException;
+use lang\{Reflect, IllegalArgumentException};
 use util\NoSuchElementException;
 
 class TestMethod extends TestGroup {
-  private $instance, $actions, $method;
+  private $reflect, $target;
   private $before= [], $after= [];
 
   static function __static() { }
@@ -20,52 +19,46 @@ class TestMethod extends TestGroup {
    * @throws util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function __construct($type, $method, $arguments= []) {
-    $reflect= $type->reflect();
-    if (!$reflect->isInstantiable()) {
-      throw new IllegalArgumentException('Cannot instantiate '.$type->getName());
-    }
-
-    if (!$type->hasMethod($method)) {
+    $this->reflect= Reflect::of($type);
+    if (null === ($test= $this->reflect->method($method))) {
       throw new NoSuchElementException('Given method '.$method.' does no exist');
     }
-    $this->method= $type->getMethod($method);
 
-    $this->instance= $reflect->hasMethod('__construct') ? $type->newInstance(...$arguments) : $type->newInstance();
-    $this->actions= iterator_to_array($this->actionsFor($type, TestAction::class));
-    foreach ($type->getMethods() as $method) {
-      if ($method->hasAnnotation('before')) {
+    foreach ($this->reflect->methods() as $method) {
+      $annotations= $method->annotations();
+      if ($annotations->provides(Before::class)) {
         $this->before[]= $method;
-      } else if ($method->hasAnnotation('after')) {
+      } else if ($annotations->provides(After::class)) {
         $this->after[]= $method;
       }
     }
+
+    $this->target= new TestTarget($this->reflect->newInstance(...$arguments), $test, array_merge(
+      iterator_to_array($this->actionsFor($this->reflect, TestAction::class)),
+      iterator_to_array($this->actionsFor($test, TestAction::class))
+    ));
   }
 
   /** @return iterable */
   protected function beforeGroup() {
     foreach ($this->before as $m) {
-      yield $m->getName() => $m->invoke($this->instance, []);
+      yield $m->name() => $m->invoke($this->instance, []);
     }
   }
 
   /** @return iterable */
   protected function afterGroup() {
     foreach ($this->after as $m) {
-      yield $m->getName() => $m->invoke($this->instance, []);
+      yield $m->name() => $m->invoke($this->instance, []);
     }
   }
 
-  /** @return lang.XPClass */
-  public function type() { return typeof($this->instance); }
+  /** @return lang.reflection.Type */
+  public function reflect() { return $this->reflect; }
 
   /** @return int */
   public function numTests() { return 1; }
 
   /** @return iterable */
-  public function tests() {
-    yield new TestTarget($this->instance, $this->method, array_merge(
-      $this->actions,
-      iterator_to_array($this->actionsFor($this->method, TestAction::class))
-    ));
-  }
+  public function tests() { yield $this->target; }
 }

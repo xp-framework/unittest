@@ -26,7 +26,7 @@ class TestSuite implements Value {
    */
   public function addTest($test) {
     if ($test instanceof TestGroup) {
-      $this->sources[$test->type()->literal()][]= $test;
+      $this->sources[$test->reflect()->literal()][]= $test;
       return $test;
     } else if ($test instanceof TestCase) {
       $group= new TestInstance($test);
