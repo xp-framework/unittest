@@ -96,13 +96,13 @@ abstract class Assert {
    * Assert that a given exception is raised
    *
    * @param  string|lang.Type $type
-   * @param  callable $func
+   * @param  callable $block
    * @return void
    */
-  public static function throws($type, $func) {
+  public static function throws($type, callable $block) {
     $t= $type instanceof Type ? $type : Type::forName($type);
     try {
-      $func();
+      $block();
     } catch (\Throwable $expected) {
       if ($t->isInstance($expected)) return;
 
