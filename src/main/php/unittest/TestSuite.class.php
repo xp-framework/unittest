@@ -18,15 +18,23 @@ class TestSuite implements Value {
   /**
    * Add a test
    *
-   * @param  unittest.TestCase $test
-   * @return unittest.TestCase
+   * @param  unittest.TestCase|unittest.TestGroup $test
+   * @return unittest.TestGroup The added group
    * @throws lang.IllegalArgumentException in case given argument is not a testcase
    * @throws lang.IllegalStateException for overriding test class methods with tests
    * @throws lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
-  public function addTest(TestCase $test) {
-    $this->sources[get_class($test)][]= new TestInstance($test);
-    return $test;
+  public function addTest($test) {
+    if ($test instanceof TestGroup) {
+      $this->sources[$test->type()->literal()][]= $test;
+      return $test;
+    } else if ($test instanceof TestCase) {
+      $group= new TestInstance($test);
+      $this->sources[get_class($test)][]= $group;
+      return $group;
+    } else {
+      throw new IllegalArgumentException('Expected unittest.TestCase|unittest.TestGroup, '.typeof($test)->getName().' given');
+    }
   }
 
   /**
@@ -167,10 +175,10 @@ class TestSuite implements Value {
    * @throws lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function runTest($test) {
-    if ($test instanceof TestCase) {
-      $f= function($run) use($test) { $run->one(new TestInstance($test)); };
-    } else if ($test instanceof TestGroup) {
+    if ($test instanceof TestGroup) {
       $f= function($run) use($test) { $run->one($test); };
+    } else if ($test instanceof TestCase) {
+      $f= function($run) use($test) { $run->one(new TestInstance($test)); };
     } else if ($test instanceof XPClass) {
       $f= function($run) use($test) { $run->one(new TestTargets($test)); };
     } else {

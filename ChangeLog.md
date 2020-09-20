@@ -3,6 +3,11 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 11.1.0 / 2020-09-20
+
+* Fixed issue #42: No constructor error for class::method - @thekid
+* Merged PR #41: Implement `Assert::throws()` - @thekid
+
 ## 11.0.1 / 2020-04-12
 
 * Fixed "Array and string offset access syntax with curly braces is

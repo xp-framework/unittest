@@ -2,7 +2,18 @@
 
 use lang\{ClassLoader, Error, FormatException, IllegalArgumentException, MethodNotImplementedException};
 use unittest\actions\RuntimeVersion;
-use unittest\{Assert, AssertionFailedError, PrerequisitesNotMetError, TestCase, TestCaseInstance, TestPrerequisitesNotMet, TestResult, TestSuite, TestTargets};
+use unittest\{
+  Assert,
+  AssertionFailedError,
+  PrerequisitesNotMetError,
+  TestCase,
+  TestCaseInstance,
+  TestPrerequisitesNotMet,
+  TestResult,
+  TestSuite,
+  TestTargets,
+  TestMethod
+};
 use util\NoSuchElementException;
 
 /**
@@ -61,41 +72,46 @@ class SuiteTest extends TestCase {
   }
 
   #[@test]
-  public function initallyEmpty() {
+  public function initally_empty() {
     $this->assertEquals(0, $this->suite->numTests());
   }    
 
   #[@test]
-  public function addingATest() {
+  public function add_testcase() {
     $this->suite->addTest($this);
     $this->assertEquals(1, $this->suite->numTests());
-  }    
+  }
 
   #[@test]
-  public function addingATestTwice() {
+  public function add_testgroup() {
+    $class= ClassLoader::defineClass(self::class.__FUNCTION__, null, [], '{
+      #[@test]
+      public function test() { }
+    }');
+    $this->suite->addTest(new TestMethod($class, 'test'));
+    $this->assertEquals(1, $this->suite->numTests());
+  }
+
+  #[@test]
+  public function add_testcase_twice() {
     $this->suite->addTest($this);
     $this->suite->addTest($this);
     $this->assertEquals(2, $this->suite->numTests());
   }    
 
-  #[@test, @expect(IllegalArgumentException::class), @action(new RuntimeVersion('<7.0.0-dev'))]
-  public function addNonTest() {
+  #[@test, @expect(IllegalArgumentException::class)]
+  public function add_non_test() {
     $this->suite->addTest(new NotATestClass());
   }
 
-  #[@test, @expect(Error::class), @action(new RuntimeVersion('>=7.0.0-dev'))]
-  public function addNonTest7() {
-    $this->suite->addTest(new NotATestClass());
+  #[@test, @expect(MethodNotImplementedException::class)]
+  public function add_invalid_Test() {
+    $this->suite->addTest(new class('nonExistant') extends TestCase { });
   }
 
   #[@test, @expect(IllegalArgumentException::class)]
   public function runNonTest() {
     $this->suite->runTest(new NotATestClass());
-  }
-
-  #[@test, @expect(MethodNotImplementedException::class)]
-  public function addInvalidTest() {
-    $this->suite->addTest(newinstance(TestCase::class, ['nonExistant'], '{}'));
   }
 
   #[@test, @expect(MethodNotImplementedException::class)]

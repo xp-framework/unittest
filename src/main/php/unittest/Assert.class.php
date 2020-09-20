@@ -91,4 +91,27 @@ abstract class Assert {
       throw new AssertionFailedError(new ComparisonFailedMessage($error, $t->getName(), typeof($actual)->getName()));
     }
   }
+
+  /**
+   * Assert that a given exception is raised
+   *
+   * @param  string|lang.Type $type
+   * @param  callable $block
+   * @return void
+   */
+  public static function throws($type, callable $block) {
+    $t= $type instanceof Type ? $type : Type::forName($type);
+    try {
+      $block();
+    } catch (\Throwable $expected) {
+      if ($t->isInstance($expected)) return;
+
+      throw new AssertionFailedError(new ComparisonFailedMessage(
+        'instanceof',
+        $t->getName().': **',
+        nameof($expected).': '.$expected->getMessage()
+      ));
+    }
+    throw new AssertionFailedError('Expected '.$t->getName().', but no exception was raised');
+  }
 }
