@@ -37,7 +37,9 @@ abstract class Test implements Value {
   /** @return ?int */
   public function timeLimit() {
     if ($annotation= $this->method->annotation(Limit::class)) {
-      return $annotation->argument(0)['time'];
+
+    // Support both `Limit(time: ...)` and `Limit(['time' => ...])`
+      return $annotation->argument('time') ?? $annotation->argument(0)['time'];
     }
     return null;
   }
@@ -46,18 +48,23 @@ abstract class Test implements Value {
   public function expected() {
     if (null === ($annotation= $this->method->annotation(Expect::class))) return null;
 
+    // Support both `Expect(class: ...)` and `Expect(['class' => ...])`
     $arguments= $annotation->arguments();
-    if (is_array($arguments[0])) {
+    if (isset($arguments['class'])) {
+      $class= $arguments['class'];
+      $message= $arguments['withMessage'] ?? '';
+    } else if (is_array($arguments[0])) {
       $class= $arguments[0]['class'];
       $message= $arguments[0]['withMessage'];
-      if ('' === $message || '/' === $message[0]) {
-        $pattern= $message;
-      } else {
-        $pattern= '/'.preg_quote($message, '/').'/';
-      }
     } else {
       $class= $arguments[0];
-      $pattern= null;
+      $message= '';
+    }
+
+    if ('' === $message || '/' === $message[0]) {
+      $pattern= $message;
+    } else {
+      $pattern= '/'.preg_quote($message, '/').'/';
     }
 
     return [Reflect::of($class), $pattern];
