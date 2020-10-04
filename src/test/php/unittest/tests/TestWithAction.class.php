@@ -1,18 +1,18 @@
 <?php namespace unittest\tests;
 
-/**
- * This class is used in the TestActionTest 
- */
-#[@action(new RecordActionInvocation('run'))]
-class TestWithAction extends \unittest\TestCase {
+use unittest\{Test, TestCase};
+
+/** This class is used in the TestActionTest */
+#[Action(eval: 'new RecordActionInvocation("run")')]
+class TestWithAction extends TestCase {
   public $run= [];
 
-  #[@test]
+  #[Test]
   public function one() {
     $this->run[]= 'one';
   }
 
-  #[@test]
+  #[Test]
   public function two() {
     $this->run[]= 'two';
   }

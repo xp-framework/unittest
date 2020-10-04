@@ -1,10 +1,10 @@
 <?php namespace unittest\tests\sources;
 
-use unittest\TestCase;
+use unittest\{Test, TestCase};
 
 class InBase extends TestCase {
 
-  #[@test]
+  #[Test]
   public function test() {
     $this->assertTrue(true);
   }

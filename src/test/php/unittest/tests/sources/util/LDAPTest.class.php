@@ -1,10 +1,10 @@
 <?php namespace unittest\tests\sources\util;
 
-use unittest\TestCase;
+use unittest\{Test, TestCase};
 
 class LDAPTest extends TestCase {
 
-  #[@test]
+  #[Test]
   public function connect() {
     // TBI
   }

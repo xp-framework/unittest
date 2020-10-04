@@ -1,7 +1,7 @@
 <?php namespace unittest\tests;
  
 use lang\Error;
-use unittest\{AssertionFailedError, PrerequisitesNotMetError, TestAssertionFailed, TestCase, TestCaseInstance, TestError, TestExpectationMet, TestNotRun, TestPrerequisitesNotMet, TestSuite, TestVariation, TestWarning};
+use unittest\{AssertionFailedError, PrerequisitesNotMetError, Test, TestAssertionFailed, TestCase, TestCaseInstance, TestError, TestExpectationMet, TestNotRun, TestPrerequisitesNotMet, TestSuite, TestVariation, TestWarning, Values};
 use util\Objects;
 
 /**
@@ -38,7 +38,7 @@ class TestOutcomeTest extends TestCase {
     );
   }
 
-  #[@test, @values('fixtures')]
+  #[Test, Values('fixtures')]
   public function string_representation_of_TestExpectationMet($test, $variant) {
     $this->assertStringRepresentation(
       'unittest.TestExpectationMet(test= %s, time= 0.000 seconds)',
@@ -47,7 +47,7 @@ class TestOutcomeTest extends TestCase {
     );
   }
 
-  #[@test, @values('fixtures')]
+  #[Test, Values('fixtures')]
   public function string_representation_of_TestAssertionFailed($test, $variant) {
     $assert= new AssertionFailedError('Not equal', 1, 2);
     $this->assertStringRepresentation(
@@ -57,7 +57,7 @@ class TestOutcomeTest extends TestCase {
     );
   }
 
-  #[@test, @values('fixtures')]
+  #[Test, Values('fixtures')]
   public function string_representation_of_TestError($test, $variant) {
     $error= new Error('Out of memory');
     $this->assertStringRepresentation(
@@ -67,7 +67,7 @@ class TestOutcomeTest extends TestCase {
     );
   }
 
-  #[@test, @values('fixtures')]
+  #[Test, Values('fixtures')]
   public function string_representation_of_TestPrerequisitesNotMet($test, $variant) {
     $prerequisites= new PrerequisitesNotMetError('Initialization failed');
     $this->assertStringRepresentation(
@@ -77,7 +77,7 @@ class TestOutcomeTest extends TestCase {
     );
   }
 
-  #[@test, @values('fixtures')]
+  #[Test, Values('fixtures')]
   public function string_representation_of_TestNotRun($test, $variant) {
     $this->assertStringRepresentation(
       "unittest.TestNotRun(test= %s, time= 0.000 seconds) {\n  \"Ignored\"\n}",
@@ -86,7 +86,7 @@ class TestOutcomeTest extends TestCase {
     );
   }
 
-  #[@test, @values('fixtures')]
+  #[Test, Values('fixtures')]
   public function string_representation_of_TestWarning($test, $variant) {
     $this->assertStringRepresentation(
       "unittest.TestWarning(test= %s, time= 0.000 seconds) {\n".

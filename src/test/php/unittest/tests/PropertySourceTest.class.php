@@ -2,6 +2,7 @@
 
 use io\streams\MemoryInputStream;
 use lang\IllegalArgumentException;
+use unittest\Test;
 use util\Properties;
 use xp\unittest\sources\PropertySource;
 
@@ -19,12 +20,12 @@ class PropertySourceTest extends AbstractSourceTest {
     return $p;
   }
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new PropertySource($this->properties(''));
   }
 
-  #[@test]
+  #[Test]
   public function sections_are_iterated() {
     $this->assertTests(
       ['unittest.tests.sources.InBase::test', 'unittest.tests.sources.util.InUtil::test'],
@@ -37,7 +38,7 @@ class PropertySourceTest extends AbstractSourceTest {
     );
   }
 
-  #[@test]
+  #[Test]
   public function special_this_section_is_not_iterated() {
     $this->assertTests(
       ['unittest.tests.sources.InBase::test'],

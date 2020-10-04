@@ -1,7 +1,7 @@
 <?php namespace unittest\tests;
 
-use unittest\{ComparisonFailedMessage, TestCase};
 use unittest\actions\RuntimeVersion;
+use unittest\{ComparisonFailedMessage, Test, TestCase};
 
 /**
  * TestCase
@@ -22,7 +22,7 @@ class AssertionMessagesTest extends TestCase {
   }
 
 
-  #[@test]
+  #[Test]
   public function differentIntegerPrimitives() {
     $this->assertFormatted(
       'expected [2] but was [1] using: \'equals\'',
@@ -30,7 +30,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function differentBoolPrimitives() {
     $this->assertFormatted(
       'expected [true] but was [false] using: \'equals\'',
@@ -38,7 +38,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function differentPrimitives() {
     $this->assertFormatted(
       'expected [int:2] but was [bool:false] using: \'equals\'',
@@ -46,7 +46,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function differentStringPrimitives() {
     $this->assertFormatted(
       'expected ["Hello"] but was ["World"] using: \'equals\'',
@@ -54,7 +54,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function differentTypes() {
     $this->assertFormatted(
       'expected [unittest.tests.Value(1)] but was [int:1] using: \'equals\'',
@@ -62,7 +62,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function twoArrays() {
     $this->assertFormatted(
       "expected [[1, 2]] but was [[2, 3]] using: 'equals'",
@@ -70,7 +70,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function twoObjects() {
     $this->assertFormatted(
       "expected [unittest.TestCase<a>] but was [unittest.TestCase<b>] using: 'equals'",
@@ -78,7 +78,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function nullVsObject() {
     $this->assertFormatted(
       "expected [unittest.TestCase<b>] but was [null] using: 'equals'",
@@ -86,7 +86,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function nullVsString() {
     $this->assertFormatted(
       "expected [string:\"NULL\"] but was [null] using: 'equals'",
@@ -94,7 +94,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function differentStringsWithCommonLeadingPart() {
     $prefix= str_repeat('*', 100);
     $this->assertFormatted(
@@ -103,7 +103,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function differentStringsWithCommonTrailingPart() {
     $postfix= str_repeat('*', 100);
     $this->assertFormatted(
@@ -112,7 +112,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function differentStringsWithCommonLeadingAndTrailingPart() {
     $prefix= str_repeat('<', 100);
     $postfix= str_repeat('>', 100);
@@ -122,7 +122,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function prefixShorterThanContextLength() {
     $this->assertFormatted(
       'expected ["abc!"] but was ["abc."] using: \'equals\'',
@@ -130,7 +130,7 @@ class AssertionMessagesTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function postfixShorterThanContextLength() {
     $this->assertFormatted(
       'expected ["!abc"] but was [".abc"] using: \'equals\'',

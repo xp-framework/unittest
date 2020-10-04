@@ -1,6 +1,6 @@
 <?php namespace unittest\tests;
  
-use unittest\{TestCase, TestSuite};
+use unittest\{Expect, Test, TestCase, TestSuite, Values};
 
 /**
  * Test values annotation
@@ -30,12 +30,12 @@ class ValuesTest extends TestCase {
     return range($lo, $hi);
   }
 
-  #[@test]
+  #[Test]
   public function inline_value_source() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
-      #[@test, @values([1, 2, 3])]
+      #[Test, Values([1, 2, 3])]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -44,12 +44,12 @@ class ValuesTest extends TestCase {
     $this->assertEquals([1, 2, 3], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function inline_value_map() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
-      #[@test, @values(["map" => ["a" => "b", "c" => "d"]])]
+      #[Test, Values(["map" => ["a" => "b", "c" => "d"]])]
       public function fixture($key, $value) {
         $this->values[]= [$key, $value];
       }
@@ -58,7 +58,7 @@ class ValuesTest extends TestCase {
     $this->assertEquals([['a', 'b'], ['c', 'd']], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function local_value_source() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
@@ -67,7 +67,7 @@ class ValuesTest extends TestCase {
         return [1, 2, 3];
       }
 
-      #[@test, @values("values")]
+      #[Test, Values("values")]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -76,7 +76,7 @@ class ValuesTest extends TestCase {
     $this->assertEquals([1, 2, 3], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function local_value_source_with_args() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
@@ -85,7 +85,7 @@ class ValuesTest extends TestCase {
         return range($lo, $hi);
       }
 
-      #[@test, @values(["source" => "range", "args" => [1, 4]])]
+      #[Test, Values(["source" => "range", "args" => [1, 4]])]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -94,7 +94,7 @@ class ValuesTest extends TestCase {
     $this->assertEquals([1, 2, 3, 4], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function local_value_source_without_args() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
@@ -103,7 +103,7 @@ class ValuesTest extends TestCase {
         return range($lo, $hi);
       }
 
-      #[@test, @values(["source" => "range"])]
+      #[Test, Values(["source" => "range"])]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -112,12 +112,12 @@ class ValuesTest extends TestCase {
     $this->assertEquals([1, 2, 3], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function external_value_source_fully_qualified_class() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
-      #[@test, @values("unittest.tests.ValuesTest::range")]
+      #[Test, Values("unittest.tests.ValuesTest::range")]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -126,12 +126,12 @@ class ValuesTest extends TestCase {
     $this->assertEquals([1, 2, 3], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function external_value_source_unqualified_class() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
-      #[@test, @values("unittest\\\\tests\\\\ValuesTest::range")]
+      #[Test, Values("unittest\\\\tests\\\\ValuesTest::range")]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -140,12 +140,12 @@ class ValuesTest extends TestCase {
     $this->assertEquals([1, 2, 3], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function external_value_source_provider_and_args() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
-      #[@test, @values(["source" => "unittest.tests.ValuesTest::range", "args" => [1, 10]])]
+      #[Test, Values(["source" => "unittest.tests.ValuesTest::range", "args" => [1, 10]])]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -154,7 +154,7 @@ class ValuesTest extends TestCase {
     $this->assertEquals([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function local_value_source_with_self() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
@@ -163,7 +163,7 @@ class ValuesTest extends TestCase {
         return [1, 2, 3];
       }
 
-      #[@test, @values("self::range")]
+      #[Test, Values("self::range")]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -172,10 +172,10 @@ class ValuesTest extends TestCase {
     $this->assertEquals([1, 2, 3], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function all_variants_succeed() {
     $test= newinstance(TestCase::class, ['fixture'], '{
-      #[@test, @values([1, 2, 3])]
+      #[Test, Values([1, 2, 3])]
       public function fixture($value) {
         $this->assertTrue(TRUE);
       }
@@ -184,10 +184,10 @@ class ValuesTest extends TestCase {
     $this->assertEquals(3, $r->successCount());
   }
 
-  #[@test]
+  #[Test]
   public function all_variants_fail() {
     $test= newinstance(TestCase::class, ['fixture'], '{
-      #[@test, @values([1, 2, 3])]
+      #[Test, Values([1, 2, 3])]
       public function fixture($value) {
         $this->assertTrue(FALSE);
       }
@@ -196,14 +196,14 @@ class ValuesTest extends TestCase {
     $this->assertEquals(3, $r->failureCount());
   }
 
-  #[@test]
+  #[Test]
   public function all_variants_skipped() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public function setUp() {
         throw new PrerequisitesNotMetError("Not ready yet");
       }
 
-      #[@test, @values([1, 2, 3])]
+      #[Test, Values([1, 2, 3])]
       public function fixture($value) {
         throw new Error("Will never be reached");
       }
@@ -212,10 +212,10 @@ class ValuesTest extends TestCase {
     $this->assertEquals(3, $r->skipCount());
   }
 
-  #[@test]
+  #[Test]
   public function some_variants_succeed_some_fail() {
     $test= newinstance(TestCase::class, ['fixture'], '{
-      #[@test, @values([1, 2, 3])]
+      #[Test, Values([1, 2, 3])]
       public function fixture($value) {
         $this->assertEquals(0, $value % 2);
       }
@@ -225,12 +225,12 @@ class ValuesTest extends TestCase {
     $this->assertEquals(2, $r->failureCount());
   }
 
-  #[@test]
+  #[Test]
   public function supplying_values_for_multiple_parameters() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
 
-      #[@test, @values([[1, 2], [3, 4], [5, 6]])]
+      #[Test, Values([[1, 2], [3, 4], [5, 6]])]
       public function fixture($a, $b) {
         $this->values[]= $a;
         $this->values[]= $b;
@@ -240,7 +240,7 @@ class ValuesTest extends TestCase {
     $this->assertEquals([1, 2, 3, 4, 5, 6], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function using_traversable_in_values() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
@@ -249,7 +249,7 @@ class ValuesTest extends TestCase {
         return new \ArrayObject([1, 2, 3]);
       }
 
-      #[@test, @values("values")]
+      #[Test, Values("values")]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -258,7 +258,7 @@ class ValuesTest extends TestCase {
     $this->assertEquals([1, 2, 3], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function using_this_in_value_provider() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
@@ -267,7 +267,7 @@ class ValuesTest extends TestCase {
         return [$this];
       }
 
-      #[@test, @values("values")]
+      #[Test, Values("values")]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -276,7 +276,7 @@ class ValuesTest extends TestCase {
     $this->assertEquals([$test], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function protected_local_values_method() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
@@ -285,7 +285,7 @@ class ValuesTest extends TestCase {
         return [1, 2, 3];
       }
 
-      #[@test, @values("values")]
+      #[Test, Values("values")]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -294,7 +294,7 @@ class ValuesTest extends TestCase {
     $this->assertEquals([1, 2, 3], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function private_local_values_method() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $values= [];
@@ -303,7 +303,7 @@ class ValuesTest extends TestCase {
         return [1, 2, 3];
       }
 
-      #[@test, @values("values")]
+      #[Test, Values("values")]
       public function fixture($value) {
         $this->values[]= $value;
       }
@@ -312,10 +312,10 @@ class ValuesTest extends TestCase {
     $this->assertEquals([1, 2, 3], $test->values);
   }
 
-  #[@test]
+  #[Test]
   public function values_with_expect() {
     $test= newinstance(TestCase::class, ['not_at_number'], '{
-      #[@test, @values(["a"]), @expect("lang.FormatException")]
+      #[Test, Values(["a"]), Expect("lang.FormatException")]
       public function not_at_number($value) {
         throw new \lang\FormatException("Not a number: ".$value);
       }

@@ -1,7 +1,7 @@
 <?php namespace unittest\tests;
 
 use lang\{ClassLoader, IllegalStateException, XPClass};
-use unittest\{PrerequisitesNotMetError, Test, TestCase, TestPrerequisitesNotMet, TestSuite};
+use unittest\{Action, PrerequisitesNotMetError, Test, TestCase, TestPrerequisitesNotMet, TestSuite};
 
 /**
  * Test test actions
@@ -15,11 +15,11 @@ class TestActionTest extends TestCase {
     $this->parent= class_exists(\lang\Object::class) ? 'lang.Object' : null;  // XP9
   }
 
-  #[@test]
+  #[Test]
   public function beforeTest_and_afterTest_invocation_order() {
     $test= newinstance(TestCase::class, ['fixture'], [
       'run' => [],
-      '#[@test, @action(new \unittest\tests\RecordActionInvocation("run"))] fixture' => function() {
+      '#[Test, Action(eval: "new \\\\unittest\\\\tests\\\\RecordActionInvocation(\"run\")")] fixture' => function() {
         $this->run[]= 'test';
       }
     ]);
@@ -27,14 +27,14 @@ class TestActionTest extends TestCase {
     $this->assertEquals(['before', 'test', 'after'], $test->run);
   }
 
-  #[@test]
+  #[Test]
   public function beforeTest_is_invoked_before_setUp() {
     $test= newinstance(TestCase::class, ['fixture'], [
       'run' => [],
       'setUp' => function() {
         $this->run[]= 'setup';
       },
-      '#[@test, @action(new \unittest\tests\RecordActionInvocation("run"))] fixture' => function() {
+      '#[Test, Action(eval: "new \\\\unittest\\\\tests\\\\RecordActionInvocation(\"run\")")] fixture' => function() {
         $this->run[]= 'test';
       }
     ]);
@@ -42,14 +42,14 @@ class TestActionTest extends TestCase {
     $this->assertEquals(['before', 'setup', 'test', 'after'], $test->run);
   }
 
-  #[@test]
+  #[Test]
   public function afterTest_is_invoked_after_tearDown() {
     $test= newinstance(TestCase::class, ['fixture'], [
       'run' => [],
       'tearDown' => function() {
         $this->run[]= 'teardown';
       },
-      '#[@test, @action(new \unittest\tests\RecordActionInvocation("run"))] fixture' => function() {
+      '#[Test, Action(eval: "new \\\\unittest\\\\tests\\\\RecordActionInvocation(\"run\")")] fixture' => function() {
         $this->run[]= 'test';
       }
     ]);
@@ -57,10 +57,10 @@ class TestActionTest extends TestCase {
     $this->assertEquals(['before', 'test', 'teardown', 'after'], $test->run);
   }
 
-  #[@test]
+  #[Test]
   public function beforeTest_can_skip_test() {
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @action(new \unittest\tests\SkipThis())] fixture' => function() {
+      '#[Test, Action(eval: "new \\\\unittest\\\\tests\\\\SkipThis()")] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -68,7 +68,7 @@ class TestActionTest extends TestCase {
     $this->assertEquals(1, $r->skipCount());
   }
 
-  #[@test]
+  #[Test]
   public function afterTest_is_invoked_for_succeeding_actions() {
     $actions= [];
     ClassLoader::defineClass('unittest.tests.AllocateMemory', $this->parent, ['unittest.TestAction'], [
@@ -76,7 +76,7 @@ class TestActionTest extends TestCase {
       'afterTest'  => function(Test $t) use(&$actions) { $actions[]= 'freed'; }
     ]);
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @action([new \unittest\tests\AllocateMemory(), new \unittest\tests\SkipThis()])] fixture' => function() {
+      '#[Test, Action(eval: "[new \\\\unittest\\\\tests\\\\AllocateMemory(), new \\\\unittest\\\\tests\\\\SkipThis()]")] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -84,7 +84,7 @@ class TestActionTest extends TestCase {
     $this->assertEquals([1, ['allocated', 'freed']], [$r->skipCount(), $actions]);
   }
 
-  #[@test]
+  #[Test]
   public function invocation_order_with_class_annotation() {
     $this->suite->addTestClass(XPClass::forName('unittest.tests.TestWithAction'));
 
@@ -97,7 +97,7 @@ class TestActionTest extends TestCase {
     $this->assertEquals(['before', 'one', 'after', 'before', 'two', 'after'], $result );
   }
 
-  #[@test]
+  #[Test]
   public function test_action_with_arguments() {
     ClassLoader::defineClass('unittest.tests.PlatformVerification', $this->parent, ['unittest.TestAction'], '{
       protected $platform;
@@ -117,7 +117,7 @@ class TestActionTest extends TestCase {
       }
     }');
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @action(new \unittest\tests\PlatformVerification("Test"))] fixture' => function() {
+      '#[Test, Action(eval: "new \\\\unittest\\\\tests\\\\PlatformVerification(\"Test\")")] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -126,14 +126,14 @@ class TestActionTest extends TestCase {
     $this->assertEquals(['Test'], $outcome->reason->prerequisites);
   }
 
-  #[@test]
+  #[Test]
   public function skip_test_via_skip() {
     ClassLoader::defineClass('unittest.tests.SkipTest', $this->parent, ['unittest.TestAction'], [
       'beforeTest' => function(Test $t) { $t->instance->skip('Not run'); },
       'afterTest'  => function(Test $t) { }
     ]);
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @action([new \unittest\tests\SkipTest()])] fixture' => function() {
+      '#[Test, Action(eval: "[new \\\\unittest\\\\tests\\\\SkipTest()]")] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -141,15 +141,12 @@ class TestActionTest extends TestCase {
     $this->assertEquals(1, $r->skipCount());
   }
 
-  #[@test]
+  #[Test]
   public function multiple_actions() {
     $test= newinstance(TestCase::class, ['fixture'], '{
       public $one= [], $two= [];
 
-      #[@test, @action([
-      #  new \unittest\tests\RecordActionInvocation("one"),
-      #  new \unittest\tests\RecordActionInvocation("two")
-      #])]
+      #[Test, Action(eval: "[new \\\\unittest\\\\tests\\\\RecordActionInvocation(\"one\"), new \\\\unittest\\\\tests\\\\RecordActionInvocation(\"two\")]")]
       public function fixture() {
       }
     }');
@@ -160,7 +157,7 @@ class TestActionTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function afterTest_can_raise_AssertionFailedErrors() {
     ClassLoader::defineClass('unittest.tests.FailOnTearDown', $this->parent, ['unittest.TestAction'], '{
       public function beforeTest(\unittest\Test $t) {
@@ -172,7 +169,7 @@ class TestActionTest extends TestCase {
       }
     }');
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @action(new \unittest\tests\FailOnTearDown())] fixture' => function() {
+      '#[Test, Action(eval: "new \\\\unittest\\\\tests\\\\FailOnTearDown()")] fixture' => function() {
         // NOOP
       }
     ]);
@@ -180,7 +177,7 @@ class TestActionTest extends TestCase {
     $this->assertEquals(1, $r->failureCount());
   }
 
-  #[@test]
+  #[Test]
   public function all_afterTest_exceptions_are_chained_into_one() {
     ClassLoader::defineClass('unittest.tests.FailOnTearDownWith', $this->parent, ['unittest.TestAction'], '{
       protected $message;
@@ -198,10 +195,7 @@ class TestActionTest extends TestCase {
       }
     }');
     $test= newinstance(TestCase::class, ['fixture'], '{
-      #[@test, @action([
-      #  new \unittest\tests\FailOnTearDownWith("First"),
-      #  new \unittest\tests\FailOnTearDownWith("Second")
-      #])]
+      #[Test, Action(eval: "[new \\\\unittest\\\\tests\\\\FailOnTearDownWith(\"First\"), new \\\\unittest\\\\tests\\\\FailOnTearDownWith(\"Second\")]")]
       public function fixture() {
         // NOOP
       }

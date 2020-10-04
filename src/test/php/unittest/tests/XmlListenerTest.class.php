@@ -1,7 +1,7 @@
 <?php namespace unittest\tests;
 
 use io\streams\{MemoryOutputStream, StringWriter};
-use unittest\{PrerequisitesNotMetError, TestSuite, XmlTestListener};
+use unittest\{BeforeClass, PrerequisitesNotMetError, Test, TestSuite, XmlTestListener};
 use xml\{Node, Tree, XMLFormatException};
 
 /**
@@ -16,7 +16,7 @@ class XmlListenerTest extends \unittest\TestCase {
   /**
    * Sets up test case
    */
-  #[@beforeClass]
+  #[BeforeClass]
   public static function onlyWithXmlModule() {
     if (!class_exists('xml\Tree')) {
       throw new PrerequisitesNotMetError('XML Module not available', null, ['loaded']);
@@ -86,12 +86,12 @@ class XmlListenerTest extends \unittest\TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function outputInitiallyEmpty() {
     $this->assertEquals('', $this->out->getBytes());
   }
 
-  #[@test]
+  #[Test]
   public function successfulTest() {
     $t= $this->runTests(new SimpleTestCase('succeeds'));
 
@@ -110,7 +110,7 @@ class XmlListenerTest extends \unittest\TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function skippedTest() {
     $t= $this->runTests(new SimpleTestCase('skipped'));
 
@@ -129,7 +129,7 @@ class XmlListenerTest extends \unittest\TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function failingTest() {
     $t= $this->runTests(new SimpleTestCase('fails'));
 
@@ -155,7 +155,7 @@ class XmlListenerTest extends \unittest\TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function errorTest() {
     $t= $this->runTests(new SimpleTestCase('throws'));
 
@@ -181,7 +181,7 @@ class XmlListenerTest extends \unittest\TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function warningTest() {
     $t= $this->runTests(new SimpleTestCase('raisesAnError'));
 
@@ -207,7 +207,7 @@ class XmlListenerTest extends \unittest\TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function multipleTests() {
     $t= $this->runTests(new SimpleTestCase('succeeds'), new SimpleTestCase('fails'));
 

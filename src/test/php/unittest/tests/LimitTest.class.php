@@ -1,6 +1,6 @@
 <?php namespace unittest\tests;
 
-use unittest\{TestCase, TestSuite};
+use unittest\{Test, TestCase, TestSuite};
 
 /**
  * Test TestSuite class methods
@@ -15,20 +15,20 @@ class LimitTest extends TestCase {
     $this->suite= new TestSuite();
   }
 
-  #[@test]
+  #[Test]
   public function timeouts() {
     $r= $this->suite->runTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @limit(["time" => 0.010])] fixture' => function() {
+      '#[Test, Limit(time: 0.010)] fixture' => function() {
         usleep(20 * 1000);
       }
     ]));
     $this->assertEquals(1, $r->failureCount());
   }    
 
-  #[@test]
+  #[Test]
   public function noTimeout() {
     $r= $this->suite->runTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @limit(["time" => 0.010])] fixture' => function() {
+      '#[Test, Limit(time: 0.010)] fixture' => function() {
         /* No timeout */
       }
     ]));

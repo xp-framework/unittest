@@ -1,10 +1,10 @@
 <?php namespace unittest\tests\sources\util;
 
-use unittest\TestCase;
+use unittest\{Test, TestCase};
 
 abstract class UtilityTest extends TestCase {
 
-  #[@test]
+  #[Test]
   public function test() {
     $this->assertTrue(true);
   }
