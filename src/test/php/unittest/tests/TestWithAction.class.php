@@ -1,6 +1,6 @@
 <?php namespace unittest\tests;
 
-use unittest\{Test, TestCase};
+use unittest\{Action, Test, TestCase};
 
 /** This class is used in the TestActionTest */
 #[Action(eval: 'new RecordActionInvocation("run")')]
