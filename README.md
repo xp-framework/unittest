@@ -11,14 +11,14 @@ Unittests for the XP Framework
 
 Writing a test
 --------------
-Tests reside inside a class and are annotated with the `@test` annotation.
+Tests reside inside a class and are annotated with the `@test` attribute.
 
 ```php
-use unittest\Assert;
+use unittest\{Assert, Test};
 
 class CalculatorTest {
 
-  #[@test]
+  #[Test]
   public function addition() {
     Assert::equals(2, 1 + 1);
   }
@@ -56,25 +56,25 @@ public abstract class unittest.Assert {
 
 Setup and teardown
 ------------------
-In order to run a method before and after the tests are run, annotate methods with the `@before` and `@after` annotations:
+In order to run a method before and after the tests are run, annotate methods with the `@before` and `@after` attributes:
 
 ```php
-use unittest\Assert;
+use unittest\{Assert, Before, After, Test};
 
 class CalculatorTest {
   private $fixture;
 
-  #[@before]
+  #[Before]
   public function newFixture() {
     $this->fixture= new Calculator();
   }
 
-  #[@after]
+  #[After]
   public function cleanUp() {
     unset($this->fixture);
   }
 
-  #[@test]
+  #[Test]
   public function addition() {
     Assert::equals(2, $this->fixture->add(1, 1));
   }
@@ -85,14 +85,15 @@ class CalculatorTest {
 
 Expected exceptions
 -------------------
-The `@expect` annotation is a shorthand for catching exceptions and verifying their type manually.
+The *Expect* attribute is a shorthand for catching exceptions and verifying their type manually.
 
 ```php
 use lang\IllegalArgumentException;
+use unittest\{Test, Expect};
 
 class CalculatorTest {
 
-  #[@test, @expect(IllegalArgumentException::class)]
+  #[Test, Expect(IllegalArgumentException::class)]
   public function cannot_divide_by_zero() {
     (new Calculator())->divide(1, 0);
   }
@@ -101,12 +102,14 @@ class CalculatorTest {
 
 Ignoring tests
 --------------
-The `@ignore` annotation can be used to ignore tests. This can be necessary as a temporary measure or when overriding a test base class and not wanting to run one of its methods.
+The *Ignore* attribute can be used to ignore tests. This can be necessary as a temporary measure or when overriding a test base class and not wanting to run one of its methods.
 
 ```php
+use unittest\{Test, Ignore};
+
 class EncodingTest {
 
-  #[@test, @ignore('Does not work with all iconv implementations')]
+  #[Test, Ignore('Does not work with all iconv implementations')]
   public function transliteration() {
     /* ... */
   }
@@ -115,14 +118,15 @@ class EncodingTest {
 
 Parameterization
 -----------------
-The `@values` annotation can be used to run a test with a variety of values which are passed as parameters.
+The *Values* attribute can be used to run a test with a variety of values which are passed as parameters.
 
 ```php
 use lang\IllegalArgumentException;
+use unittest\{Test, Expect, Values};
 
 class CalculatorTest {
 
-  #[@test, @expect(IllegalArgumentException::class), @values([1, 0, -1])]
+  #[Test, Expect(IllegalArgumentException::class), Values([1, 0, -1])]
   public function cannot_divide_by_zero($dividend) {
     (new Calculator())->divide($dividend, 0);
   }
@@ -140,24 +144,23 @@ To execute code before and after tests, test actions can be used. The unittest l
 
 ```php
 use unittest\actions\{IsPlatform, VerifyThat};
+use unittest\{Test, Action};
 
 class FileSystemTest {
 
-  #[@test, @action(new IsPlatform('!WIN'))
+  #[Test, Action(eval: 'new IsPlatform("!WIN")')]
   public function not_run_on_windows() {
     // ...
   }
 
-  #[@test, @action(new VerifyThat(function() {
-  #  return file_exists('/$Recycle.Bin');
-  #}))
+  #[Test, Action(eval: 'new VerifyThat(fn() => file_exists("/\$Recycle.Bin");')]
   public function run_when_recycle_bin_exists() {
     // ...
   }
 }
 ```
 
-Multiple actions can be run around a test by passing an array to the *@action* annotation.
+Multiple actions can be run around a test by passing an array to the *@action* attribute.
 
 Further reading
 ---------------
@@ -170,5 +173,5 @@ Further reading
 * [XP RFC #0150: Before and after methods for test cases](https://github.com/xp-framework/rfc/issues/150)
 * [XP RFC #0145: Make unittests strict](https://github.com/xp-framework/rfc/issues/145)
 * [XP RFC #0059: Timeouts for unittests](https://github.com/xp-framework/rfc/issues/59)
-* [XP RFC #0032: Add annotations for Unittest API](https://github.com/xp-framework/rfc/issues/32)
+* [XP RFC #0032: Add attributes for Unittest API](https://github.com/xp-framework/rfc/issues/32)
 * [XP RFC #0020: Metadata for unittests](https://github.com/xp-framework/rfc/issues/20)
