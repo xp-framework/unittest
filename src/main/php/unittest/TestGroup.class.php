@@ -18,15 +18,28 @@ abstract class TestGroup {
    * @return iterable
    */
   protected function actionsFor($annotated, $kind) {
-    if (null === ($annotation= $annotated->annotation(Action::class))) return;
 
-    $action= $annotation->argument(0);
-    if (is_array($action)) {
-      foreach ($action as $a) {
-        if ($a instanceof $kind) yield $a;
+    // XP: [@action(new RuntimeVersion(...))]
+    if ($annotation= $annotated->annotation(Action::class)) {
+      $action= $annotation->argument(0);
+      if (is_array($action)) {
+        foreach ($action as $a) {
+          if ($a instanceof $kind) yield $a;
+        }
+      } else {
+        if ($action instanceof $kind) yield $action;
       }
-    } else {
-      if ($action instanceof $kind) yield $action;
+    }
+
+    // PHP: [RuntimeVersion(<const>), VerifyThat(eval: '<expr>')]
+    foreach ($annotated->annotations() as $type => $annotation) {
+      if ($annotation->is($kind)) {
+        if ($expression= $annotation->argument('eval')) {
+          yield Reflect::of($type)->newInstance($annotated->evaluate($expression));
+        } else {
+          yield Reflect::of($type)->newInstance(...$annotation->arguments());
+        }
+      }
     }
   }
 

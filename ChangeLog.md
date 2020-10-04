@@ -3,6 +3,11 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+* Added support for standalone actions: The `@action` annotation, e.g.
+  `#[@action(new Verify(...))]`, becomes `#[Verify(...)]`. See #40
+  (@thekid)
+* Migrated codebase to use `xp-framework/reflection` library - @thekid
+
 ## 11.1.0 / 2020-09-20
 
 * Fixed issue #42: No constructor error for class::method - @thekid

@@ -3,9 +3,6 @@
 use lang\{ClassLoader, IllegalStateException, XPClass};
 use unittest\{Action, PrerequisitesNotMetError, Test, TestCase, TestPrerequisitesNotMet, TestSuite};
 
-/**
- * Test test actions
- */
 class TestActionTest extends TestCase {
   protected $suite, $parent;
 
@@ -19,7 +16,7 @@ class TestActionTest extends TestCase {
   public function beforeTest_and_afterTest_invocation_order() {
     $test= newinstance(TestCase::class, ['fixture'], [
       'run' => [],
-      '#[Test, Action(eval: "new \\\\unittest\\\\tests\\\\RecordActionInvocation(\"run\")")] fixture' => function() {
+      '#[Test, \unittest\tests\RecordActionInvocation("run")] fixture' => function() {
         $this->run[]= 'test';
       }
     ]);
@@ -34,7 +31,7 @@ class TestActionTest extends TestCase {
       'setUp' => function() {
         $this->run[]= 'setup';
       },
-      '#[Test, Action(eval: "new \\\\unittest\\\\tests\\\\RecordActionInvocation(\"run\")")] fixture' => function() {
+      '#[Test, \unittest\tests\RecordActionInvocation("run")] fixture' => function() {
         $this->run[]= 'test';
       }
     ]);
@@ -49,7 +46,7 @@ class TestActionTest extends TestCase {
       'tearDown' => function() {
         $this->run[]= 'teardown';
       },
-      '#[Test, Action(eval: "new \\\\unittest\\\\tests\\\\RecordActionInvocation(\"run\")")] fixture' => function() {
+      '#[Test, \unittest\tests\RecordActionInvocation("run")] fixture' => function() {
         $this->run[]= 'test';
       }
     ]);
@@ -60,7 +57,7 @@ class TestActionTest extends TestCase {
   #[Test]
   public function beforeTest_can_skip_test() {
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[Test, Action(eval: "new \\\\unittest\\\\tests\\\\SkipThis()")] fixture' => function() {
+      '#[Test, \unittest\tests\SkipThis] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -76,7 +73,7 @@ class TestActionTest extends TestCase {
       'afterTest'  => function(Test $t) use(&$actions) { $actions[]= 'freed'; }
     ]);
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[Test, Action(eval: "[new \\\\unittest\\\\tests\\\\AllocateMemory(), new \\\\unittest\\\\tests\\\\SkipThis()]")] fixture' => function() {
+      '#[Test, \unittest\tests\AllocateMemory, \unittest\tests\SkipThis] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -117,7 +114,7 @@ class TestActionTest extends TestCase {
       }
     }');
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[Test, Action(eval: "new \\\\unittest\\\\tests\\\\PlatformVerification(\"Test\")")] fixture' => function() {
+      '#[Test, \unittest\tests\PlatformVerification("Test")] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -133,7 +130,7 @@ class TestActionTest extends TestCase {
       'afterTest'  => function(Test $t) { }
     ]);
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[Test, Action(eval: "[new \\\\unittest\\\\tests\\\\SkipTest()]")] fixture' => function() {
+      '#[Test, \unittest\tests\SkipTest] fixture' => function() {
         throw new IllegalStateException('This test should have been skipped');
       }
     ]);
@@ -169,7 +166,7 @@ class TestActionTest extends TestCase {
       }
     }');
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[Test, Action(eval: "new \\\\unittest\\\\tests\\\\FailOnTearDown()")] fixture' => function() {
+      '#[Test, \unittest\tests\FailOnTearDown] fixture' => function() {
         // NOOP
       }
     ]);

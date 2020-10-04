@@ -3,7 +3,7 @@
 use unittest\{Action, Test, TestCase};
 
 /** This class is used in the TestClassActionTest */
-#[Action(eval: 'new RecordActionInvocation("run")')]
+#[RecordActionInvocation('run')]
 class TestWithClassAction extends TestCase {
   public static $run= [];
 
