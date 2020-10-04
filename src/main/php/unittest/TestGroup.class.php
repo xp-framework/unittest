@@ -34,11 +34,7 @@ abstract class TestGroup {
     // PHP: [RuntimeVersion(<const>), VerifyThat(eval: '<expr>')]
     foreach ($annotated->annotations() as $type => $annotation) {
       if ($annotation->is($kind)) {
-        if ($expression= $annotation->argument('eval')) {
-          yield Reflect::of($type)->newInstance($annotated->evaluate($expression));
-        } else {
-          yield Reflect::of($type)->newInstance(...$annotation->arguments());
-        }
+        yield Reflect::of($type)->newInstance(...$annotation->arguments());
       }
     }
   }
