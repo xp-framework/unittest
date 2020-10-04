@@ -148,12 +148,12 @@ use unittest\{Test, Action};
 
 class FileSystemTest {
 
-  #[Test, Action(eval: 'new IsPlatform("!WIN")')]
+  #[Test, new IsPlatform('!WIN')]
   public function not_run_on_windows() {
     // ...
   }
 
-  #[Test, Action(eval: 'new VerifyThat(fn() => file_exists("/\$Recycle.Bin");')]
+  #[Test, new VerifyThat(eval: 'fn() => file_exists("/\$Recycle.Bin")')]
   public function run_when_recycle_bin_exists() {
     // ...
   }
