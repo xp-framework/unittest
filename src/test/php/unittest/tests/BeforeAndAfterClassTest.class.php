@@ -1,6 +1,6 @@
 <?php namespace unittest\tests;
 
-use unittest\{PrerequisitesFailedError, PrerequisitesNotMetError, TestCase, TestFailure, TestSkipped, TestSuite};
+use unittest\{AfterClass, BeforeClass, PrerequisitesFailedError, PrerequisitesNotMetError, Test, TestCase, TestFailure, TestSkipped, TestSuite};
 
 /**
  * Tests @beforeClass and @afterClass methods
@@ -25,33 +25,33 @@ abstract class BeforeAndAfterClassTest extends TestCase {
    */
   protected abstract function runTest($test);
 
-  #[@test]
+  #[Test]
   public function beforeClassMethodIsExecuted() {
     $t= newinstance(TestCase::class, ['fixture'], '{
       public static $initialized= false;
 
-      #[@beforeClass]
+      #[BeforeClass]
       public static function prepareTestData() {
         self::$initialized= true;
       }
 
-      #[@test]
+      #[Test]
       public function fixture() { }
     }');
     $this->suite->runTest($t);
     $this->assertEquals(true, typeof($t)->getField('initialized')->get(null));
   }
 
-  #[@test]
+  #[Test]
   public function exceptionInBeforeClassSkipsTest() {
     $t= newinstance(TestCase::class, ['fixture'], '{
 
-      #[@beforeClass]
+      #[BeforeClass]
       public static function prepareTestData() {
         throw new \lang\IllegalStateException("Test data not available");
       }
 
-      #[@test]
+      #[Test]
       public function fixture() { 
         $this->fail("Will not be run");
       }
@@ -62,16 +62,16 @@ abstract class BeforeAndAfterClassTest extends TestCase {
     $this->assertEquals('Exception in beforeClass method prepareTestData', $r->reason->getMessage());
   }
 
-  #[@test]
+  #[Test]
   public function unmetPrerequisiteInBeforeClassSkipsTest() {
     $t= newinstance(TestCase::class, ['fixture'], '{
 
-      #[@beforeClass]
+      #[BeforeClass]
       public static function prepareTestData() {
         throw new \unittest\PrerequisitesNotMetError("Test data not available", null, ["data"]);
       }
 
-      #[@test]
+      #[Test]
       public function fixture() { 
         $this->fail("Will not be run");
       }
@@ -82,16 +82,16 @@ abstract class BeforeAndAfterClassTest extends TestCase {
     $this->assertEquals('Test data not available', $r->reason->getMessage());
   }
 
-  #[@test]
+  #[Test]
   public function failedPrerequisiteInBeforeClassFailsTest() {
     $t= newinstance(TestCase::class, ['fixture'], '{
 
-      #[@beforeClass]
+      #[BeforeClass]
       public static function prepareTestData() {
         throw new \unittest\PrerequisitesFailedError("Test data not available", null, ["data"]);
       }
 
-      #[@test]
+      #[Test]
       public function fixture() {
         $this->fail("Will not be run");
       }
@@ -102,83 +102,83 @@ abstract class BeforeAndAfterClassTest extends TestCase {
     $this->assertEquals('Test data not available', $r->reason->getMessage());
   }
 
-  #[@test]
+  #[Test]
   public function afterClassMethodIsExecuted() {
     $t= newinstance(TestCase::class, ['fixture'], '{
       public static $finalized= FALSE;
 
-      #[@afterClass]
+      #[AfterClass]
       public static function deleteTestData() {
         self::$finalized= TRUE;
       }
 
-      #[@test]
+      #[Test]
       public function fixture() { }
     }');
     $this->suite->runTest($t);
     $this->assertEquals(true, typeof($t)->getField('finalized')->get(null));
   }
 
-  #[@test]
+  #[Test]
   public function allBeforeClassMethodsAreExecuted() {
     $t= newinstance(TestCase::class, ['fixture'], '{
       public static $initialized= [];
 
-      #[@beforeClass]
+      #[BeforeClass]
       public static function prepareTestData() {
         self::$initialized[]= "data";
       }
 
-      #[@beforeClass]
+      #[BeforeClass]
       public static function connectToDatabase() {
         self::$initialized[]= "conn";
       }
 
-      #[@test]
+      #[Test]
       public function fixture() { }
     }');
     $this->suite->runTest($t);
     $this->assertEquals(['data', 'conn'], typeof($t)->getField('initialized')->get(null));
   }
 
-  #[@test]
+  #[Test]
   public function allAfterClassMethodsAreExecuted() {
     $t= newinstance(TestCase::class, ['fixture'], '{
       public static $finalized= [];
 
-      #[@beforeClass]
+      #[BeforeClass]
       public static function disconnectFromDatabase() {
         self::$finalized[]= "conn";
       }
 
-      #[@beforeClass]
+      #[BeforeClass]
       public static function deleteTestData() {
         self::$finalized[]= "data";
       }
 
-      #[@test]
+      #[Test]
       public function fixture() { }
     }');
     $this->suite->runTest($t);
     $this->assertEquals(['conn', 'data'], typeof($t)->getField('finalized')->get(null));
   }
 
-  #[@test]
+  #[Test]
   public function afterClassMethodIsNotExecutedWhenPrerequisitesFail() {
     $t= newinstance(TestCase::class, ['fixture'], '{
       public static $finalized= FALSE;
 
-      #[@beforeClass]
+      #[BeforeClass]
       public static function prepareTestData() {
         throw new \unittest\PrerequisitesNotMetError("Test data not available", null, ["data"]);
       }
 
-      #[@afterClass]
+      #[AfterClass]
       public static function deleteTestData() {
         self::$finalized= TRUE;
       }
 
-      #[@test]
+      #[Test]
       public function fixture() { }
     }');
     $this->suite->runTest($t);

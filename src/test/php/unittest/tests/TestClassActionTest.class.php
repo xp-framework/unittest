@@ -1,6 +1,6 @@
 <?php namespace unittest\tests;
 
-use unittest\TestSuite;
+use unittest\{Test, TestSuite};
 
 /**
  * Test test class actions
@@ -15,7 +15,7 @@ class TestClassActionTest extends \unittest\TestCase {
     $this->suite= new TestSuite();
   }
 
-  #[@test]
+  #[Test]
   public function beforeTestClass_and_afterTestClass_invocation_order() {
     TestWithClassAction::$run= [];
     $this->suite->runTest(new TestWithClassAction('fixture'));

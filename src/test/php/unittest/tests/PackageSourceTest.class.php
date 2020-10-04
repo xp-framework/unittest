@@ -2,17 +2,17 @@
 
 use lang\IllegalArgumentException;
 use lang\reflect\Package;
-use unittest\TestSuite;
+use unittest\{Expect, Test, TestSuite};
 use xp\unittest\sources\PackageSource;
 
 class PackageSourceTest extends AbstractSourceTest {
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new PackageSource(Package::forName('unittest.tests.sources'), $recursive= false);
   }
 
-  #[@test]
+  #[Test]
   public function finds_classes_inside_given_package() {
     $this->assertTests(
       ['unittest.tests.sources.InBase::test'],
@@ -20,7 +20,7 @@ class PackageSourceTest extends AbstractSourceTest {
     );
   }
 
-  #[@test]
+  #[Test]
   public function finds_classes_inside_given_package_recursively() {
     $this->assertTests(
       [
@@ -32,7 +32,7 @@ class PackageSourceTest extends AbstractSourceTest {
     );
   }
 
-  #[@test, @expect(IllegalArgumentException::class)]
+  #[Test, Expect(IllegalArgumentException::class)]
   public function raises_error_when_no_tests_found() {
     $f= new PackageSource(Package::forName('unittest.tests.sources.fixtures'), $recursive= false);
     $f->provideTo(new TestSuite(), $arguments= []);

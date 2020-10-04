@@ -1,5 +1,6 @@
 <?php namespace unittest\tests;
 
+use unittest\Test;
 use unittest\actions\ExtensionAvailable;
 
 /**
@@ -7,17 +8,17 @@ use unittest\actions\ExtensionAvailable;
  */
 class ExtensionAvailableTest extends \unittest\TestCase {
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new ExtensionAvailable('standard');
   }
 
-  #[@test]
+  #[Test]
   public function verify_standard_extension() {
     $this->assertTrue((new ExtensionAvailable('standard'))->verify());
   }
 
-  #[@test]
+  #[Test]
   public function verify_non_existant_extension() {
     $this->assertFalse((new ExtensionAvailable('@@non-existant@@'))->verify());
   }

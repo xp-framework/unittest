@@ -1,7 +1,7 @@
 <?php namespace unittest\tests;
 
 use lang\IllegalArgumentException;
-use unittest\{Listener, PrerequisitesNotMetError, TestAssertionFailed, TestCase, TestError, TestExpectationMet, TestFailure, TestNotRun, TestPrerequisitesNotMet, TestResult, TestSkipped, TestStart, TestSuccess, TestSuite, TestWarning};
+use unittest\{Listener, PrerequisitesNotMetError, Test, TestAssertionFailed, TestCase, TestError, TestExpectationMet, TestFailure, TestNotRun, TestPrerequisitesNotMet, TestResult, TestSkipped, TestStart, TestSuccess, TestSuite, TestWarning};
 
 class ListenerTest extends TestCase implements Listener {
   private $suite, $invocations;
@@ -101,39 +101,39 @@ class ListenerTest extends TestCase implements Listener {
     $this->invocations[__FUNCTION__]= [$suite, $result];
   }
 
-  #[@test]
+  #[Test]
   public function add_listener() {
     $this->assertEquals($this, $this->suite->addListener($this));
   }
 
-  #[@test]
+  #[Test]
   public function remove_listener() {
     $this->suite->addListener($this);
     $this->assertTrue($this->suite->removeListener($this));
   }
 
-  #[@test]
+  #[Test]
   public function remove_non_existant_listener() {
     $this->assertFalse($this->suite->removeListener($this));
   }
 
-  #[@test]
+  #[Test]
   public function string_representation() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { /** NOOP */ }
+      '#[Test] fixture' => function() { /** NOOP */ }
     ]));
     $this->assertNotEquals('', $this->suite->toString());
   }
 
-  #[@test]
+  #[Test]
   public function hash_code() {
     $this->assertNotEquals('', $this->suite->hashCode());
   }
 
-  #[@test]
+  #[Test]
   public function notifiedOnSuccess() {
     $case= newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $this->assertTrue(true); }
+      '#[Test] fixture' => function() { $this->assertTrue(true); }
     ]);
     $this->suite->addListener($this);
     $this->suite->runTest($case);
@@ -144,10 +144,10 @@ class ListenerTest extends TestCase implements Listener {
     $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
   }    
 
-  #[@test]
+  #[Test]
   public function notifiedOnFailure() {
     $case= newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $this->assertTrue(false); }
+      '#[Test] fixture' => function() { $this->assertTrue(false); }
     ]);
     $this->suite->addListener($this);
     $this->suite->runTest($case);
@@ -158,10 +158,10 @@ class ListenerTest extends TestCase implements Listener {
     $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
   }    
 
-  #[@test]
+  #[Test]
   public function notifiedOnException() {
     $case= newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { throw new IllegalArgumentException('Test'); }
+      '#[Test] fixture' => function() { throw new IllegalArgumentException('Test'); }
     ]);
     $this->suite->addListener($this);
     $this->suite->runTest($case);
@@ -172,10 +172,10 @@ class ListenerTest extends TestCase implements Listener {
     $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
   }    
 
-  #[@test]
+  #[Test]
   public function notifiedOnError() {
     $case= newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { trigger_error('Test error'); }
+      '#[Test] fixture' => function() { trigger_error('Test error'); }
     ]);
     $this->suite->addListener($this);
     $this->suite->runTest($case);
@@ -186,11 +186,11 @@ class ListenerTest extends TestCase implements Listener {
     $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
   }    
 
-  #[@test]
+  #[Test]
   public function notifiedOnSkipped() {
     $case= newinstance(TestCase::class, ['fixture'], [
       'setUp' => function() { throw new PrerequisitesNotMetError('SKIP', null, $this->name); },
-      '#[@test] fixture' => function() { /* Intentionally empty */ }
+      '#[Test] fixture' => function() { /* Intentionally empty */ }
     ]);
     $this->suite->addListener($this);
     $this->suite->runTest($case);
@@ -201,10 +201,10 @@ class ListenerTest extends TestCase implements Listener {
     $this->assertInstanceOf(TestResult::class, $this->invocations['testRunFinished'][1]);
   }    
 
-  #[@test]
+  #[Test]
   public function notifiedOnIgnored() {
     $case= newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @ignore] fixture' => function() { /* Intentionally empty */ }
+      '#[Test, Ignore] fixture' => function() { /* Intentionally empty */ }
     ]);
     $this->suite->addListener($this);
     $this->suite->runTest($case);

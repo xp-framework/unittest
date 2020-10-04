@@ -3,6 +3,12 @@
 use lang\{ClassLoader, Error, FormatException, IllegalArgumentException, MethodNotImplementedException};
 use unittest\actions\RuntimeVersion;
 use unittest\{
+  Action,
+  AfterClass,
+  BeforeClass,
+  Expect,
+  Test,
+  Values,
   Assert,
   AssertionFailedError,
   PrerequisitesNotMetError,
@@ -40,12 +46,12 @@ class SuiteTest extends TestCase {
     return ClassLoader::defineClass($name, TestCase::class, [], '{
       public static $before= false;
 
-      #[@beforeClass]
+      #[BeforeClass]
       public static function before() {
         self::$before= true;
       }
 
-      #[@test]
+      #[Test]
       public function fixture() { /* Empty */ }
     }');
   }
@@ -61,90 +67,90 @@ class SuiteTest extends TestCase {
     return ClassLoader::defineClass($name, TestCase::class, [], '{
       public static $after= false;
 
-      #[@afterClass]
+      #[AfterClass]
       public static function after() {
         self::$after= true;
       }
 
-      #[@test]
+      #[Test]
       public function fixture() { /* Empty */ }
     }');
   }
 
-  #[@test]
+  #[Test]
   public function initally_empty() {
     $this->assertEquals(0, $this->suite->numTests());
   }    
 
-  #[@test]
+  #[Test]
   public function add_testcase() {
     $this->suite->addTest($this);
     $this->assertEquals(1, $this->suite->numTests());
   }
 
-  #[@test]
+  #[Test]
   public function add_testgrup() {
     $test= new class() {
 
-      #[@test]
+      #[Test]
       public function test() { }
     };
     $this->suite->addTest(new TestMethod(typeof($test), 'test'));
     $this->assertEquals(1, $this->suite->numTests());
   }
 
-  #[@test]
+  #[Test]
   public function add_testcase_twice() {
     $this->suite->addTest($this);
     $this->suite->addTest($this);
     $this->assertEquals(2, $this->suite->numTests());
   }    
 
-  #[@test, @expect(IllegalArgumentException::class)]
+  #[Test, Expect(IllegalArgumentException::class)]
   public function add_non_test() {
     $this->suite->addTest(new NotATestClass());
   }
 
-  #[@test, @expect(MethodNotImplementedException::class)]
+  #[Test, Expect(MethodNotImplementedException::class)]
   public function add_invalid_Test() {
     $this->suite->addTest(new class('nonExistant') extends TestCase { });
   }
 
-  #[@test, @expect(IllegalArgumentException::class)]
+  #[Test, Expect(IllegalArgumentException::class)]
   public function runNonTest() {
     $this->suite->runTest(new NotATestClass());
   }
 
-  #[@test, @expect(MethodNotImplementedException::class)]
+  #[Test, Expect(MethodNotImplementedException::class)]
   public function runInvalidTest() {
     $this->suite->runTest(newinstance(TestCase::class, ['nonExistant'], '{}'));
   }
 
-  #[@test]
+  #[Test]
   public function adding_a_testclass_returns_added_class() {
     $this->assertEquals(typeof($this), $this->suite->addTestClass(typeof($this)));
   }
 
-  #[@test]
+  #[Test]
   public function adding_a_testclass_by_name_returns_added_class() {
     $this->assertEquals(typeof($this), $this->suite->addTestClass(self::class));
   }
 
-  #[@test]
+  #[Test]
   public function number_of_tests_initially_zero() {
     $this->assertEquals(0, $this->suite->numTests());
   }
 
-  #[@test]
+  #[Test]
   public function no_test_initially() {
     $this->assertNull($this->suite->testAt(0));
   }
 
-  #[@test]
+  #[Test]
   public function adding_a_testclass_fills_suites_tests() {
     $class= ClassLoader::defineClass($this->name, 'unittest.TestCase', [], [
-      '#[@test] a' => function() { },
-      '#[@test] b' => function() { }
+      '#[Test] a' => function() { },
+      '#[Test] b' => function() { }
     ]);
     $this->suite->addTestClass($class);
     $this->assertEquals(2, $this->suite->numTests());
@@ -152,25 +158,25 @@ class SuiteTest extends TestCase {
     $this->assertInstanceOf(TestCaseInstance::class, $this->suite->testAt(1));
   }
 
-  #[@test]
+  #[Test]
   public function adding_a_testclass_twice_fills_suites_tests_twice() {
     $class= ClassLoader::defineClass($this->name, 'unittest.TestCase', [], [
-      '#[@test] fixture' => function() { }
+      '#[Test] fixture' => function() { }
     ]);
     $this->suite->addTestClass($class);
     $this->suite->addTestClass($class);
     $this->assertEquals(2, $this->suite->numTests());
   }
 
-  #[@test, @expect(NoSuchElementException::class)]
+  #[Test, Expect(NoSuchElementException::class)]
   public function addingEmptyTest() {
     $this->suite->addTestClass(ClassLoader::defineClass($this->name, 'unittest.TestCase', []));
   }    
 
-  #[@test]
+  #[Test]
   public function addingEmptyTestAfter() {
     $this->suite->addTestClass(ClassLoader::defineClass($this->name.'WithTest', 'unittest.TestCase', [], [
-      '#[@test] fixture' => function() { }
+      '#[Test] fixture' => function() { }
     ]));
     $before= $this->suite->numTests();
     try {
@@ -181,12 +187,12 @@ class SuiteTest extends TestCase {
     $this->assertEquals($before, $this->suite->numTests());
   }
 
-  #[@test, @expect(IllegalArgumentException::class)]
+  #[Test, Expect(IllegalArgumentException::class)]
   public function addingANonTestClass() {
     $this->suite->addTestClass(\lang\XPClass::forName('lang.Value'));
   }    
 
-  #[@test]
+  #[Test]
   public function clearingTests() {
     $this->suite->addTest($this);
     $this->assertEquals(1, $this->suite->numTests());
@@ -194,28 +200,28 @@ class SuiteTest extends TestCase {
     $this->assertEquals(0, $this->suite->numTests());
   }
 
-  #[@test]
+  #[Test]
   public function tests_initially_empty() {
     $this->assertEquals([], iterator_to_array($this->suite->tests()));
   }
 
-  #[@test]
+  #[Test]
   public function tests_after_adding_one() {
     $this->suite->addTest($this);
     $this->assertEquals([new TestCaseInstance($this)], iterator_to_array($this->suite->tests()));
   }
 
-  #[@test]
+  #[Test]
   public function tests_after_adding_two() {
     $this->suite->addTest($this);
     $this->suite->addTest($this);
     $this->assertEquals([new TestCaseInstance($this), new TestCaseInstance($this)], iterator_to_array($this->suite->tests()));
   }
 
-  #[@test]
+  #[Test]
   public function run_single_succeeding_testcase() {
     $r= $this->suite->runTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $this->assertTrue(true); }
+      '#[Test] fixture' => function() { $this->assertTrue(true); }
     ]));
     $this->assertInstanceOf(TestResult::class, $r);
     $this->assertEquals(1, $r->count(), 'count');
@@ -225,10 +231,10 @@ class SuiteTest extends TestCase {
     $this->assertEquals(0, $r->skipCount(), 'skipCount');
   }
 
-  #[@test]
+  #[Test]
   public function run_single_succeeding_baseless_test() {
     $r= $this->suite->runTest(ClassLoader::defineClass('BaselessSucceeding', Baseless::class, [], [
-      '#[@test] fixture' => function() { Assert::true(true); }
+      '#[Test] fixture' => function() { Assert::true(true); }
     ]));
     $this->assertInstanceOf(TestResult::class, $r);
     $this->assertEquals(1, $r->count(), 'count');
@@ -238,10 +244,10 @@ class SuiteTest extends TestCase {
     $this->assertEquals(0, $r->skipCount(), 'skipCount');
   }
 
-  #[@test, @values([[[]], [[1, 2, 3]]])]
+  #[Test, Values([[[]], [[1, 2, 3]]])]
   public function run_single_succeeding_targets_with($args) {
     $class= ClassLoader::defineClass('BaselessSucceeding', Baseless::class, [], [
-      '#[@test] fixture' => function() { Assert::true(true); }
+      '#[Test] fixture' => function() { Assert::true(true); }
     ]);
     $r= $this->suite->runTest(new TestTargets($class, $args));
     $this->assertInstanceOf(TestResult::class, $r);
@@ -252,10 +258,10 @@ class SuiteTest extends TestCase {
     $this->assertEquals(0, $r->skipCount(), 'skipCount');
   }
 
-  #[@test]
+  #[Test]
   public function run_single_failing_testcase() {
     $r= $this->suite->runTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $this->assertTrue(false); }
+      '#[Test] fixture' => function() { $this->assertTrue(false); }
     ]));
     $this->assertInstanceOf(TestResult::class, $r);
     $this->assertEquals(1, $r->count(), 'count');
@@ -265,10 +271,10 @@ class SuiteTest extends TestCase {
     $this->assertEquals(0, $r->skipCount(), 'skipCount');
   }
 
-  #[@test]
+  #[Test]
   public function run_single_failing_baseless_test() {
     $r= $this->suite->runTest(ClassLoader::defineClass('BaselessFailing', Baseless::class, [], [
-      '#[@test] fixture' => function() { Assert::true(false); }
+      '#[Test] fixture' => function() { Assert::true(false); }
     ]));
     $this->assertInstanceOf(TestResult::class, $r);
     $this->assertEquals(1, $r->count(), 'count');
@@ -278,20 +284,20 @@ class SuiteTest extends TestCase {
     $this->assertEquals(0, $r->skipCount(), 'skipCount');
   }
 
-  #[@test]
+  #[Test]
   public function runMultipleTests() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $this->assertTrue(false); }
+      '#[Test] fixture' => function() { $this->assertTrue(false); }
     ]));
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $this->assertTrue(true); }
+      '#[Test] fixture' => function() { $this->assertTrue(true); }
     ]));
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'setUp' => function() { throw new PrerequisitesNotMetError('Skip'); },
-      '#[@test] fixture' => function() { $this->assertTrue(false); }
+      '#[Test] fixture' => function() { $this->assertTrue(false); }
     ]));
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @ignore] fixture' => function() { /* Empty */ }
+      '#[Test, Ignore] fixture' => function() { /* Empty */ }
     ]));
     $r= $this->suite->run();
     $this->assertInstanceOf(TestResult::class, $r);
@@ -302,7 +308,7 @@ class SuiteTest extends TestCase {
     $this->assertEquals(2, $r->skipCount(), 'skipCount');
   }    
 
-  #[@test]
+  #[Test]
   public function runInvokesBeforeClassOneClass() {
     $class= $this->classWithBeforeClass($this->name);
     $this->suite->addTest($class->newInstance('fixture'));
@@ -310,34 +316,34 @@ class SuiteTest extends TestCase {
     $this->assertTrue($class->getField('before')->get(null));
   }
 
-  #[@test]
+  #[Test]
   public function runInvokesBeforeClassMultipleClasses() {
     $class= $this->classWithBeforeClass($this->name);
     $this->suite->addTest($class->newInstance('fixture'));
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { /* Empty */ }
+      '#[Test] fixture' => function() { /* Empty */ }
     ]));
     $this->suite->addTest($class->newInstance('fixture'));
     $this->suite->run();
     $this->assertTrue($class->getField('before')->get(null));
   }
 
-  #[@test]
+  #[Test]
   public function runTestInvokesBeforeClass() {
     $class= $this->classWithBeforeClass($this->name);
     $this->suite->runTest($class->newInstance('fixture'));
     $this->assertTrue($class->getField('before')->get(null));
   }    
 
-  #[@test]
+  #[Test]
   public function beforeClassRaisesAPrerequisitesNotMet() {
     $t= newinstance(TestCase::class, ['irrelevant'], '{
-      #[@beforeClass]
+      #[BeforeClass]
       public static function raise() {
         throw new \unittest\PrerequisitesNotMetError("Cannot run");
       }
       
-      #[@test]
+      #[Test]
       public function irrelevant() {
         /* Not invoked */
       }
@@ -350,15 +356,15 @@ class SuiteTest extends TestCase {
     $this->assertEquals('Cannot run', $r->outcomeOf($t)->reason->getMessage());
   }    
 
-  #[@test]
+  #[Test]
   public function beforeClassRaisesAnException() {
     $t= newinstance(TestCase::class, ['irrelevant'], '{
-      #[@beforeClass]
+      #[BeforeClass]
       public static function raise() {
         throw new \lang\IllegalStateException("Skip");
       }
       
-      #[@test]
+      #[Test]
       public function irrelevant() {
         /* Not invoked */
       }
@@ -371,7 +377,7 @@ class SuiteTest extends TestCase {
     $this->assertEquals('Exception in beforeClass method raise', $r->outcomeOf($t)->reason->getMessage());
   }    
 
-  #[@test]
+  #[Test]
   public function runInvokesAfterClass() {
     $class= $this->classWithAfterClass($this->name);
     $this->suite->addTest($class->newInstance('fixture'));
@@ -379,17 +385,17 @@ class SuiteTest extends TestCase {
     $this->assertTrue($class->getField('after')->get(null));
   }    
 
-  #[@test]
+  #[Test]
   public function runTestInvokesAfterClass() {
     $class= $this->classWithAfterClass($this->name);
     $this->suite->runTest($class->newInstance('fixture'));
     $this->assertTrue($class->getField('after')->get(null));
   }    
 
-  #[@test]
+  #[Test]
   public function warningsMakeTestFail() {
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { trigger_error('Test error'); }
+      '#[Test] fixture' => function() { trigger_error('Test error'); }
     ]);
     $this->assertEquals(
       [sprintf('"Test error" in ::trigger_error() (SuiteTest.class.php, line %d, occured once)', __LINE__ - 3)],
@@ -397,10 +403,10 @@ class SuiteTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function xp_exceptions_make_test_fail() {
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { throw new IllegalArgumentException('Test'); }
+      '#[Test] fixture' => function() { throw new IllegalArgumentException('Test'); }
     ]);
     $this->assertInstanceOf(
       'lang.IllegalArgumentException',
@@ -408,10 +414,10 @@ class SuiteTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function native_exceptions_make_test_fail() {
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { throw new \Exception('Test'); }
+      '#[Test] fixture' => function() { throw new \Exception('Test'); }
     ]);
     $this->assertInstanceOf(
       'lang.XPException',
@@ -419,10 +425,10 @@ class SuiteTest extends TestCase {
     );
   }
 
-  #[@test, @action(new RuntimeVersion('>=7.0.0'))]
+  #[Test]
   public function native_php7_errors_make_test_fail() {
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $null= null; $null->method(); }
+      '#[Test] fixture' => function() { $null= null; $null->method(); }
     ]);
     $this->assertInstanceOf(
       'lang.Error',
@@ -430,10 +436,10 @@ class SuiteTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function expectedExceptionsWithWarningsMakeTestFail() {
     $test= newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @expect("lang.IllegalArgumentException")] fixture' => function() {
+      '#[Test, Expect("lang.IllegalArgumentException")] fixture' => function() {
         trigger_error('Test error');
         throw new IllegalArgumentException('Test');
       }
@@ -444,49 +450,49 @@ class SuiteTest extends TestCase {
     );
   }
   
-  #[@test]
+  #[Test]
   public function warningsDontAffectSucceedingTests() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { trigger_error('Test error'); }
+      '#[Test] fixture' => function() { trigger_error('Test error'); }
     ]));
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $this->assertTrue(true); }
+      '#[Test] fixture' => function() { $this->assertTrue(true); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(1, $r->failureCount());
     $this->assertEquals(1, $r->successCount());
   }
  
-  #[@test]
+  #[Test]
   public function warningsFromFailuresDontAffectSucceedingTests() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { trigger_error('Test error'); $this->assertTrue(false); }
+      '#[Test] fixture' => function() { trigger_error('Test error'); $this->assertTrue(false); }
     ]));
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $this->assertTrue(true); }
+      '#[Test] fixture' => function() { $this->assertTrue(true); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(1, $r->failureCount());
     $this->assertEquals(1, $r->successCount());
   }
 
-  #[@test]
+  #[Test]
   public function warningsFromSetupDontAffectSucceedingTests() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'setUp' => function() { trigger_error('Error'); },
-      '#[@test] fixture' => function() { /* Empty */ }
+      '#[Test] fixture' => function() { /* Empty */ }
     ]));
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $this->assertTrue(true); }
+      '#[Test] fixture' => function() { $this->assertTrue(true); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(1, $r->successCount());
   }
 
-  #[@test]
+  #[Test]
   public function expectedException() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @expect("lang.IllegalArgumentException")] fixture' => function() {
+      '#[Test, Expect("lang.IllegalArgumentException")] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
     ]));
@@ -494,10 +500,10 @@ class SuiteTest extends TestCase {
     $this->assertEquals(1, $r->successCount());
   }
 
-  #[@test]
+  #[Test]
   public function subclassOfExpectedException() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @expect("lang.XPException")] fixture' => function() {
+      '#[Test, Expect("lang.XPException")] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
     ]));
@@ -505,10 +511,10 @@ class SuiteTest extends TestCase {
     $this->assertEquals(1, $r->successCount());
   }
 
-  #[@test]
+  #[Test]
   public function expectedExceptionNotThrown() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @expect("lang.IllegalArgumentException")] fixture' => function() {
+      '#[Test, Expect("lang.IllegalArgumentException")] fixture' => function() {
         throw new FormatException('Test');
       }
     ]));
@@ -520,10 +526,10 @@ class SuiteTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function catchExpectedWithMessage() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @expect(["class" => "lang.IllegalArgumentException", "withMessage" => "Test"])] fixture' => function() {
+      '#[Test, Expect(["class" => "lang.IllegalArgumentException", "withMessage" => "Test"])] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
     ]));
@@ -531,10 +537,10 @@ class SuiteTest extends TestCase {
     $this->assertEquals(1, $r->successCount());
   }
 
-  #[@test]
+  #[Test]
   public function catchExpectedWithMismatchingMessage() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @expect(["class" => "lang.IllegalArgumentException", "withMessage" => "Hello"])] fixture' => function() {
+      '#[Test, Expect(["class" => "lang.IllegalArgumentException", "withMessage" => "Hello"])] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
     ]));
@@ -546,10 +552,10 @@ class SuiteTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function catchExpectedWithPatternMessage() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @expect(["class" => "lang.IllegalArgumentException", "withMessage" => "/[tT]est/"])] fixture' => function() {
+      '#[Test, Expect(["class" => "lang.IllegalArgumentException", "withMessage" => "/[tT]est/"])] fixture' => function() {
         throw new IllegalArgumentException('Test');
       }
     ]));
@@ -557,10 +563,10 @@ class SuiteTest extends TestCase {
     $this->assertEquals(1, $r->successCount());
   }
 
-  #[@test]
+  #[Test]
   public function catchExpectedWithEmptyMessage() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test, @expect(["class" => "lang.IllegalArgumentException", "withMessage" => ""])] fixture' => function() {
+      '#[Test, Expect(["class" => "lang.IllegalArgumentException", "withMessage" => ""])] fixture' => function() {
         throw new IllegalArgumentException('');
       }
     ]));
@@ -568,7 +574,7 @@ class SuiteTest extends TestCase {
     $this->assertEquals(1, $r->successCount());
   }
 
-  #[@test]
+  #[Test]
   public function catchExceptionsDuringSetUpOfTestDontBringDownTestSuite() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'setUp' => function() { throw new IllegalArgumentException('In setup'); },
@@ -578,10 +584,10 @@ class SuiteTest extends TestCase {
     $this->assertEquals(1, $r->failureCount());
   }
 
-  #[@test]
+  #[Test]
   public function fail_with_reason_only() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $this->fail('Test'); }
+      '#[Test] fixture' => function() { $this->fail('Test'); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(
@@ -590,10 +596,10 @@ class SuiteTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function fail_with_actual_and_expected() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $this->fail('Not equal', 'a', 'b'); }
+      '#[Test] fixture' => function() { $this->fail('Not equal', 'a', 'b'); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(
@@ -602,10 +608,10 @@ class SuiteTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function skip_with_reason() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
-      '#[@test] fixture' => function() { $this->skip('Test'); }
+      '#[Test] fixture' => function() { $this->skip('Test'); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(
@@ -614,61 +620,61 @@ class SuiteTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function throwing_PrerequisitesNotMetError_from_setUp_skips_test() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'setUp' => function() { throw new PrerequisitesNotMetError('Skip'); },
-      '#[@test] fixture' => function() { $this->assertTrue(false); }
+      '#[Test] fixture' => function() { $this->assertTrue(false); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(1, $r->skipCount());
   }
 
-  #[@test]
+  #[Test]
   public function throwing_AssertionFailedError_from_setUp_fails_test() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'setUp' => function() { throw new AssertionFailedError('Fail'); },
-      '#[@test] fixture' => function() { $this->assertTrue(false); }
+      '#[Test] fixture' => function() { $this->assertTrue(false); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(1, $r->failureCount());
   }
 
-  #[@test, @values([IllegalArgumentException::class, \Exception::class])]
+  #[Test, Values([IllegalArgumentException::class, \Exception::class])]
   public function throwing_any_other_exception_from_setUp_fails_test($e) {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'setUp' => function() use($e) { throw new $e('Fail'); },
-      '#[@test] fixture' => function() { $this->assertTrue(false); }
+      '#[Test] fixture' => function() { $this->assertTrue(false); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(1, $r->failureCount());
   }
 
-  #[@test]
+  #[Test]
   public function throwing_AssertionFailedError_from_tearDown_fails_succeeding_test() {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'tearDown' => function() { throw new AssertionFailedError('Fail'); },
-      '#[@test] fixture' => function() { $this->assertTrue(true); }
+      '#[Test] fixture' => function() { $this->assertTrue(true); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(1, $r->failureCount());
   }
 
-  #[@test, @values([IllegalArgumentException::class, \Exception::class])]
+  #[Test, Values([IllegalArgumentException::class, \Exception::class])]
   public function throwing_any_other_exception_from_tearDown_fails_succeeding_test($e) {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'tearDown' => function() use($e) { throw new $e('Fail'); },
-      '#[@test] fixture' => function() { $this->assertTrue(true); }
+      '#[Test] fixture' => function() { $this->assertTrue(true); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(1, $r->failureCount());
   }
 
-  #[@test, @values([IllegalArgumentException::class, \Exception::class])]
+  #[Test, Values([IllegalArgumentException::class, \Exception::class])]
   public function throwing_any_other_exception_from_tearDown_fails_failing_test($e) {
     $this->suite->addTest(newinstance(TestCase::class, ['fixture'], [
       'tearDown' => function() use($e) { throw new $e('Fail'); },
-      '#[@test] fixture' => function() { $this->fail('Failing'); }
+      '#[Test] fixture' => function() { $this->fail('Failing'); }
     ]));
     $r= $this->suite->run();
     $this->assertEquals(1, $r->failureCount());

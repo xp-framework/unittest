@@ -1,7 +1,7 @@
 <?php namespace unittest\tests;
  
 use lang\XPClass;
-use unittest\{AssertionFailedError, TestCase};
+use unittest\{AssertionFailedError, Expect, Test, TestCase, Values};
 use util\Objects;
 
 /**
@@ -9,52 +9,52 @@ use util\Objects;
  */
 class AssertionsTest extends TestCase {
 
-  #[@test]
+  #[Test]
   public function trueIsTrue() {
     $this->assertTrue(true);
   }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function falseIsNotTrue() {
     $this->assertTrue(false);
   }
 
-  #[@test]
+  #[Test]
   public function falseIsFalse() {
     $this->assertFalse(false);
   }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function trueIsNotFalse() {
     $this->assertFalse(true);
   }
 
-  #[@test]
+  #[Test]
   public function nullIsNull() {
     $this->assertNull(null);
   }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function falseIsNotNull() {
     $this->assertNull(false);
   }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function zeroIsNotNull() {
     $this->assertNull(0);
   }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function emptyStringIsNotNull() {
     $this->assertNull('');
   }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function emptyArrayIsNotNull() {
     $this->assertNull([]);
   }
 
-  #[@test]
+  #[Test]
   public function compareToMethodIsInvoked() {
     $instance= newinstance(\lang\Value::class, [], '{
       public $equalsInvoked= 0;
@@ -72,181 +72,164 @@ class AssertionsTest extends TestCase {
     $this->assertEquals(2, $instance->equalsInvoked);
   }
 
-  #[@test, @values([0, 1, -1, PHP_INT_MAX])]
+  #[Test, Values([0, 1, -1, PHP_INT_MAX])]
   public function integersAreEqual($int) {
     $this->assertEquals($int, $int);
-  }    
+  }
 
-  #[@test, @values(['', 'Hello', 'äöüß'])]
+  #[Test, Values(['', 'Hello', 'äöüß'])]
   public function stringsAreEqual($str) {
     $this->assertEquals($str, $str);
-  }    
+  }
 
-  #[@test, @values([
-  #  [[]],
-  #  [[1, 2, 3]],
-  #  [[[1], [], [-1, 4], [new Value(2)]]]
-  #])]
+  #[Test, Values(eval: '[[[]], [[1, 2, 3]], [[[1], [], [-1, 4], [new Value(2)]]]]')]
   public function arraysAreEqual($array) {
     $this->assertEquals($array, $array);
-  }    
+  }
 
-  #[@test, @values([
-  #  [[]],
-  #  [['foo' => 2]],
-  #  [[['bar' => 'baz'], [], ['bool' => true, 'bar' => new Value(6100)]]]
-  #])]
+  #[Test, Values(eval: '[[[]], [["foo" => 2]], [[["bar" => "baz"], [], ["bool" => true, "bar" => new Value(6100)]]]]')]
   public function hashesAreEqual($hash) {
     $this->assertEquals($hash, $hash);
-  }    
+  }
 
-  #[@test]
+  #[Test]
   public function hashesOrderNotRelevant() {
     $hash= ['&' => '&amp;', '"' => '&quot;'];
     $this->assertEquals($hash, array_reverse($hash, true), Objects::stringOf($hash));
-  }    
+  }
 
-  #[@test, @values([1, 0, -1])]
+  #[Test, Values([1, 0, -1])]
   public function integerObjectsAreEqual($str) {
     $this->assertEquals(new Value($str), new Value($str));
   }
 
-  #[@test, @values(['', 'Hello','äöüß'])]
+  #[Test, Values(['', 'Hello','äöüß'])]
   public function valuesAreEqual($str) {
     $this->assertEquals(new Name($str), new Name($str));
   }
 
-  #[@test]
+  #[Test]
   public function nativeInstancesAreEqual() {
     $this->assertEquals(new \ReflectionClass(self::class), new \ReflectionClass(self::class));
   }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function differentNotTypesAreNotEqual() {
     $this->assertEquals(false, null);
-  }    
+  }
 
-  #[@test, @values([-1, 1.0, null, false, true, '', [[1]], new Value(1)])]
+  #[Test, Values(eval: '[-1, 1.0, null, false, true, "", [[1]], new Value(1)]')]
   public function integersAreNotEqual($cmp) {
     $this->assertNotEquals(1, $cmp);
-  }    
+  }
 
-  #[@test, @values([-1, 1.0, null, false, true, 1, [[1]], new Value(1)])]
+  #[Test, Values(eval: '[-1, 1.0, null, false, true, 1, [[1]], new Value(1)]')]
   public function stringsAreNotEqual($cmp) {
     $this->assertNotEquals('', $cmp);
   }
 
-  #[@test, @values([-1, 1.0, null, false, true, 1, [[1]], new Value(1)])]
+  #[Test, Values(eval: '[-1, 1.0, null, false, true, 1, [[1]], new Value(1)]')]
   public function arraysAreNotEqual($cmp) {
     $this->assertNotEquals([], $cmp);
-  }    
+  }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function sameValuesAreEqual() {
     $this->assertNotEquals(1, 1);
-  }    
+  }
 
-  #[@test]
+  #[Test]
   public function nativeInstanceIsNotEqualToThis() {
     $this->assertNotEquals(new \ReflectionClass(self::class), $this);
   }
 
-  #[@test]
+  #[Test]
   public function thisIsAnInstanceOfTestCase() {
     $this->assertInstanceOf(TestCase::class, $this);
   }
 
-  #[@test]
+  #[Test]
   public function thisIsAnInstanceOfTestCaseClass() {
     $this->assertInstanceOf(XPClass::forName('unittest.TestCase'), $this);
-  }    
+  }
 
-  #[@test]
+  #[Test]
   public function thisIsAnInstanceOfObject() {
     $this->assertInstanceOf('lang.Value', $this);
-  }    
+  }
 
-  #[@test]
+  #[Test]
   public function objectIsAnInstanceOfObject() {
     $this->assertInstanceOf('lang.Value', new Value(2));
-  }    
+  }
 
-  #[@test, @expect([
-  #  'class'       => AssertionFailedError::class,
-  #  'withMessage' => 'expected ["lang.Value"] but was ["int"]'
-  #])]
+  #[Test, Expect(class: AssertionFailedError::class, withMessage: 'expected ["lang.Value"] but was ["int"]')]
   public function zeroIsNotAnInstanceOfValue() {
     $this->assertInstanceOf('lang.Value', 0);
-  }    
+  }
 
-  #[@test, @expect([
-  #  'class'       => AssertionFailedError::class,
-  #  'withMessage' => 'expected ["lang.Value"] but was ["void"]'
-  #])]
+  #[Test, Expect(class: AssertionFailedError::class, withMessage: 'expected ["lang.Value"] but was ["void"]')]
   public function nullIsNotAnInstanceOfValue() {
     $this->assertInstanceOf('lang.Value', null);
-  }    
+  }
 
-  #[@test, @expect([
-  #  'class'       => AssertionFailedError::class,
-  #  'withMessage' => 'expected ["unittest.tests.Value"] but was ["unittest.tests.AssertionsTest"]'
-  #])]
+  #[Test, Expect(class: AssertionFailedError::class, withMessage: 'expected ["unittest.tests.Value"] but was ["unittest.tests.AssertionsTest"]')]
   public function thisIsNotAnInstanceOfValue() {
     $this->assertInstanceOf(Value::class, $this);
-  }    
+  }
 
-  #[@test]
+  #[Test]
   public function zeroIsInstanceOfInt() {
     $this->assertInstanceOf('int', 0);
   }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function zeroPointZeroIsNotInstanceOfInt() {
     $this->assertInstanceOf('int', 0.0);
-  }    
+  }
 
-  #[@test]
+  #[Test]
   public function nullIsInstanceOfVar() {
     $this->assertInstanceOf(\lang\Type::$VAR, null);
-  }    
+  }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function nullIsNotInstanceOfVoidType() {
     $this->assertInstanceOf(\lang\Type::$VOID, null);
   }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function nullIsNotInstanceOfVoid() {
     $this->assertInstanceOf('void', null);
   }
 
-  #[@test]
+  #[Test]
   public function emptyArrayIsInstanceOfArray() {
     $this->assertInstanceOf('array', []);
   }
 
-  #[@test]
+  #[Test]
   public function intArrayIsInstanceOfArray() {
     $this->assertInstanceOf('array', [1, 2, 3]);
   }
 
-  #[@test]
+  #[Test]
   public function hashIsInstanceOfArray() {
     $this->assertInstanceOf('array', ['color' => 'green']);
   }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function nullIsNotInstanceOfArray() {
     $this->assertInstanceOf('array', null);
   }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function arrayObjectIsNotInstanceOfArray() {
     $this->assertInstanceOf('array', new \ArrayObject([1, 2, 3]));
   }
 
-  #[@test, @expect(AssertionFailedError::class)]
+  #[Test, Expect(AssertionFailedError::class)]
   public function primitiveIsNotAnInstanceOfValuelass() {
     $this->assertInstanceOf('int', new Value(1));
-  }    
+  }
 }
