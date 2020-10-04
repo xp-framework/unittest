@@ -11,7 +11,7 @@ Unittests for the XP Framework
 
 Writing a test
 --------------
-Tests reside inside a class and are annotated with the `@test` annotation.
+Tests reside inside a class and are annotated with the `@test` attribute.
 
 ```php
 use unittest\{Assert, Test};
@@ -56,7 +56,7 @@ public abstract class unittest.Assert {
 
 Setup and teardown
 ------------------
-In order to run a method before and after the tests are run, annotate methods with the `@before` and `@after` annotations:
+In order to run a method before and after the tests are run, annotate methods with the `@before` and `@after` attributes:
 
 ```php
 use unittest\{Assert, Before, After, Test};
@@ -85,7 +85,7 @@ class CalculatorTest {
 
 Expected exceptions
 -------------------
-The `@expect` annotation is a shorthand for catching exceptions and verifying their type manually.
+The *Expect* attribute is a shorthand for catching exceptions and verifying their type manually.
 
 ```php
 use lang\IllegalArgumentException;
@@ -102,7 +102,7 @@ class CalculatorTest {
 
 Ignoring tests
 --------------
-The `@ignore` annotation can be used to ignore tests. This can be necessary as a temporary measure or when overriding a test base class and not wanting to run one of its methods.
+The *Ignore* attribute can be used to ignore tests. This can be necessary as a temporary measure or when overriding a test base class and not wanting to run one of its methods.
 
 ```php
 use unittest\{Test, Ignore};
@@ -118,7 +118,7 @@ class EncodingTest {
 
 Parameterization
 -----------------
-The `@values` annotation can be used to run a test with a variety of values which are passed as parameters.
+The *Values* attribute can be used to run a test with a variety of values which are passed as parameters.
 
 ```php
 use lang\IllegalArgumentException;
@@ -160,7 +160,7 @@ class FileSystemTest {
 }
 ```
 
-Multiple actions can be run around a test by passing an array to the *@action* annotation.
+Multiple actions can be run around a test by passing an array to the *@action* attribute.
 
 Further reading
 ---------------
@@ -173,5 +173,5 @@ Further reading
 * [XP RFC #0150: Before and after methods for test cases](https://github.com/xp-framework/rfc/issues/150)
 * [XP RFC #0145: Make unittests strict](https://github.com/xp-framework/rfc/issues/145)
 * [XP RFC #0059: Timeouts for unittests](https://github.com/xp-framework/rfc/issues/59)
-* [XP RFC #0032: Add annotations for Unittest API](https://github.com/xp-framework/rfc/issues/32)
+* [XP RFC #0032: Add attributes for Unittest API](https://github.com/xp-framework/rfc/issues/32)
 * [XP RFC #0020: Metadata for unittests](https://github.com/xp-framework/rfc/issues/20)
