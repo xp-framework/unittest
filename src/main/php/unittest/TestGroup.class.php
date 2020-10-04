@@ -18,7 +18,7 @@ abstract class TestGroup {
    * @return iterable
    */
   protected function actionsFor($annotated, $kind) {
-    if (null === ($annotation= $annotated->annotation('action'))) return;
+    if (null === ($annotation= $annotated->annotation(Action::class))) return;
 
     $action= $annotation->argument(0);
     if (is_array($action)) {
