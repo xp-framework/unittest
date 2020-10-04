@@ -14,7 +14,7 @@ class EvaluationSource extends AbstractSource {
   static function __static() {
 
     // Use XP annotations for PHP 7 to retain maximum backwards compatibility
-    self::$annotation= PHP_VERSION_ID < 80000 ? '#[@test]' : '#[Test]';
+    self::$annotation= PHP_VERSION_ID < 80000 ? '#[@test]' : '#[\unittest\Test]';
   }
   
   /**
