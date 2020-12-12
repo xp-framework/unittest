@@ -8,15 +8,8 @@ use unittest\TestCase;
  */
 class EvaluationSource extends AbstractSource {
   private static $uniqId= 0;
-  private static $annotation;
   private $testClass;
 
-  static function __static() {
-
-    // Use XP annotations for PHP 7 to retain maximum backwards compatibility
-    self::$annotation= PHP_VERSION_ID < 80000 ? '#[@test]' : '#[\unittest\Test]';
-  }
-  
   /**
    * Constructor
    *
@@ -32,7 +25,7 @@ class EvaluationSource extends AbstractSource {
 
     $name= 'xp.unittest.DynamicallyGeneratedTestCase'.(self::$uniqId++);
     $this->testClass= ClassLoader::defineClass($name, TestCase::class, [], '{
-      '.self::$annotation.'
+      #[\unittest\Test]
       public function run() { '.$fragment.' }
     }');
   }
