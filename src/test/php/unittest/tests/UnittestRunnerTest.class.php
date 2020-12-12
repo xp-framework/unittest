@@ -111,7 +111,7 @@ class UnittestRunnerTest extends TestCase {
   public function runNonTest() {
     $return= $this->runner->run(['lang.Value']);
     $this->assertEquals(2, $return);
-    $this->assertOnStream($this->err, '*** Error: Cannot instantiate lang.Value');
+    $this->assertOnStream($this->err, '*** Error: Error instantiating lang.Value');
     $this->assertEquals('', $this->out->getBytes());
   }
 

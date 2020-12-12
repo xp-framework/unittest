@@ -1,6 +1,6 @@
 <?php namespace unittest;
 
-use lang\{IllegalArgumentException, Value, Reflect, XPClass};
+use lang\{IllegalArgumentException, Value, Reflection, XPClass};
 use util\Objects;
 
 /**
@@ -47,13 +47,13 @@ class TestSuite implements Value {
    * @throws util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function addTestClass($class, $arguments= []) {
-    $reflect= Reflect::of($class);
+    $reflect= Reflection::of($class);
     if ($reflect->is(TestCase::class)) {
       $this->sources[$reflect->literal()][]= new TestClass($reflect, $arguments);
     } else {
       $this->sources[$reflect->literal()][]= new TestTargets($reflect, $arguments);
     }
-    return $reflect->type();
+    return $reflect->class();
   }
 
   /**

@@ -1,13 +1,13 @@
 <?php namespace unittest;
 
-use lang\reflection\CannotInvoke;
-use lang\{IllegalStateException, Reflect};
+use lang\reflection\InvocationFailed;
+use lang\{IllegalStateException, Reflection};
 
 abstract class TestGroup {
   protected static $base;
 
   static function __static() {
-    self::$base= Reflect::of(TestCase::class);
+    self::$base= Reflection::of(TestCase::class);
   }
 
   /**
@@ -34,7 +34,7 @@ abstract class TestGroup {
     // PHP: [RuntimeVersion(<const>), VerifyThat(eval: '<expr>')]
     foreach ($annotated->annotations() as $type => $annotation) {
       if ($annotation->is($kind)) {
-        yield Reflect::of($type)->newInstance(...$annotation->arguments());
+        yield Reflection::of($type)->newInstance(...$annotation->arguments());
       }
     }
   }
@@ -64,7 +64,7 @@ abstract class TestGroup {
     do {
       try {
         $it->current();
-      } catch (CannotInvoke $e) {
+      } catch (InvocationFailed $e) {
         $cause= $e->getCause();
         if ($cause instanceof PrerequisitesNotMetError) {
           throw $cause;
@@ -77,7 +77,7 @@ abstract class TestGroup {
     } while ($it->valid());
 
     $reflect= $this->reflect();
-    $type= $reflect->type();
+    $type= $reflect->class();
     foreach ($this->actionsFor($reflect, TestClassAction::class) as $action) {
       $action->beforeTestClass($type);
     }
@@ -90,7 +90,7 @@ abstract class TestGroup {
    */
   public function after() {
     $reflect= $this->reflect();
-    $type= $reflect->type();
+    $type= $reflect->class();
     foreach ($this->actionsFor($reflect, TestClassAction::class) as $action) {
       $action->afterTestClass($type);
     }
@@ -99,7 +99,7 @@ abstract class TestGroup {
     do {
       try {
         $it->current();
-      } catch (CannotInvoke $ignored) { }
+      } catch (InvocationFailed $ignored) { }
       $it->next();
     } while ($it->valid());
   }

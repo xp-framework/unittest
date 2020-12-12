@@ -1,6 +1,6 @@
 <?php namespace unittest;
 
-use lang\reflection\CannotInvoke;
+use lang\reflection\InvocationFailed;
 use lang\{Throwable, XPClass};
 use util\profiling\Timer;
 
@@ -114,7 +114,7 @@ class TestRun {
         $tearDown($test, $aborted);
         $this->record($aborted->type(), $aborted->outcome($t, $timer));
         continue;
-      } catch (CannotInvoke $invoke) {
+      } catch (InvocationFailed $invoke) {
         $thrown= $tearDown($test, $invoke->getCause());
       } catch (Throwable $error) {
         $thrown= $tearDown($test, $error);

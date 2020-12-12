@@ -1,7 +1,7 @@
 <?php namespace unittest;
 
 use lang\reflection\Type;
-use lang\{Reflect, IllegalArgumentException};
+use lang\{Reflection, Throwable, IllegalArgumentException};
 use util\NoSuchElementException;
 
 class TestTargets extends TestGroup {
@@ -19,10 +19,14 @@ class TestTargets extends TestGroup {
    * @throws util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function __construct($type, $arguments= []) {
-    $reflect= $type instanceof Type ? $type : Reflect::of($type);
-    $this->instance= $reflect->newInstance(...$arguments);
-    $this->actions= iterator_to_array($this->actionsFor($reflect, TestAction::class));
+    $reflect= $type instanceof Type ? $type : Reflection::of($type);
+    try {
+      $this->instance= $reflect->newInstance(...$arguments);
+    } catch (Throwable $e) {
+      throw new IllegalArgumentException('Error instantiating '.$reflect->name(), $e);
+    }
 
+    $this->actions= iterator_to_array($this->actionsFor($reflect, TestAction::class));
     foreach ($reflect->methods() as $method) {
       $annotations= $method->annotations();
       if ($annotations->provides(Test::class)) {

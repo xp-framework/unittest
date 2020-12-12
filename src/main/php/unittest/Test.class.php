@@ -1,6 +1,6 @@
 <?php namespace unittest;
 
-use lang\{Value, Reflect, XPClass};
+use lang\{Value, Reflection, XPClass};
 
 abstract class Test implements Value {
   public $instance, $method, $actions;
@@ -67,7 +67,7 @@ abstract class Test implements Value {
       $pattern= '/'.preg_quote($message, '/').'/';
     }
 
-    return [Reflect::of($class), $pattern];
+    return [Reflection::of($class), $pattern];
   }
 
   /** @return iterable */
@@ -110,11 +110,11 @@ abstract class Test implements Value {
     // -> the run test's instance method
     $p= strpos($source, '::');
     if (false === $p) {
-      return Reflect::of($test)->method($source)->invoke($test, $args, $test);
+      return Reflection::of($test)->method($source)->invoke($test, $args, $test);
     }
 
     $type= substr($source, 0, $p);
-    $reflect= 'self' === $type ? Reflect::of($test) : Reflect::of($type);
+    $reflect= 'self' === $type ? Reflection::of($test) : Reflection::of($type);
     return $reflect->method(substr($source, $p + 2))->invoke(null, $args, $test);
   }
 

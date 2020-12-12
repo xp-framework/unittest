@@ -1,6 +1,6 @@
 <?php namespace unittest;
 
-use lang\{Reflect, IllegalArgumentException};
+use lang\{Reflection, IllegalArgumentException};
 use util\NoSuchElementException;
 
 class TestMethod extends TestGroup {
@@ -19,7 +19,7 @@ class TestMethod extends TestGroup {
    * @throws util.NoSuchElementException in case given testcase class does not contain any tests
    */
   public function __construct($type, $method, $arguments= []) {
-    $this->reflect= Reflect::of($type);
+    $this->reflect= Reflection::of($type);
     if (null === ($test= $this->reflect->method($method))) {
       throw new NoSuchElementException('Given method '.$method.' does no exist');
     }

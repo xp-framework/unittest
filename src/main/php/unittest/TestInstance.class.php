@@ -1,6 +1,6 @@
 <?php namespace unittest;
 
-use lang\{Reflect, IllegalStateException, MethodNotImplementedException};
+use lang\{Reflection, IllegalStateException, MethodNotImplementedException};
 
 class TestInstance extends TestGroup {
   private $target, $reflect;
@@ -15,7 +15,7 @@ class TestInstance extends TestGroup {
    * @throws lang.MethodNotImplementedException in case given argument is not a valid testcase
    */
   public function __construct($instance) {
-    $this->reflect= Reflect::of($instance);
+    $this->reflect= Reflection::of($instance);
     if (null === ($method= $this->reflect->method($instance->name))) {
       throw new MethodNotImplementedException('Test method does not exist', $instance->name);
     }
