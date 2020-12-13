@@ -23,9 +23,8 @@ class TestClass extends TestGroup {
       throw new IllegalArgumentException('Given argument is not a TestCase class ('.$reflect->name().')');
     }
 
-    foreach ($reflect->methods() as $method) {
+    foreach ($reflect->methods() as $name => $method) {
       if ($method->annotations()->provides(Test::class)) {
-        $name= $method->name();
         if (self::$base->method($name)) {
           throw new IllegalStateException(sprintf(
             'Cannot override %s::%s with test method in %s',

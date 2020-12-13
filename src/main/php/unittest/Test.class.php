@@ -38,7 +38,7 @@ abstract class Test implements Value {
   public function timeLimit() {
     if ($annotation= $this->method->annotation(Limit::class)) {
 
-    // Support both `Limit(time: ...)` and `Limit(['time' => ...])`
+      // Support both `Limit(time: ...)` and `Limit(['time' => ...])`
       return $annotation->argument('time') ?? $annotation->argument(0)['time'];
     }
     return null;
