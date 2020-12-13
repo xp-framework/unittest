@@ -54,10 +54,9 @@ class TestClass extends TestGroup {
 
   /** @return iterable */
   public function tests() {
-    $constructor= $this->reflect->constructor();
     foreach ($this->tests as $name => $method) {
       yield new TestCaseInstance(
-        $constructor->newInstance(array_merge([$name], $this->arguments)),
+        $this->reflect->newInstance($name, ...$this->arguments),
         $method,
         array_merge($this->actions, iterator_to_array($this->actionsFor($method, TestAction::class)))
       );
