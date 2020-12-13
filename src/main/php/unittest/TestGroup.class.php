@@ -19,7 +19,12 @@ abstract class TestGroup {
    */
   protected function actionsFor($annotated, $kind) {
 
-    // XP: [@action(new RuntimeVersion(...))]
+    // PHP 8 idiomatic: [RuntimeVersion(<const>), VerifyThat(eval: '<expr>')]
+    foreach ($annotated->annotations() as $annotation) {
+      if ($annotation->is($kind)) yield $annotation->newInstance();
+    }
+
+    // Legacy: [Action(eval: 'new RuntimeVersion(...)')]
     if ($annotation= $annotated->annotation(Action::class)) {
       $action= $annotation->argument(0);
       if (is_array($action)) {
@@ -29,11 +34,6 @@ abstract class TestGroup {
       } else {
         if ($action instanceof $kind) yield $action;
       }
-    }
-
-    // PHP: [RuntimeVersion(<const>), VerifyThat(eval: '<expr>')]
-    foreach ($annotated->annotations() as $annotation) {
-      if ($annotation->is($kind)) yield $annotation->newInstance();
     }
   }
 
