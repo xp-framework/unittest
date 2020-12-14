@@ -114,7 +114,7 @@ abstract class Test implements Value {
     }
 
     $type= substr($source, 0, $p);
-    $reflect= 'self' === $type ? Reflection::of($test) : Reflection::of($type);
+    $reflect= Reflection::of('self' === $type ? $test : $type);
     return $reflect->method(substr($source, $p + 2))->invoke(null, $args, $test);
   }
 
