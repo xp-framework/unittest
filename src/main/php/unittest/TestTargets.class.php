@@ -48,14 +48,14 @@ class TestTargets extends TestGroup {
   /** @return iterable */
   protected function beforeGroup() {
     foreach ($this->before as $m) {
-      yield $m->name() => $m->invoke($this->instance, []);
+      yield $m->invoke($this->instance);
     }
   }
 
   /** @return iterable */
   protected function afterGroup() {
     foreach ($this->after as $m) {
-      yield $m->name() => $m->invoke($this->instance, []);
+      yield $m->invoke($this->instance);
     }
   }
 

@@ -39,15 +39,15 @@ abstract class TestGroup {
 
   /** @return iterable */
   protected function beforeGroup() {
-    foreach ($this->reflect()->methods() as $name => $m) {
-      if ($m->annotation(BeforeClass::class)) yield $name => $m->invoke(null);
+    foreach ($this->reflect()->methods() as $m) {
+      if ($m->annotation(BeforeClass::class)) yield $m->invoke(null);
     }
   }
 
   /** @return iterable */
   protected function afterGroup() {
-    foreach ($this->reflect()->methods() as $name => $m) {
-      if ($m->annotation(AfterClass::class)) yield $name => $m->invoke(null);
+    foreach ($this->reflect()->methods() as $m) {
+      if ($m->annotation(AfterClass::class)) yield $m->invoke(null);
     }
   }
 
