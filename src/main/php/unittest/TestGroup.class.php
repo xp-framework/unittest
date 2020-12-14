@@ -67,8 +67,7 @@ abstract class TestGroup {
         if ($cause instanceof PrerequisitesNotMetError) {
           throw $cause;
         } else {
-          $name= substr(strstr($e->getMessage(), '::'), 2);
-          throw new PrerequisitesNotMetError('Exception in beforeClass method '.$name, $cause);
+          throw new PrerequisitesNotMetError('Exception in beforeClass method '.$e->target()->name(), $cause);
         }
       }
       $it->next();
