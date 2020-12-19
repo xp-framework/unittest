@@ -1,7 +1,7 @@
 <?php namespace xp\unittest\sources;
 
-use lang\IllegalArgumentException;
 use lang\reflect\Package;
+use lang\{Reflection, IllegalArgumentException};
 
 /**
  * Source that load tests from a package
@@ -25,7 +25,7 @@ class PackageSource extends ClassesSource {
   /** @return iterable */
   private function classesIn($package) {
     foreach ($package->getClasses() as $class) {
-      yield $class;
+      yield Reflection::of($class);
     }
     if ($this->recursive) {
       foreach ($package->getPackages() as $child) {

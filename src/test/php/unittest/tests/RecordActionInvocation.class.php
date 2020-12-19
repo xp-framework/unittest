@@ -1,11 +1,12 @@
 <?php namespace unittest\tests;
 
-use unittest\Test;
+use lang\Reflection;
+use unittest\{Test, TestAction};
 
 /**
  * This class is used in the TestActionTest 
  */
-class RecordActionInvocation implements \unittest\TestAction {
+class RecordActionInvocation implements TestAction {
   protected $field= null;
 
   /**
@@ -23,7 +24,7 @@ class RecordActionInvocation implements \unittest\TestAction {
    * @param  unittest.Test $t
    */
   public function beforeTest(Test $t) {
-    $f= typeof($t->instance)->getField($this->field);
+    $f= Reflection::of($t->instance)->property($this->field);
     $f->set($t->instance, array_merge($f->get($t->instance), ['before']));
   }
 
@@ -33,7 +34,7 @@ class RecordActionInvocation implements \unittest\TestAction {
    * @param  unittest.Test $t
    */
   public function afterTest(Test $t) {
-    $f= typeof($t->instance)->getField($this->field);
+    $f= Reflection::of($t->instance)->property($this->field);
     $f->set($t->instance, array_merge($f->get($t->instance), ['after']));
   }
 }

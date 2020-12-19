@@ -1,7 +1,7 @@
 <?php namespace xp\unittest\sources;
 
 use io\Folder;
-use lang\{ClassLoader, FileSystemClassLoader, IllegalArgumentException};
+use lang\{ClassLoader, FileSystemClassLoader, IllegalArgumentException, Reflection};
 
 /**
  * Source that loads tests from test case classes inside a folder and
@@ -44,7 +44,7 @@ class FolderSource extends ClassesSource {
       if (strspn($name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') > 0 && 0 === substr_compare($name, '.php', -4)) {
         $uri= $entry->asURI();
         if ($loader= $cl->findUri($uri)) {
-          yield $loader->loadUri($uri);
+          yield Reflection::of($loader->loadUri($uri));
         }
       } else if ($entry->isFolder()) {
         yield from $this->classesIn($entry->asFolder());

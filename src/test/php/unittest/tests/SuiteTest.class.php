@@ -1,6 +1,6 @@
 <?php namespace unittest\tests;
 
-use lang\{ClassLoader, Error, FormatException, IllegalArgumentException, MethodNotImplementedException};
+use lang\{ClassLoader, Reflection, Error, FormatException, IllegalArgumentException, MethodNotImplementedException};
 use unittest\actions\RuntimeVersion;
 use unittest\{
   Action,
@@ -313,7 +313,7 @@ class SuiteTest extends TestCase {
     $class= $this->classWithBeforeClass($this->name);
     $this->suite->addTest($class->newInstance('fixture'));
     $this->suite->run();
-    $this->assertTrue($class->getField('before')->get(null));
+    $this->assertTrue(Reflection::of($class)->property('before')->get(null));
   }
 
   #[Test]
@@ -325,14 +325,14 @@ class SuiteTest extends TestCase {
     ]));
     $this->suite->addTest($class->newInstance('fixture'));
     $this->suite->run();
-    $this->assertTrue($class->getField('before')->get(null));
+    $this->assertTrue(Reflection::of($class)->property('before')->get(null));
   }
 
   #[Test]
   public function runTestInvokesBeforeClass() {
     $class= $this->classWithBeforeClass($this->name);
     $this->suite->runTest($class->newInstance('fixture'));
-    $this->assertTrue($class->getField('before')->get(null));
+    $this->assertTrue(Reflection::of($class)->property('before')->get(null));
   }    
 
   #[Test]
@@ -382,14 +382,14 @@ class SuiteTest extends TestCase {
     $class= $this->classWithAfterClass($this->name);
     $this->suite->addTest($class->newInstance('fixture'));
     $this->suite->run();
-    $this->assertTrue($class->getField('after')->get(null));
+    $this->assertTrue(Reflection::of($class)->property('after')->get(null));
   }    
 
   #[Test]
   public function runTestInvokesAfterClass() {
     $class= $this->classWithAfterClass($this->name);
     $this->suite->runTest($class->newInstance('fixture'));
-    $this->assertTrue($class->getField('after')->get(null));
+    $this->assertTrue(Reflection::of($class)->property('after')->get(null));
   }    
 
   #[Test]

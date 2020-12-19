@@ -21,12 +21,12 @@ abstract class ClassesSource {
     $empty= true;
 
     foreach ($this->classes() as $class) {
-      if (Modifiers::isAbstract($class->getModifiers())) {
+      if ($class->modifiers()->isAbstract()) {
         continue;
-      } else if ($class->isSubclassOf(TestCase::class)) {
+      } else if ($class->is(TestCase::class)) {
         $suite->addTestClass($class, $arguments);
         $empty= false;
-      } else if (0 === substr_compare($class->getName(), 'Test', -4)) {
+      } else if (0 === substr_compare($class->name(), 'Test', -4)) {
         $suite->addTestClass($class, $arguments);
         $empty= false;
       }

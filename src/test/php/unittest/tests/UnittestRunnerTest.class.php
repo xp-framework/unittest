@@ -1,9 +1,9 @@
 <?php namespace unittest\tests;
 
 use io\streams\{MemoryInputStream, MemoryOutputStream};
-use lang\ClassLoader;
+use lang\{ClassLoader, Reflection};
 use unittest\{Arg, Test, TestCase, Values};
-use xp\unittest\Runner;
+use xp\unittest\TestRunner;
 
 /**
  * TestCase
@@ -17,7 +17,7 @@ class UnittestRunnerTest extends TestCase {
    * Sets up test case
    */
   public function setUp() {
-    $this->runner= new Runner();
+    $this->runner= new TestRunner();
     $this->out= $this->runner->setOut(new MemoryOutputStream());
     $this->err= $this->runner->setErr(new MemoryOutputStream());
   }
@@ -38,7 +38,7 @@ class UnittestRunnerTest extends TestCase {
   public function selfUsage() {
     $return= $this->runner->run([]);
     $this->assertEquals(2, $return);
-    $this->assertOnStream($this->err, 'Usage:');
+    $this->assertOnStream($this->err, 'Runs unittests: `xp test [tests]`');
     $this->assertEquals('', $this->out->getBytes());
   }
 
@@ -46,7 +46,7 @@ class UnittestRunnerTest extends TestCase {
   public function helpParameter() {
     $return= $this->runner->run(['-?']);
     $this->assertEquals(2, $return);
-    $this->assertOnStream($this->err, 'Usage:');
+    $this->assertOnStream($this->err, 'Runs unittests: `xp test [tests]`');
     $this->assertEquals('', $this->out->getBytes());
   }
 
@@ -248,26 +248,23 @@ class UnittestRunnerTest extends TestCase {
     }');
 
     $return= $this->runner->run(['-l', $class->getName(), '-']);
-    $this->assertEquals(
-      [], 
-      $class->getField('options')->get(null)
-    );
+    $this->assertEquals([], Reflection::of($class)->property('options')->get(null));
   }
 
   #[Test]
   public function withListenerOptions() {
     $class= ClassLoader::getDefault()->defineClass('unittest.tests.WithListenerOptionsTestFixture', 'xp.unittest.DefaultListener', [], '{
       public static $options= [];
-      #[Arg]
+      #[\unittest\Arg]
       public function setOption($value) { self::$options[__FUNCTION__]= $value; }
-      #[Arg]
+      #[\unittest\Arg]
       public function setVerbose() { self::$options[__FUNCTION__]= true; }
     }');
 
     $return= $this->runner->run(['-l', $class->getName(), '-', '-o', 'option', 'value', '-o', 'v']);
     $this->assertEquals(
       ['setOption' => 'value', 'setVerbose' => true], 
-      $class->getField('options')->get(null)
+      Reflection::of($class)->property('options')->get(null)
     );
   }
 
@@ -275,14 +272,14 @@ class UnittestRunnerTest extends TestCase {
   public function withLongListenerOption() {
     $class= ClassLoader::getDefault()->defineClass('unittest.tests.WithLongListenerOptionTestFixture', 'xp.unittest.DefaultListener', [], '{
       public static $options= [];
-      #[Arg]
+      #[\unittest\Arg]
       public function setOption($value) { self::$options[__FUNCTION__]= $value; }
     }');
 
     $return= $this->runner->run(['-l', $class->getName(), '-', '-o', 'option', 'value']);
     $this->assertEquals(
       ['setOption' => 'value'], 
-      $class->getField('options')->get(null)
+      Reflection::of($class)->property('options')->get(null)
     );
   }
 
@@ -290,14 +287,14 @@ class UnittestRunnerTest extends TestCase {
   public function withNamedLongListenerOption() {
     $class= ClassLoader::getDefault()->defineClass('unittest.tests.WithNamedLongListenerOptionTestFixture', 'xp.unittest.DefaultListener', [], '{
       public static $options= [];
-      #[Arg(["name" => "use"])]
+      #[\unittest\Arg(["name" => "use"])]
       public function setOption($value) { self::$options[__FUNCTION__]= $value; }
     }');
 
     $return= $this->runner->run(['-l', $class->getName(), '-', '-o', 'use', 'value']);
     $this->assertEquals(
       ['setOption' => 'value'], 
-      $class->getField('options')->get(null)
+      Reflection::of($class)->property('options')->get(null)
     );
   }
 
@@ -305,14 +302,14 @@ class UnittestRunnerTest extends TestCase {
   public function withNamedLongListenerOptionShort() {
     $class= ClassLoader::getDefault()->defineClass('unittest.tests.WithNamedLongListenerOptionShortTestFixture', 'xp.unittest.DefaultListener', [], '{
       public static $options= [];
-      #[Arg(["name" => "use"])]
+      #[\unittest\Arg(["name" => "use"])]
       public function setOption($value) { self::$options[__FUNCTION__]= $value; }
     }');
 
     $return= $this->runner->run(['-l', $class->getName(), '-', '-o', 'u', 'value']);
     $this->assertEquals(
       ['setOption' => 'value'],
-      $class->getField('options')->get(null)
+      Reflection::of($class)->property('options')->get(null)
     );
   }    
 
@@ -320,14 +317,14 @@ class UnittestRunnerTest extends TestCase {
   public function withShortListenerOption() {
     $class= ClassLoader::getDefault()->defineClass('unittest.tests.WithShortListenerOptionTestFixture', 'xp.unittest.DefaultListener', [], '{
       public static $options= [];
-      #[Arg]
+      #[\unittest\Arg]
       public function setOption($value) { self::$options[__FUNCTION__]= $value; }
     }');
 
     $return= $this->runner->run(['-l', $class->getName(), '-', '-o', 'o', 'value']);
     $this->assertEquals(
       ['setOption' => 'value'],
-      $class->getField('options')->get(null)
+      Reflection::of($class)->property('options')->get(null)
     );
   }
 
@@ -335,14 +332,14 @@ class UnittestRunnerTest extends TestCase {
   public function withNamedShortListenerOption() {
     $class= ClassLoader::getDefault()->defineClass('unittest.tests.WithNamedShortListenerOptionTestFixture', 'xp.unittest.DefaultListener', [], '{
       public static $options= [];
-      #[Arg(["short" => "O"])]
+      #[\unittest\Arg(["short" => "O"])]
       public function setOption($value) { self::$options[__FUNCTION__]= $value; }
     }');
 
     $return= $this->runner->run(['-l', $class->getName(), '-', '-o', 'O', 'value']);
     $this->assertEquals(
       ['setOption' => 'value'],
-      $class->getField('options')->get(null)
+      Reflection::of($class)->property('options')->get(null)
     );
   }
 
@@ -350,14 +347,14 @@ class UnittestRunnerTest extends TestCase {
   public function withPositionalOptionListenerOption() {
     $class= ClassLoader::getDefault()->defineClass('unittest.tests.WithPositionalOptionTestFixture', 'xp.unittest.DefaultListener', [], '{
       public static $options= [];
-      #[Arg(["position" => 0])]
+      #[\unittest\Arg(["position" => 0])]
       public function setOption($value) { self::$options[__FUNCTION__]= $value; }
     }');
 
     $return= $this->runner->run(['-l', $class->getName(), '-', '-o', 'value']);
     $this->assertEquals(
       ['setOption' => 'value'],
-      $class->getField('options')->get(null)
+      Reflection::of($class)->property('options')->get(null)
     );
   }
 

@@ -1,11 +1,11 @@
 <?php namespace unittest;
 
-use lang\Throwable;
+use lang\{Throwable, Reflection};
 
 class TestCaseInstance extends Test {
 
   public function __construct($instance, $method= null, $actions= []) {
-    parent::__construct($instance, $method ?: typeof($instance)->getMethod($instance->name), $actions);
+    parent::__construct($instance, $method ?: Reflection::of($instance)->method($instance->name), $actions);
   }
 
   /**

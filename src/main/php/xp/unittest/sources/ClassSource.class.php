@@ -1,6 +1,6 @@
 <?php namespace xp\unittest\sources;
 
-use lang\XPClass;
+use lang\reflection\Type;
 use unittest\{TestCase, TestMethod};
 
 /**
@@ -12,10 +12,10 @@ class ClassSource extends AbstractSource {
   /**
    * Constructor
    *
-   * @param  lang.XPClass $testClass
+   * @param  lang.reflection.Type $testClass
    * @param  string $method
    */
-  public function __construct(XPClass $testClass, $method= null) {
+  public function __construct(Type $testClass, $method= null) {
     $this->testClass= $testClass;
     $this->method= $method;
   }
@@ -30,11 +30,8 @@ class ClassSource extends AbstractSource {
   public function provideTo($suite, $arguments) {
     if (null === $this->method) {
       return $suite->addTestClass($this->testClass, $arguments);
-    } else if ($this->testClass->isSubclassOf(TestCase::class)) {
-      $suite->addTest($this->testClass->getConstructor()->newInstance(array_merge(
-        [$this->method],
-        (array)$arguments
-      )));
+    } else if ($this->testClass->is(TestCase::class)) {
+      $suite->addTest($this->testClass->newInstance($this->method, ...$arguments));
     } else {
       $suite->addTest(new TestMethod($this->testClass, $this->method, (array)$arguments));
     }

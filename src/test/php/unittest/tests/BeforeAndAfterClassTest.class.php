@@ -1,12 +1,18 @@
 <?php namespace unittest\tests;
 
-use unittest\{AfterClass, BeforeClass, PrerequisitesFailedError, PrerequisitesNotMetError, Test, TestCase, TestFailure, TestSkipped, TestSuite};
+use lang\Reflection;
+use unittest\{
+  AfterClass,
+  BeforeClass,
+  PrerequisitesFailedError,
+  PrerequisitesNotMetError,
+  Test,
+  TestCase,
+  TestFailure,
+  TestSkipped,
+  TestSuite
+};
 
-/**
- * Tests @beforeClass and @afterClass methods
- *
- * @see   xp://unittest.TestSuite
- */
 abstract class BeforeAndAfterClassTest extends TestCase {
   protected $suite= null;
     
@@ -39,7 +45,7 @@ abstract class BeforeAndAfterClassTest extends TestCase {
       public function fixture() { }
     }');
     $this->suite->runTest($t);
-    $this->assertEquals(true, typeof($t)->getField('initialized')->get(null));
+    $this->assertEquals(true, Reflection::of($t)->property('initialized')->get(null));
   }
 
   #[Test]
@@ -116,7 +122,7 @@ abstract class BeforeAndAfterClassTest extends TestCase {
       public function fixture() { }
     }');
     $this->suite->runTest($t);
-    $this->assertEquals(true, typeof($t)->getField('finalized')->get(null));
+    $this->assertEquals(true, Reflection::of($t)->property('finalized')->get(null));
   }
 
   #[Test]
@@ -138,7 +144,7 @@ abstract class BeforeAndAfterClassTest extends TestCase {
       public function fixture() { }
     }');
     $this->suite->runTest($t);
-    $this->assertEquals(['data', 'conn'], typeof($t)->getField('initialized')->get(null));
+    $this->assertEquals(['data', 'conn'], Reflection::of($t)->property('initialized')->get(null));
   }
 
   #[Test]
@@ -160,7 +166,7 @@ abstract class BeforeAndAfterClassTest extends TestCase {
       public function fixture() { }
     }');
     $this->suite->runTest($t);
-    $this->assertEquals(['conn', 'data'], typeof($t)->getField('finalized')->get(null));
+    $this->assertEquals(['conn', 'data'], Reflection::of($t)->property('finalized')->get(null));
   }
 
   #[Test]
@@ -182,6 +188,6 @@ abstract class BeforeAndAfterClassTest extends TestCase {
       public function fixture() { }
     }');
     $this->suite->runTest($t);
-    $this->assertEquals(false, typeof($t)->getField('finalized')->get(null));
+    $this->assertEquals(false, Reflection::of($t)->property('finalized')->get(null));
   }
 }

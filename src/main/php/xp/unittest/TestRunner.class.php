@@ -3,8 +3,8 @@
 use io\streams\{FileOutputStream, InputStream, OutputStream, Streams, StringReader, StringWriter};
 use io\{File, Folder};
 use lang\reflect\{Package, TargetInvocationException};
-use lang\{ClassLoader, IllegalArgumentException, MethodNotImplementedException, Throwable, XPClass};
-use unittest\{ColorizingListener, TestSuite};
+use lang\{ClassLoader, IllegalArgumentException, MethodNotImplementedException, Throwable, Reflection};
+use unittest\{Arg, ColorizingListener, TestSuite};
 use util\cmd\Console;
 use util\{NoSuchElementException, Properties};
 use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderSource, PackageSource, PropertySource};
@@ -135,7 +135,7 @@ class TestRunner {
   protected function listenerUsage($listener) {
     $this->err->writeLine($this->textOf($listener->getComment()));
     $positional= $options= [];
-    foreach ($listener->getMethods() as $method) {
+    foreach ($listener->methods() as $method) {
       if ($method->hasAnnotation('arg')) {
         $arg= $method->getAnnotation('arg');
         $name= strtolower(preg_replace('/^set/', '', $method->getName()));
@@ -232,30 +232,28 @@ class TestRunner {
           }
         } else if ('-l' == $args[$i]) {
           $arg= $this->arg($args, ++$i, 'l');
-          $class= XPClass::forName(strstr($arg, '.') ? $arg : 'xp.unittest.'.ucfirst($arg).'Listener');
+          $class= Reflection::of(strstr($arg, '.') ? $arg : 'xp.unittest.'.ucfirst($arg).'Listener');
           $arg= $this->arg($args, ++$i, 'l');
-          if ('-?' == $arg || '--help' == $arg) {
+          if ('-?' === $arg || '--help' === $arg) {
             return $this->listenerUsage($class);
           }
           $output= $this->streamWriter($arg);
           $instance= $suite->addListener($class->newInstance($output));
 
-          // Get all @arg-annotated methods
+          // Get all #[Arg]-annotated methods
           $options= [];
-          foreach ($class->getMethods() as $method) {
-            if ($method->hasAnnotation('arg')) {
-              $arg= $method->getAnnotation('arg');
-              if (isset($arg['position'])) {
-                $options[$arg['position']]= $method;
-              } else {
-                $name= $arg['name'] ?? strtolower(preg_replace('/^set/', '', $method->getName()));
-                $short= $arg['short'] ?? $name[0];
-                $options[$name]= $options[$short]= $method;
-              }
+          foreach ($class->methods()->annotated(Arg::class) as $method) {
+            $arg= $method->annotation(Arg::class)->argument(0);
+            if (isset($arg['position'])) {
+              $options[$arg['position']]= $method;
+            } else {
+              $name= $arg['name'] ?? strtolower(preg_replace('/^set/', '', $method->name()));
+              $short= $arg['short'] ?? $name[0];
+              $options[$name]= $options[$short]= $method;
             }
           }
           $option= 0;
-        } else if ('-o' == $args[$i]) {
+        } else if ('-o' === $args[$i]) {
           if (isset($options[$option])) {
             $name= '#'.($option+ 1);
             $method= $options[$option];
@@ -268,10 +266,10 @@ class TestRunner {
             $method= $options[$name];
           }
           $option++;
-          if (0 == $method->numParameters()) {
+          if (0 === $method->parameters()->size()) {
             $pass= [];
           } else {
-            $pass= $this->arg($args, ++$i, 'o '.$name);
+            $pass= [$this->arg($args, ++$i, 'o '.$name)];
           }
           try {
             $method->invoke($instance, $pass);
@@ -306,13 +304,13 @@ class TestRunner {
         } else if (strstr($args[$i], '.*')) {
           $sources[]= new PackageSource(Package::forName(substr($args[$i], 0, -2)));
         } else if (false !== ($p= strpos($args[$i], '::'))) {
-          $sources[]= new ClassSource(XPClass::forName(substr($args[$i], 0, $p)), substr($args[$i], $p+ 2));
-        } else if (is_file($args[$i])) {
+          $sources[]= new ClassSource(Reflection::of(substr($args[$i], 0, $p)), substr($args[$i], $p+ 2));
+        } else if (is_file($args[$i]) || false !== strpos($args[$i], \xp::CLASS_FILE_EXT)) {
           $sources[]= new ClassFileSource(new File($args[$i]));
         } else if (is_dir($args[$i])) {
           $sources[]= new FolderSource(new Folder($args[$i]));
         } else {
-          $sources[]= new ClassSource(XPClass::forName($args[$i]));
+          $sources[]= new ClassSource(Reflection::of($args[$i]));
         }
       }
     } catch (Throwable $e) {
