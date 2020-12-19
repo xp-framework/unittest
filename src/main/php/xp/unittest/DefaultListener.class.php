@@ -25,17 +25,15 @@ class DefaultListener implements Listener, ColorizingListener {
   }
 
   /**
-   * Set color
+   * Set color. Pass NULL to auto-detect
    *
-   * @param   bool color
+   * @param   bool $color
    * @return  self
    */
   public function setColor($color) {
     if (null === $color) {
-      $color= (
-        $this->out instanceof ConsoleOutputStream &&
-        function_exists('posix_isatty') ? posix_isatty(STDOUT) : true
-      );
+      $tty= function_exists('stream_isatty') ? stream_isatty(STDOUT) : true;
+      $color= $tty && $this->out->stream() instanceof ConsoleOutputStream;
     }
 
     $this->colored= $color;
