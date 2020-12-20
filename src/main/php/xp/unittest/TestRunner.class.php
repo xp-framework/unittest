@@ -2,7 +2,7 @@
 
 use io\streams\{FileOutputStream, InputStream, OutputStream, Streams, StringReader, StringWriter};
 use io\{File, Folder};
-use lang\reflect\{Package, TargetInvocationException};
+use lang\reflection\{Package, TargetException};
 use lang\{ClassLoader, IllegalArgumentException, MethodNotImplementedException, Throwable, Reflection};
 use unittest\{Arg, ColorizingListener, TestSuite};
 use util\cmd\Console;
@@ -273,7 +273,7 @@ class TestRunner {
           }
           try {
             $method->invoke($instance, $pass);
-          } catch (TargetInvocationException $e) {
+          } catch (TargetException $e) {
             $this->err->writeLine('*** Error for argument '.$name.' to '.nameof($instance).': '.$e->getCause()->toString());
             return 2;
           }
@@ -300,9 +300,9 @@ class TestRunner {
         } else if (strstr($args[$i], '.ini')) {
           $sources[]= new PropertySource(new Properties($args[$i]));
         } else if (strstr($args[$i], '.**')) {
-          $sources[]= new PackageSource(Package::forName(substr($args[$i], 0, -3)), true);
+          $sources[]= new PackageSource(new Package(substr($args[$i], 0, -3)), true);
         } else if (strstr($args[$i], '.*')) {
-          $sources[]= new PackageSource(Package::forName(substr($args[$i], 0, -2)));
+          $sources[]= new PackageSource(new Package(substr($args[$i], 0, -2)));
         } else if (false !== ($p= strpos($args[$i], '::'))) {
           $sources[]= new ClassSource(Reflection::of(substr($args[$i], 0, $p)), substr($args[$i], $p+ 2));
         } else if (is_file($args[$i]) || false !== strpos($args[$i], \xp::CLASS_FILE_EXT)) {

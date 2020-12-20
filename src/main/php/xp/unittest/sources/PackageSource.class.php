@@ -1,6 +1,6 @@
 <?php namespace xp\unittest\sources;
 
-use lang\reflect\Package;
+use lang\reflection\Package;
 use lang\{Reflection, IllegalArgumentException};
 
 /**
@@ -14,21 +14,26 @@ class PackageSource extends ClassesSource {
   /**
    * Constructor
    *
-   * @param  lang.reflect.Package $package
+   * @param  lang.reflection.Package $package
    * @param  bool $recursive
+   * @throws lang.IllegalArgumentException if the package does not exist
    */
   public function __construct(Package $package, $recursive= false) {
+    if (0 === iterator_count($package->classLoaders())) {
+      throw new IllegalArgumentException('No classloaders provide '.$package->name());
+    }
+
     $this->package= $package;
     $this->recursive= $recursive;
   }
 
   /** @return iterable */
   private function classesIn($package) {
-    foreach ($package->getClasses() as $class) {
-      yield Reflection::of($class);
+    foreach ($package->types() as $type) {
+      yield $type;
     }
     if ($this->recursive) {
-      foreach ($package->getPackages() as $child) {
+      foreach ($package->children() as $child) {
         yield from $this->classesIn($child);
       }
     }
@@ -45,6 +50,6 @@ class PackageSource extends ClassesSource {
    * @return string
    */
   public function toString() {
-    return nameof($this).'['.$this->package->getName().($this->recursive ? '.**' : '.*').']';
+    return nameof($this).'['.$this->package->name().($this->recursive ? '.**' : '.*').']';
   }
 }
