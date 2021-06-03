@@ -45,6 +45,12 @@ class TestVariation extends Test {
     $this->base->run($this->args);
   }
 
+  /** @return string */
+  public function container() { return $this->base->container(); }
+
+  /** @return string */
+  public function name() { return $this->base->name().'('.$this->variation().')'; }
+
   /**
    * Get this test cases' name
    *

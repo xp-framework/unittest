@@ -13,6 +13,12 @@ class TestTarget extends Test {
     $this->method->invoke($this->instance, $args);
   }
 
+  /** @return string */
+  public function container() { return nameof($this->instance); }
+
+  /** @return string */
+  public function name() { return $this->method->getName(); }
+
   /**
    * Get this test target's name
    *

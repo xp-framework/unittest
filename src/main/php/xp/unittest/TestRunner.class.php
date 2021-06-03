@@ -223,6 +223,8 @@ class TestRunner {
           $listener= TestListeners::$VERBOSE;
         } else if ('-q' == $args[$i]) {
           $listener= TestListeners::$QUIET;
+        } else if ('-c' == $args[$i]) {
+          $listener= TestListeners::$DEFAULT;
         } else if ('-e' == $args[$i]) {
           $arg= ++$i < $s ? $args[$i] : '-';
           if ('-' === $arg) {
