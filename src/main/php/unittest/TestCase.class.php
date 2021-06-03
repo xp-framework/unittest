@@ -39,9 +39,9 @@ class TestCase implements \lang\Value {
    */
   public function fail($reason, $actual= null, $expect= null) {
     if (1 === func_num_args()) {
-      throw new AssertionFailedError($reason);
+      throw new AssertionFailedError($reason, true);
     } else {
-      throw new AssertionFailedError(new ComparisonFailedMessage($reason, $expect, $actual));
+      throw new AssertionFailedError(new ComparisonFailedMessage($reason, $expect, $actual), true);
     }
   }
 

@@ -13,8 +13,9 @@ class AssertionFailedError extends TestAborted {
    * Constructor
    *
    * @param  string|unittest.AssertionFailedMessage $message
+   * @param  bool $omitFirstFrame
    */
-  public function __construct($message) {
+  public function __construct($message, $omitFirstFrame= false) {
     if ($message instanceof AssertionFailedMessage) {
       parent::__construct($message->format());
     } else {
@@ -22,7 +23,7 @@ class AssertionFailedError extends TestAborted {
     }
 
     // Omit 1st element, this is always unittest.TestCase::fail()
-    array_shift($this->trace);
+    $omitFirstFrame && array_shift($this->trace);
     foreach ($this->trace as $element) {
       $element->args= null;
     }
