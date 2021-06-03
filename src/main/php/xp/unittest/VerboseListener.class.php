@@ -32,15 +32,15 @@ class VerboseListener implements Listener, ColorizingListener {
     static $pos= 0;
 
     $c= $chars[++$pos] ?? $chars[$pos= 0];
-    $this->out->write($c, str_repeat("\010", strlen($c)));
+    $this->out->write(str_repeat("\010", strlen($c)), $c);
   }
 
   /** Writes summary of the current container */
   private function summarize() {
     if ($this->success) {
-      $format= $this->colored ? "  \033[42;1;37m PASS \033[0m \033[37m%s\033[0m" : "  [ PASS ] %s";
+      $format= $this->colored ? "\r> \033[42;1;37m PASS \033[0m \033[37m%s\033[0m" : "\r> [ PASS ] %s";
     } else {
-      $format= $this->colored ? "  \033[41;1;37m FAIL \033[0m \033[37m%s\033[0m" : "  [ FAIL ] %s";
+      $format= $this->colored ? "\r> \033[41;1;37m FAIL \033[0m \033[37m%s\033[0m" : "\r> [ FAIL ] %s";
     }
 
     $this->out->writeLinef($format, $this->container);
@@ -63,8 +63,16 @@ class VerboseListener implements Listener, ColorizingListener {
     if (!$this->colored) return $code;
 
     return preg_replace(
-      ['/[(){}\[\]+*-\/<>?:-]/', '/(public|private|protected|static|function|class|new)/'],
-      ["\033[34;1m\$0\033[37m", "\033[34;3m\$0\033[0;37m"],
+      [
+        '/[(){}\[\]+*-\/=<>?:-]+/',
+        '/\$[a-z0-9_]+/i',
+        '/\b(public|private|protected|static|function|fn|match|if|else|switch|case|class|new|throw|return)\b/'
+      ],
+      [
+        "\033[34;1m\$0\033[0;37m",
+        "\033[35;1m\$0\033[0;37m",
+        "\033[34;3m\$0\033[0;37m"
+      ],
       $code
     );
   }
@@ -74,7 +82,7 @@ class VerboseListener implements Listener, ColorizingListener {
     $cwd= realpath('.').DIRECTORY_SEPARATOR;
 
     $this->out->writeLinef(
-      $this->colored ? "  at \033[32m%s:%d\033[0m" : '  at %s:%d',
+      $this->colored ? "  @\033[32m%s\033[0m:%d" : '  @%s:%d',
       strtr(str_replace($cwd, '', $origin->file), DIRECTORY_SEPARATOR, '/'),
       $origin->line
     );
@@ -88,7 +96,7 @@ class VerboseListener implements Listener, ColorizingListener {
         if ($n > $origin->line + 4) break;
         if ($n === $origin->line) {
           $this->out->writeLinef(
-            $this->colored ? "  \033[31m➜\033[0m \033[37;3m%4d\033[0m▕ \033[37m%s\033[0m" : '  ➜ %4d▕ %s',
+            $this->colored ? "  \033[31m➜\033[0m \033[37m%4d\033[0m▕ \033[37m%s\033[0m" : '  ➜ %4d▕ %s',
             $n,
             $this->highlight(rtrim($line))
           );
@@ -193,7 +201,8 @@ class VerboseListener implements Listener, ColorizingListener {
    * @param   unittest.TestSuite suite
    */
   public function testRunStarted(\unittest\TestSuite $suite) {
-    $this->out->writeLine('  ');
+    $this->out->writeLine('Running ', $suite->numTests(), ' test(s)...');
+    $this->out->writeLine();
   }
   
   /**
@@ -208,9 +217,8 @@ class VerboseListener implements Listener, ColorizingListener {
 
     // Show details for failed tests
     if ($result->failureCount() > 0) {
-      $this->out->writeLine("  ---\n");
       foreach ($result->failed as $outcome) {
-        $this->out->writeLinef($this->colored ? "  \033[31m• %s\033[0m" : '  • %s', $outcome->test()->getName(true));
+        $this->out->writeLinef($this->colored ? "> \033[31m%s\033[0m" : '  %s', $outcome->test()->getName(true));
         $this->out->writeLinef($this->colored ? "  \033[37m%s\033[0m" : '  %s', $outcome->reason->compoundMessage());
         $this->out->writeLine();
         $this->trace($outcome->reason->getStackTrace()[0]);
@@ -229,14 +237,14 @@ class VerboseListener implements Listener, ColorizingListener {
       $counts.= sprintf($this->colored ? ", \033[36m%d skipped\033[0m" : ', %d skipped', $result->skipCount());
     }
     $this->out->writeLinef(
-      $this->colored ? "  \033[37mTests:\033[0m%s%s" : '  Tests:%s%s',
+      $this->colored ? "\033[37mTests:\033[0m%s%s" : '  Tests:%s%s',
       str_repeat(' ', 12 - strlen('Tests')),
       substr($counts, 2)
     );
 
     foreach ($result->metrics() as $name => $metric) {
       $this->out->writeLinef(
-        $this->colored ? "  \033[37m%s:\033[0m%s%s" : '  %s:%s%s',
+        $this->colored ? "\033[37m%s:\033[0m%s%s" : '  %s:%s%s',
         $name,
         str_repeat(' ', 12 - strlen($name)),
         $metric->formatted()
