@@ -26,8 +26,13 @@ abstract class TestFailure extends TestOutcome {
     // If invoked by reflection no file and line are present, however class and
     // method are - retrieve their declaration
     if (null === $trace->file && $trace->class) {
-      $m= new \ReflectionMethod($trace->class, $trace->method);
-      return [$m->getFileName(), $m->getEndLine() - 1];
+      if (strstr($trace->method, '{closure}')) {
+        $m= new \ReflectionClass($trace->class);
+        return [$m->getFileName(), $trace->line];
+      } else {
+        $m= new \ReflectionMethod($trace->class, $trace->method);
+        return [$m->getFileName(), $m->getEndLine() - 1];
+      }
     }
 
     return [$trace->file, $trace->line];
