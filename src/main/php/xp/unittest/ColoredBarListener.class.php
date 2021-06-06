@@ -1,7 +1,7 @@
 <?php namespace xp\unittest;
 
 use io\streams\OutputStreamWriter;
-use unittest\TestListener;
+use unittest\{Test, Listener};
 
 /**
  * Colorful verbose test listener
@@ -15,7 +15,7 @@ use unittest\TestListener;
  *   information out instantly)
  *
  */
-class ColoredBarListener implements TestListener {
+class ColoredBarListener implements Listener {
   const PROGRESS_WIDTH= 10;
 
   private $out= null;
@@ -39,10 +39,10 @@ class ColoredBarListener implements TestListener {
   /**
    * Write status of currently executing test case
    *
-   * @param   unittest.TestCase case
+   * @param   unittest.Test $test
    */
-  private function writeStatus(\unittest\TestCase $case= null) {
-    if (null !== $case) {
+  private function writeStatus(Test $test= null) {
+    if (null !== $test) {
       $this->cur++;
     }
 
@@ -50,7 +50,7 @@ class ColoredBarListener implements TestListener {
     $out= sprintf(" Running %-3d of %d [%-10s] %01dF %01dE %01dW %01dS %01dN",
       $this->cur,
       $this->sum,
-      str_repeat(".", $perc),
+      str_repeat('.', $perc),
       $this->stats['failed'],
       $this->stats['errored'],
       $this->stats['warned'],
@@ -64,7 +64,7 @@ class ColoredBarListener implements TestListener {
     );
 
     $this->recycleLine();
-    $this->writeColoredLine($out, $this->colorCodeFor($this->status, null === $case));
+    $this->writeColoredLine($out, $this->colorCodeFor($this->status, null === $test));
   }
 
   /**
@@ -123,10 +123,10 @@ class ColoredBarListener implements TestListener {
   /**
    * Called when a test case starts.
    *
-   * @param   unittest.TestCase failure
+   * @param   unittest.TestStart $start
    */
-  public function testStarted(\unittest\TestCase $case) {
-    $this->writeStatus($case);
+  public function testStarted(\unittest\TestStart $start) {
+    $this->writeStatus($start->test());
   }
 
   /**

@@ -1,7 +1,7 @@
 <?php namespace xp\unittest;
 
 use io\streams\OutputStreamWriter;
-use unittest\{Listener, TestStart, TestSuite};
+use unittest\{Listener, Test, TestStart, TestSuite};
 
 /**
  * XTerm Title listener
@@ -31,10 +31,9 @@ class XTermTitleListener implements Listener {
   private function writeStatus(Test $test) {
     $this->cur++;
 
-    $perc= floor($this->cur / $this->sum * self::PROGRESS_WIDTH);
-
+    $percent= (int)($this->cur / $this->sum * self::PROGRESS_WIDTH);
     $this->out->writef("\033]2;Running: [%s%s] %s()\007",
-      str_repeat('*', $perc), str_repeat('-', self::PROGRESS_WIDTH- $perc),
+      str_repeat('*', $percent), str_repeat('-', self::PROGRESS_WIDTH - $percent),
       $test->getName(true)
     );
   }
@@ -45,7 +44,7 @@ class XTermTitleListener implements Listener {
    * @param  unittest.TestStart $start
    */
   public function testStarted(TestStart $start) {
-    $this->writeStatus($test);
+    $this->writeStatus($start->test());
   }
 
   /**

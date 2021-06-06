@@ -42,8 +42,8 @@ use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderS
  *   $ xp -watch . test src/test/php
  *   ```
  *
- * The `-d` uses the default output, `-q` option suppresses all output, `-v`
- * is more verbose. By default, all test methods are run. To interrupt this,
+ * The `-q` option suppresses all output, `-o` *default|quiet|verbose|bar*
+ * selects output. By default, all test methods are run. To interrupt this,
  * use `-s` *fail|ignore|skip*. Arguments to tests can be passed by supplying
  * one or more `-a` *{value}*.
  *
@@ -51,7 +51,7 @@ use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderS
  * (~/.xp or $XDG_CONFIG_DIR/xp on Un*x, %APPDATA%\Xp on Windows), which
  * may contain the following configuration options and values:
  * `
- *   output=default|verbose|quiet
+ *   output=default|verbose|quiet|bar
  *   colors=on|off|auto
  *   stop=never|fail[,skip[,ignore]]
  * `
@@ -261,12 +261,10 @@ class TestRunner {
       for ($i= 0, $s= sizeof($args); $i < $s; $i++) {
         if ('-?' === $args[$i] || '--help' === $args[$i]) {
           return $this->usage();
-        } else if ('-v' === $args[$i]) {
-          $output= TestListeners::$VERBOSE;
         } else if ('-q' === $args[$i]) {
           $output= TestListeners::$QUIET;
-        } else if ('-c' === $args[$i]) {
-          $output= TestListeners::$DEFAULT;
+        } else if ('-o' === $args[$i]) {
+          $output= TestListeners::named($this->arg($args, ++$i, 'o'));
         } else if ('-e' === $args[$i]) {
           $arg= ++$i < $s ? $args[$i] : '-';
           if ('-' === $arg) {
@@ -280,8 +278,7 @@ class TestRunner {
           $arg= $this->arg($args, ++$i, 'l');
           if ('-?' === $arg || '--help' === $arg) return $this->listenerUsage($class);
 
-          $output= $this->streamWriter($arg);
-          $instance= $suite->addListener($class->newInstance($output));
+          $instance= $suite->addListener($class->newInstance($this->streamWriter($arg)));
 
           // Get all @arg-annotated methods
           $options= [];
@@ -297,31 +294,29 @@ class TestRunner {
               }
             }
           }
+
+          // ...and pass arguments to them
           $option= 0;
-        } else if ('-o' === $args[$i]) {
-          if (isset($options[$option])) {
-            $name= '#'.($option+ 1);
-            $method= $options[$option];
-          } else {
-            $name= $this->arg($args, ++$i, 'o');
-            if (!isset($options[$name])) {
-              $this->err->writeLine('*** Unknown listener argument '.$name.' to '.nameof($instance));
+          while ('-o' === ($args[++$i] ?? null)) {
+            if (isset($options[$option])) {
+              $method= $options[$option++];
+            } else {
+              $name= $this->arg($args, ++$i, 'o');
+              if (!isset($options[$name])) {
+                $this->err->writeLine('*** Unknown listener argument '.$name.' to '.nameof($instance));
+                return 2;
+              }
+              $method= $options[$name];
+            }
+            $pass= $method->numParameters() ? $this->arg($args, ++$i, 'o') : [];
+            try {
+              $method->invoke($instance, $pass);
+            } catch (TargetInvocationException $e) {
+              $this->err->writeLine('*** Error for argument '.$name.' to '.nameof($instance).': '.$e->getCause()->toString());
               return 2;
             }
-            $method= $options[$name];
           }
-          $option++;
-          if (0 === $method->numParameters()) {
-            $pass= [];
-          } else {
-            $pass= $this->arg($args, ++$i, 'o '.$name);
-          }
-          try {
-            $method->invoke($instance, $pass);
-          } catch (TargetInvocationException $e) {
-            $this->err->writeLine('*** Error for argument '.$name.' to '.nameof($instance).': '.$e->getCause()->toString());
-            return 2;
-          }
+          $i--;
         } else if ('-a' === $args[$i]) {
           $arguments[]= $this->arg($args, ++$i, 'a');
         } else if ('-s' === $args[$i]) {
@@ -366,16 +361,18 @@ class TestRunner {
     }
 
     // Check on which events to stop
-    $events= 0;
-    foreach (explode(',', $stop) as $event) {
-      if (isset(self::$stop[$event])) {
-        $events |= self::$stop[$event];
-      } else {
-        $this->err->writeLine('*** Unknown value for -s (must be one of '.implode(', ', array_keys(self::$stop)).')');
-        return 2;
+    if ($stop) {
+      $events= 0;
+      foreach (explode(',', $stop) as $event) {
+        if (isset(self::$stop[$event])) {
+          $events |= self::$stop[$event];
+        } else {
+          $this->err->writeLine('*** Unknown value for -s (must be one of '.implode(', ', array_keys(self::$stop)).')');
+          return 2;
+        }
       }
+      $events && $suite->addListener(new StopListener($events));
     }
-    $events && $suite->addListener(new StopListener($events));
 
     // Gather tests from the provided sources
     foreach ($sources as $source) {

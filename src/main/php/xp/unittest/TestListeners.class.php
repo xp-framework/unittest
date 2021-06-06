@@ -5,7 +5,7 @@ use lang\Enum;
 
 /** Listeners enumeration */
 abstract class TestListeners extends Enum {
-  public static $DEFAULT, $VERBOSE, $QUIET;
+  public static $DEFAULT, $VERBOSE, $QUIET, $BAR;
   
   static function __static() {
     self::$DEFAULT= newinstance(__CLASS__, [0, 'DEFAULT'], '{
@@ -24,6 +24,12 @@ abstract class TestListeners extends Enum {
       static function __static() { }
       public function getImplementation() {
         return \lang\XPClass::forName("xp.unittest.QuietListener");
+      }
+    }');
+    self::$BAR= newinstance(__CLASS__, [3, 'BAR'], '{
+      static function __static() { }
+      public function getImplementation() {
+        return \lang\XPClass::forName("xp.unittest.ColoredBarListener");
       }
     }');
   }
