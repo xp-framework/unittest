@@ -66,7 +66,7 @@ class ColoredBarListener implements Listener {
 
     // Format output so it's 72 characters wide (8 for status, 2 spaces padding)
     $this->out->writef(
-      "\r\033[%sm  %s%s▌ %s  \033[0m",
+      "\r\033[%sm  %s%s❯ %s  \033[0m",
       $color,
       $status,
       str_repeat(' ', 60 - iconv_strlen($status, 'utf-8')),
