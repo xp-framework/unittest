@@ -9,7 +9,10 @@ class Warnings extends \lang\XPException {
     parent::__construct(sizeof($list).' warning(s) raised');
   }
 
-  /** @return string[] */
+  /** @return var[] */
+  public function first() { return $this->list[0]; }
+
+  /** @return var[][] */
   public function all() { return $this->list; }
 
   /** @return string */
@@ -19,7 +22,7 @@ class Warnings extends \lang\XPException {
 
     $s.= "@{\n";
     foreach ($this->list as $warning) {
-      $s.= '  '.$warning."\n";
+      $s.= '  '.$warning[2]."\n";
     }
     return $s.'}';
   }

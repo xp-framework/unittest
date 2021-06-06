@@ -1,13 +1,10 @@
 <?php namespace unittest;
 
+use lang\Value;
 use util\Objects;
 
-/**
- * Test case is the base class for all unittests
- *
- * @see   php://assert
- */
-class TestCase implements \lang\Value {
+/** Test case is the base class for all unittests */
+class TestCase implements Value {
   public $name= '';
     
   /**

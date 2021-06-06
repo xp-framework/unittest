@@ -79,32 +79,32 @@ class VerboseListener implements Listener, ColorizingListener {
   }
 
   /** Writes traced origin for failed test */
-  private function trace($origin) {
+  private function trace($file, $line) {
     $cwd= realpath('.').DIRECTORY_SEPARATOR;
 
     $this->out->writeLinef(
       $this->colored ? "  @\033[32m%s\033[0m:%d" : '  @%s:%d',
-      strtr(str_replace($cwd, '', $origin->file), DIRECTORY_SEPARATOR, '/'),
-      $origin->line
+      strtr(str_replace($cwd, '', $file), DIRECTORY_SEPARATOR, '/'),
+      $line
     );
 
     // Show code
     $n= 0;
-    foreach (new LinesIn(new File(fopen($origin->file, 'rb'))) as $line) {
+    foreach (new LinesIn(new File(fopen($file, 'rb'))) as $l) {
       $n++;
-      if ($n < $origin->line - 4) continue;
-      if ($n > $origin->line + 4) break;
-      if ($n === $origin->line) {
+      if ($n < $line - 4) continue;
+      if ($n > $line + 4) break;
+      if ($n === $line) {
         $this->out->writeLinef(
           $this->colored ? "  \033[31m➜\033[0m \033[37m%4d\033[0m▕ \033[37m%s\033[0m" : '  ➜ %4d▕ %s',
           $n,
-          $this->highlight(rtrim($line))
+          $this->highlight($l)
         );
       } else {
         $this->out->writeLinef(
           $this->colored ? "    %4d▕ \033[37m%s\033[0m" : '    %4d▕ %s',
           $n,
-          $this->highlight(rtrim($line))
+          $this->highlight($l)
         );
       }
     }
@@ -219,7 +219,7 @@ class VerboseListener implements Listener, ColorizingListener {
         $this->out->writeLinef($this->colored ? "> \033[31m%s\033[0m" : '  %s', $outcome->test()->getName(true));
         $this->out->writeLinef($this->colored ? "  \033[37m%s\033[0m" : '  %s', $outcome->reason->compoundMessage());
         $this->out->writeLine();
-        $this->trace($outcome->reason->getStackTrace()[0]);
+        $this->trace(...$outcome->source());
       }
     }
 

@@ -45,6 +45,9 @@ class TestVariation extends Test {
     $this->base->run($this->args);
   }
 
+  /** @return var */
+  public function declaration() { return $this->base->declaration(); }
+
   /** @return string */
   public function container() { return $this->base->container(); }
 

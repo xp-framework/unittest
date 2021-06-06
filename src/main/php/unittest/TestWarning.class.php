@@ -12,12 +12,18 @@ class TestWarning extends TestFailure {
    *
    * @param  unittest.Test $test
    * @param  string[] $warnings
-   * @param  double $elapsed
+   * @param  float $elapsed
    */
   public function __construct(Test $test, array $warnings, $elapsed) {
     parent::__construct($test, $elapsed);
     $this->reason= new Warnings($warnings);
   }
+
+  /** @return var[] */
+  public function source() { return $this->reason->first(); }
+
+  /** @return string */
+  public function event() { return 'testWarning'; }
 
   /** @return string */
   protected function formatReason() { return $this->reason->compoundMessage(); }

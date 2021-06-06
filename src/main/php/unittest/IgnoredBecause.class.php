@@ -7,9 +7,6 @@ use util\profiling\Timer;
  */
 class IgnoredBecause extends TestAborted {
     
-  /** @return string */
-  public function type() { return 'testSkipped'; }
-
   /** @return unittest.TestOutcome */
   public function outcome(Test $test, Timer $timer) {
     return new TestNotRun($test, $this, $timer->elapsedTime());

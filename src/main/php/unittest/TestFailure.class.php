@@ -14,6 +14,25 @@ abstract class TestFailure extends TestOutcome {
   /** @return string */
   protected abstract function formatReason();
 
+  /**
+   * Returns the source of an exception.
+   * 
+   * @param  lang.Throwable $t
+   * @return var[]
+   */
+  protected function sourceOf($t) {
+    $trace= $t->getStackTrace()[0];
+
+    // If invoked by reflection no file and line are present, however class and
+    // method are - retrieve their declaration
+    if (null === $trace->file && $trace->class) {
+      $m= new \ReflectionMethod($trace->class, $trace->method);
+      return [$m->getFileName(), $m->getEndLine() - 1];
+    }
+
+    return [$trace->file, $trace->line];
+  }
+
   /** @return string */
   public function toString() {
     return parent::toString()." {\n  ".str_replace("\n", "\n  ", $this->formatReason())."\n}";

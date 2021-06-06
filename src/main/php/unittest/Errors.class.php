@@ -8,14 +8,14 @@ abstract class Errors {
   /**
    * Returns all errors in registry
    *
-   * @return string[]
+   * @return var[][]
    */
   public static function raised() {
     $w= [];
     foreach (\xp::$errors as $file => $lookup) {
       foreach ($lookup as $line => $messages) {
         foreach ($messages as $message => $detail) {
-          $w[]= sprintf(
+          $w[]= [$file, $line, sprintf(
             '"%s" in %s::%s() (%s, line %d, occured %s)',
             $message,
             $detail['class'],
@@ -23,7 +23,7 @@ abstract class Errors {
             basename($file),
             $line,
             1 === $detail['cnt'] ? 'once' : $detail['cnt'].' times'
-          );
+          )];
         }
       }
     }

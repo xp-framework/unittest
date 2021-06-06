@@ -29,9 +29,6 @@ class AssertionFailedError extends TestAborted {
     }
   }
 
-  /** @return string */
-  public function type() { return 'testFailed'; }
-
   /** @return unittest.TestOutcome */
   public function outcome(Test $test, Timer $timer) {
     return new TestAssertionFailed($test, $this, $timer->elapsedTime());

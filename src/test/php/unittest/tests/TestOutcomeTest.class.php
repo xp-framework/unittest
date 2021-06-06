@@ -94,7 +94,7 @@ class TestOutcomeTest extends TestCase {
       "    Could not open file\n".
       "  }\n".
       "}",
-      new TestWarning($test, ['Could not open file'], 0.0),
+      new TestWarning($test, [[__FILE__, __LINE__, 'Could not open file']], 0.0),
       $variant
     );
   }

@@ -7,4 +7,7 @@
  */
 class TestSuccess extends TestOutcome {
 
+  /** @return string */
+  public function event() { return 'testSucceeded'; }
+
 }

@@ -1,7 +1,7 @@
 <?php namespace unittest;
 
-use lang\{Throwable, XPClass};
 use lang\reflect\TargetInvocationException;
+use lang\{Throwable, StackTraceElement, XPClass};
 use util\profiling\Timer;
 
 class TestRun {
@@ -57,13 +57,11 @@ class TestRun {
   /**
    * Record outcome, notifying listeners
    *
-   * @param  string $type
    * @param  unittest.TestOutcome $result
    * @return void
    */
-  private function record($type, $outcome) {
-    $this->notify($type, [$this->result->record($outcome)]);
-    Errors::clear();
+  private function record($outcome) {
+    $this->notify($outcome->event(), [$this->result->record($outcome)]);
   }
 
   /**
@@ -78,7 +76,7 @@ class TestRun {
 
     // Check for @ignore
     if ($reason= $test->ignored()) {
-      $this->record('testNotRun', new TestNotRun($test, new IgnoredBecause($reason)));
+      $this->record(new TestNotRun($test, new IgnoredBecause($reason)));
       return;
     }
 
@@ -112,7 +110,7 @@ class TestRun {
         $thrown= $tearDown($test, null);
       } catch (TestAborted $aborted) {
         $tearDown($test, $aborted);
-        $this->record($aborted->type(), $aborted->outcome($t, $timer));
+        $this->record($aborted->outcome($t, $timer));
         continue;
       } catch (TargetInvocationException $invoke) {
         $thrown= $tearDown($test, $invoke->getCause());
@@ -123,29 +121,36 @@ class TestRun {
       // Check outcome
       $time= $timer->elapsedTime();
       if ($timeLimit && $time > $timeLimit) {
-        $this->record('testFailed', new TestAssertionFailed($t, new TimedOut($timeLimit, $time), $time));
-      } else if ($thrown) {
-        if ($expected && $expected[0]->isInstance($thrown)) {
-          if ($expected[1] && !preg_match($expected[1], $thrown->getMessage())) {
-            $this->record('testFailed', new TestAssertionFailed($t, new ExpectedMessageDiffers($expected[1], $thrown), $time));
-          } else if ($errors= Errors::raised()) {
-            $this->record('testWarning', new TestWarning($t, $errors, $time));
-          } else {
-            $this->record('testSucceeded', new TestExpectationMet($t, $time));
-          }
-        } else if ($expected && !$expected[0]->isInstance($thrown)) {
-          $this->record('testFailed', new TestAssertionFailed($t, new DidNotCatch($expected[0], $thrown), $time));
-        } else if ($thrown instanceof TestAborted) {
-          $this->record($thrown->type(), $thrown->outcome($t, $timer));
-        } else {
-          $this->record('testError', new TestError($t, $thrown, $time));
+        $this->record(new TestAssertionFailed($t, new TimedOut($timeLimit, $time), $time));
+        continue;
+      } else if ($thrown && $expected) {
+        if (!$expected[0]->isInstance($thrown)) {
+          $outcome= new TestAssertionFailed($t, new DidNotCatch($expected[0], $thrown), $time);
+          $this->record($outcome->trace($thrown));
+          continue;
+        } else if ($expected[1] && !preg_match($expected[1], $thrown->getMessage())) {
+          $outcome= new TestAssertionFailed($t, new ExpectedMessageDiffers($expected[1], $thrown), $time);
+          $this->record($outcome->trace($thrown));
+          continue;
         }
+      } else if ($thrown instanceof TestAborted) {
+        $this->record($thrown->outcome($t, $timer));
+        continue;
+      } else if ($thrown) {
+        $this->record(new TestError($t, $thrown, $time));
+        continue;
       } else if ($expected) {
-        $this->record('testFailed', new TestAssertionFailed($t, new DidNotCatch($expected[0]), $time));
-      } else if ($errors= Errors::raised()) {
-        $this->record('testWarning', new TestWarning($t, $errors, $time));
+        $this->record(new TestAssertionFailed($t, new DidNotCatch($expected[0]), $time));
+        continue;
+      }
+
+      // Success so far, check for warnings
+      if ($errors= Errors::raised()) {
+        $this->record(new TestWarning($t, $errors, $time));
+        Errors::clear();
+        continue;
       } else {
-        $this->record('testSucceeded', new TestExpectationMet($t, $time));
+        $this->record(new TestExpectationMet($t, $time));
       }
     }
   }
@@ -193,7 +198,7 @@ class TestRun {
     } catch (PrerequisitesNotMetError $e) {
       $timer= new Timer();
       foreach ($group->tests() as $test) {
-        $this->record($e->type(), $e->outcome($test, $timer));
+        $this->record($e->outcome($test, $timer));
       }
       return;
     }

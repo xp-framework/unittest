@@ -6,6 +6,7 @@
  * @see   xp://unittest.TestFailure
  */
 class TestAssertionFailed extends TestFailure {
+  private $source= null;
 
   /**
    * Constructor
@@ -18,6 +19,23 @@ class TestAssertionFailed extends TestFailure {
     parent::__construct($test, $elapsed);
     $this->reason= $reason instanceof AssertionFailedError ? $reason : new AssertionFailedError($reason);
   }
+
+  /**
+   * Trace this assertion failure back to a given originating exception
+   *
+   * @param  lang.Throwable $exception
+   * @return self
+   */
+  public function trace($exception) {
+    $this->source= $this->sourceOf($exception);
+    return $this;
+  }
+
+  /** @return var[] */
+  public function source() { return $this->source ?? $this->sourceOf($this->reason); }
+
+  /** @return string */
+  public function event() { return 'testFailed'; }
 
   /** @return string */
   protected function formatReason() { return $this->reason->toString(); }
