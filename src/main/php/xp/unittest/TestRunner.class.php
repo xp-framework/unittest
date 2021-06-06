@@ -3,7 +3,7 @@
 use io\streams\{FileOutputStream, InputStream, OutputStream, Streams, StringReader, StringWriter};
 use io\{File, Folder};
 use lang\reflect\{Package, TargetInvocationException};
-use lang\{ClassLoader, IllegalArgumentException, MethodNotImplementedException, Throwable, XPClass};
+use lang\{Environment, IllegalArgumentException, MethodNotImplementedException, Throwable, XPClass};
 use unittest\{ColorizingListener, TestSuite};
 use util\cmd\Console;
 use util\{NoSuchElementException, Properties};
@@ -47,19 +47,30 @@ use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderS
  * use `-s` *fail|ignore|skip*. Arguments to tests can be passed by supplying
  * one or more `-a` *{value}*.
  *
+ * Supports user preferences in **test.ini** in the environment's config dir,
+ * (~/.xp or $XDG_CONFIG_DIR/xp on Un*x, %APPDATA%\Xp on Windows), which
+ * may contain the following configuration options and values:
+ * `
+ *   output=default|verbose|quiet
+ *   colors=on|off|auto
+ *   stop=never|fail[,skip[,ignore]]
+ * `
+ * Preferences are overidden by their respective command line options.
+ *
  * The exit code is **0** when all tests succeed, nonzero otherwise.
  */
 class TestRunner {
   protected $in, $out, $err;
 
-  private static $cmap= [
-    ''      => null,
-    '=on'   => true,
-    '=off'  => false,
-    '=auto' => null
+  private static $colors= [
+    ''     => null,
+    'on'   => true,
+    'off'  => false,
+    'auto' => null
   ];
 
   private static $stop= [
+    'never'  => 0,
     'fail'   => StopListener::FAIL,
     'skip'   => StopListener::SKIP,
     'ignore' => StopListener::IGNORE
@@ -123,12 +134,23 @@ class TestRunner {
   }
 
   /**
-   * Displays usage
+   * Displays usage and preferences
    *
    * @return  int exitcode
    */
   protected function usage() {
     $this->err->writeLine('Runs unittests: `xp test [tests]`. xp help test has the details!');
+
+    $ini= new File(Environment::configDir('xp'), 'test.ini');
+    if ($ini->exists()) {
+      $this->err->writeLine();
+      $this->err->writeLine('Preferences via ', $ini);
+      foreach ($this->preferences() as $key => $value) {
+        $this->err->writeLine('* ', $key, '=', $value);
+      }
+    } else {
+      $this->err->writeLine('No user preferences (searched for ', $ini->getURI(), ')');
+    }
     return 2;
   }
 
@@ -202,7 +224,21 @@ class TestRunner {
       return new StringWriter(new FileOutputStream($in));
     }
   }
-  
+
+  /**
+   * Returns user preferences stored in `~/.xp/test.ini`
+   *
+   * @return [:var]
+   */
+  protected function preferences() {
+    $ini= new File(Environment::configDir('xp'), 'test.ini');
+    if (!$ini->exists()) return [];
+
+    $p= new Properties();
+    $p->load($ini);
+    return $p->readSection(null);
+  }
+
   /**
    * Runs suite
    *
@@ -212,26 +248,25 @@ class TestRunner {
   public function run(array $args) {
     if (empty($args)) return $this->usage();
 
-    // Setup suite
-    $suite= new TestSuite();
+    $preferences= $this->preferences();
+    $output= TestListeners::named($preferences['output'] ?? 'default');
+    $colors= self::$colors[$preferences['colors'] ?? 'auto'];
+    $stop= $preferences['stop'] ?? null;
 
     // Parse arguments
+    $suite= new TestSuite();
     $sources= [];
-    $listener= TestListeners::$DEFAULT;
     $arguments= [];
-    $colors= null;
-    $stop= 0;
-
     try {
       for ($i= 0, $s= sizeof($args); $i < $s; $i++) {
         if ('-?' === $args[$i] || '--help' === $args[$i]) {
           return $this->usage();
         } else if ('-v' === $args[$i]) {
-          $listener= TestListeners::$VERBOSE;
+          $output= TestListeners::$VERBOSE;
         } else if ('-q' === $args[$i]) {
-          $listener= TestListeners::$QUIET;
+          $output= TestListeners::$QUIET;
         } else if ('-c' === $args[$i]) {
-          $listener= TestListeners::$DEFAULT;
+          $output= TestListeners::$DEFAULT;
         } else if ('-e' === $args[$i]) {
           $arg= ++$i < $s ? $args[$i] : '-';
           if ('-' === $arg) {
@@ -289,22 +324,14 @@ class TestRunner {
           }
         } else if ('-a' === $args[$i]) {
           $arguments[]= $this->arg($args, ++$i, 'a');
-        } else if ('-w' === $args[$i]) {
-          $this->arg($args, ++$i, 'w');
         } else if ('-s' === $args[$i]) {
-          $argument= $this->arg($args, ++$i, 's');
-          if (isset(self::$stop[$argument])) {
-            $stop |= self::$stop[$argument];
-          } else {
-            $this->err->writeLine('*** Unknown value for -s (must be one of '.implode(', ', array_keys(self::$stop)).')');
-            return 2;
-          }
+          $stop= $this->arg($args, ++$i, 's');
         } else if ('--color' === substr($args[$i], 0, 7)) {
-          $remainder= (string)substr($args[$i], 7);
-          if (!array_key_exists($remainder, self::$cmap)) {
+          $remainder= (string)substr($args[$i], 8);
+          if (!array_key_exists($remainder, self::$colors)) {
             throw new IllegalArgumentException('Unsupported argument for --color (must be <empty>, "on", "off", "auto" (default))');
           }
-          $colors= self::$cmap[$remainder];
+          $colors= self::$colors[$remainder];
         } else if (strstr($args[$i], '.ini')) {
           $sources[]= new PropertySource(new Properties($args[$i]));
         } else if (strstr($args[$i], '.**')) {
@@ -331,17 +358,26 @@ class TestRunner {
       $this->err->writeLine('*** No tests specified');
       return 2;
     }
-    
-    // Set up suite
-    $l= $suite->addListener($listener->newInstance($this->out));
+
+    // Setup output
+    $l= $suite->addListener($output->newInstance($this->out));
     if ($l instanceof ColorizingListener) {
       $l->setColor($colors);
     }
 
-    if ($stop) {
-      $suite->addListener(new StopListener($stop));
+    // Check on which events to stop
+    $events= 0;
+    foreach (explode(',', $stop) as $event) {
+      if (isset(self::$stop[$event])) {
+        $events |= self::$stop[$event];
+      } else {
+        $this->err->writeLine('*** Unknown value for -s (must be one of '.implode(', ', array_keys(self::$stop)).')');
+        return 2;
+      }
     }
+    $events && $suite->addListener(new StopListener($events));
 
+    // Gather tests from the provided sources
     foreach ($sources as $source) {
       try {
         $source->provideTo($suite, $arguments);
@@ -356,19 +392,17 @@ class TestRunner {
         return 2;
       }
     }
-    
+    if (0 === $suite->numTests()) return 3;
+
     // Run it!
-    if (0 == $suite->numTests()) {
-      return 3;
-    } else {
-      return $suite->run()->failureCount() > 0 ? 1 : 0;
-    }
+    return $suite->run()->failureCount() > 0 ? 1 : 0;
   }
 
   /**
    * Main runner method
    *
-   * @param   string[] args
+   * @param  string[] args
+   * @return int
    */
   public static function main(array $args) {
     return (new self())->run($args);

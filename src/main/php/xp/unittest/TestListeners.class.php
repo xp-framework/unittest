@@ -3,9 +3,7 @@
 use io\streams\OutputStreamWriter;
 use lang\Enum;
 
-/**
- * Listeners enumeration
- */
+/** Listeners enumeration */
 abstract class TestListeners extends Enum {
   public static $DEFAULT, $VERBOSE, $QUIET;
   
@@ -28,6 +26,16 @@ abstract class TestListeners extends Enum {
         return \lang\XPClass::forName("xp.unittest.QuietListener");
       }
     }');
+  }
+
+  /**
+   * Creates a listener from a given name
+   *
+   * @param  string $name
+   * @return self
+   */
+  public static function named($name) {
+    return Enum::valueOf(self::class, strtoupper($name));
   }
 
   /**
