@@ -26,6 +26,11 @@ abstract class Test implements Value {
    */
   public abstract function hashCode();
 
+  /** @return var */
+  public function declaration() {
+    return [$this->method->_reflect->getFileName(), $this->method->_reflect->getStartLine()];
+  }
+
   /** @return ?string */
   public function ignored() {
     return $this->method->hasAnnotation('ignore') ? ($this->method->getAnnotation('ignore') ?: '(n/a)') : null;

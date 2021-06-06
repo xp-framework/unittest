@@ -24,9 +24,6 @@ class PrerequisitesNotMetError extends TestAborted {
     $this->prerequisites= (array)$prerequisites;
   }
 
-  /** @return string */
-  public function type() { return 'testSkipped'; }
-
   /** @return unittest.TestOutcome */
   public function outcome(Test $test, Timer $timer) {
     return new TestPrerequisitesNotMet($test, $this, $timer->elapsedTime());

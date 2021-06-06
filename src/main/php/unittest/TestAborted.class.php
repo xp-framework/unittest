@@ -1,19 +1,10 @@
 <?php namespace unittest;
 
+use lang\XPException;
 use util\profiling\Timer;
 
-/**
- * Indicates a test run was aborted
- */
-abstract class TestAborted extends \lang\XPException {
-
-  /**
-   * Returns the type which is passed to the listeners
-   *
-   * @see    xp://unittest.TestSuite#notifyListeners
-   * @return string
-   */ 
-  public abstract function type();   
+/** Indicates a test run was aborted */
+abstract class TestAborted extends XPException {
 
   /**
    * Returns the outcome class

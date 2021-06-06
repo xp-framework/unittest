@@ -18,7 +18,13 @@ abstract class TestOutcome implements Value {
     $this->elapsed= $elapsed;
   }
 
-  /** @return unittest.TestO */
+  /** @return var[] */
+  public function source() { return $this->test->declaration(); }
+
+  /** @return string */
+  public abstract function event();
+
+  /** @return unittest.Test */
   public function test() { return $this->test; }
 
   /** @return double */

@@ -9,9 +9,6 @@ use util\profiling\Timer;
  */
 class PrerequisitesFailedError extends PrerequisitesNotMetError {
 
-  /** @return string */
-  public function type() { return 'testFailed'; }
-
   /** @return unittest.TestOutcome */
   public function outcome(Test $test, Timer $timer) {
     return new TestPrerequisitesFailed($test, $this, $timer->elapsedTime());

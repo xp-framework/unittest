@@ -18,4 +18,7 @@ class TestNotRun extends TestSkipped {
     parent::__construct($test, 0.0);
     $this->reason= $reason;
   }
+
+  /** @return string */
+  public function event() { return 'testNotRun'; }
 }

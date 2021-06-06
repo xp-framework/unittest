@@ -25,6 +25,10 @@ use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderS
  *   ```sh
  *   $ xp test com.example.unittest.VerifyItWorks
  *   ```
+ * - Run a single test method, here `verify()`.
+ *   ```sh
+ *   $ xp test com.example.unittest.VerifyItWorks::verify
+ *   ```
  * - Run a single test file
  *   ```sh
  *   $ xp test Test.class.php
@@ -38,9 +42,10 @@ use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderS
  *   $ xp -watch . test src/test/php
  *   ```
  *
- * The `-q` option suppresses all output, `-v` is more verbose. By default,
- * all test methods are run. To interrupt this, use `-s` *fail|ignore|skip*.
- * Arguments to tests can be passed by supplying on ore more `-a` *{value}*.
+ * The `-d` uses the default output, `-q` option suppresses all output, `-v`
+ * is more verbose. By default, all test methods are run. To interrupt this,
+ * use `-s` *fail|ignore|skip*. Arguments to tests can be passed by supplying
+ * one or more `-a` *{value}*.
  *
  * The exit code is **0** when all tests succeed, nonzero otherwise.
  */
@@ -219,18 +224,20 @@ class TestRunner {
 
     try {
       for ($i= 0, $s= sizeof($args); $i < $s; $i++) {
-        if ('-v' == $args[$i]) {
+        if ('-v' === $args[$i]) {
           $listener= TestListeners::$VERBOSE;
-        } else if ('-q' == $args[$i]) {
+        } else if ('-q' === $args[$i]) {
           $listener= TestListeners::$QUIET;
-        } else if ('-e' == $args[$i]) {
+        } else if ('-c' === $args[$i]) {
+          $listener= TestListeners::$DEFAULT;
+        } else if ('-e' === $args[$i]) {
           $arg= ++$i < $s ? $args[$i] : '-';
           if ('-' === $arg) {
             $sources[]= new EvaluationSource(Streams::readAll($this->in->getStream()));
           } else {
             $sources[]= new EvaluationSource($this->arg($args, $i, 'e'));
           }
-        } else if ('-l' == $args[$i]) {
+        } else if ('-l' === $args[$i]) {
           $arg= $this->arg($args, ++$i, 'l');
           $class= XPClass::forName(strstr($arg, '.') ? $arg : 'xp.unittest.'.ucfirst($arg).'Listener');
           $arg= $this->arg($args, ++$i, 'l');
@@ -255,7 +262,7 @@ class TestRunner {
             }
           }
           $option= 0;
-        } else if ('-o' == $args[$i]) {
+        } else if ('-o' === $args[$i]) {
           if (isset($options[$option])) {
             $name= '#'.($option+ 1);
             $method= $options[$option];
@@ -268,7 +275,7 @@ class TestRunner {
             $method= $options[$name];
           }
           $option++;
-          if (0 == $method->numParameters()) {
+          if (0 === $method->numParameters()) {
             $pass= [];
           } else {
             $pass= $this->arg($args, ++$i, 'o '.$name);
@@ -279,13 +286,13 @@ class TestRunner {
             $this->err->writeLine('*** Error for argument '.$name.' to '.nameof($instance).': '.$e->getCause()->toString());
             return 2;
           }
-        } else if ('-?' == $args[$i] || '--help' == $args[$i]) {
+        } else if ('-?' === $args[$i] || '--help' === $args[$i]) {
           return $this->usage();
-        } else if ('-a' == $args[$i]) {
+        } else if ('-a' === $args[$i]) {
           $arguments[]= $this->arg($args, ++$i, 'a');
-        } else if ('-w' == $args[$i]) {
+        } else if ('-w' === $args[$i]) {
           $this->arg($args, ++$i, 'w');
-        } else if ('-s' == $args[$i]) {
+        } else if ('-s' === $args[$i]) {
           $argument= $this->arg($args, ++$i, 's');
           if (isset(self::$stop[$argument])) {
             $stop |= self::$stop[$argument];
@@ -293,7 +300,7 @@ class TestRunner {
             $this->err->writeLine('*** Unknown value for -s (must be one of '.implode(', ', array_keys(self::$stop)).')');
             return 2;
           }
-        } else if ('--color' == substr($args[$i], 0, 7)) {
+        } else if ('--color' === substr($args[$i], 0, 7)) {
           $remainder= (string)substr($args[$i], 7);
           if (!array_key_exists($remainder, self::$cmap)) {
             throw new IllegalArgumentException('Unsupported argument for --color (must be <empty>, "on", "off", "auto" (default))');

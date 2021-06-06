@@ -42,6 +42,12 @@ class TestCaseInstance extends Test {
     }
   }
 
+  /** @return string */
+  public function container() { return nameof($this->instance); }
+
+  /** @return string */
+  public function name() { return $this->method->getName(); }
+
   /**
    * Get this test target's name
    *

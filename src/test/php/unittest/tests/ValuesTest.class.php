@@ -177,7 +177,7 @@ class ValuesTest extends TestCase {
     $test= newinstance(TestCase::class, ['fixture'], '{
       #[Test, Values([1, 2, 3])]
       public function fixture($value) {
-        $this->assertTrue(TRUE);
+        $this->assertTrue(true);
       }
     }');
     $r= $this->suite->runTest($test);
@@ -189,7 +189,7 @@ class ValuesTest extends TestCase {
     $test= newinstance(TestCase::class, ['fixture'], '{
       #[Test, Values([1, 2, 3])]
       public function fixture($value) {
-        $this->assertTrue(FALSE);
+        $this->assertTrue(false);
       }
     }');
     $r= $this->suite->runTest($test);

@@ -9,11 +9,12 @@ use unittest\{ColorizingListener, Listener, TestStart};
  * Only shows details for failed tests. This listener has no options.
  */
 class DefaultListener implements Listener, ColorizingListener {
+  use Colors;
+
   const OUTPUT_WIDTH= 72;
 
   public $out= null;
   protected $column= 0;
-  private $colored= null;
 
   /**
    * Constructor
@@ -22,34 +23,6 @@ class DefaultListener implements Listener, ColorizingListener {
    */
   public function __construct(OutputStreamWriter $out) {
     $this->out= $out;
-  }
-
-  /**
-   * Set color
-   *
-   * @param   bool color
-   * @return  self
-   */
-  public function setColor($color) {
-    if (null === $color) {
-      $color= (
-        $this->out instanceof ConsoleOutputStream &&
-        function_exists('posix_isatty') ? posix_isatty(STDOUT) : true
-      );
-    }
-
-    $this->colored= $color;
-  }
-
-  /**
-   * Set color
-   *
-   * @param   bool color
-   * @return  self
-   */
-  public function withColor($color) {
-    $this->setColor($color);
-    return $this;
   }
 
   /**

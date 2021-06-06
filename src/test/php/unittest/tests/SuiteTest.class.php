@@ -397,8 +397,10 @@ class SuiteTest extends TestCase {
     $test= newinstance(TestCase::class, ['fixture'], [
       '#[Test] fixture' => function() { trigger_error('Test error'); }
     ]);
+
+    $l= __LINE__ - 3;
     $this->assertEquals(
-      [sprintf('"Test error" in ::trigger_error() (SuiteTest.class.php, line %d, occured once)', __LINE__ - 3)],
+      [[__FILE__, $l, sprintf('"Test error" in ::trigger_error() (SuiteTest.class.php, line %d, occured once)', $l)]],
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason->all()
     );
   }
@@ -444,8 +446,10 @@ class SuiteTest extends TestCase {
         throw new IllegalArgumentException('Test');
       }
     ]);
+
+    $l= __LINE__ - 5;
     $this->assertEquals(
-      [sprintf('"Test error" in ::trigger_error() (SuiteTest.class.php, line %d, occured once)', __LINE__ - 5)],
+      [[__FILE__, $l, sprintf('"Test error" in ::trigger_error() (SuiteTest.class.php, line %d, occured once)', $l)]],
       $this->suite->runTest($test)->failed[$test->hashCode()]->reason->all()
     );
   }

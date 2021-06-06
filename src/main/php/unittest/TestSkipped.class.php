@@ -11,6 +11,9 @@ class TestSkipped extends TestOutcome {
   public $reason;
 
   /** @return string */
+  public function event() { return 'testSkipped'; }
+
+  /** @return string */
   public function toString() {
     return parent::toString()." {\n  ".str_replace("\n", "\n  ", Objects::stringOf($this->reason))."\n}";
   }

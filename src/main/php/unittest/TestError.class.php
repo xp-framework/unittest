@@ -3,7 +3,7 @@
 use lang\Throwable;
 
 /**
- * Indicates a test failed
+ * Indicates a test errored
  *
  * @see   xp://unittest.TestFailure
  */
@@ -20,6 +20,12 @@ class TestError extends TestFailure {
     parent::__construct($test, $elapsed);
     $this->reason= $reason;
   }
+
+  /** @return var[] */
+  public function source() { return $this->sourceOf($this->reason); }
+
+  /** @return string */
+  public function event() { return 'testError'; }
 
   /** @return string */
   protected function formatReason() { return $this->reason->toString(); }

@@ -20,5 +20,8 @@ class TestPrerequisitesFailed extends TestFailure {
   }
 
   /** @return string */
+  public function event() { return 'testFailed'; }
+
+  /** @return string */
   protected function formatReason() { return $this->reason->toString(); }
 }
