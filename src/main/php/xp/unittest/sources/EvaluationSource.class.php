@@ -1,26 +1,24 @@
 <?php namespace xp\unittest\sources;
 
 use lang\ClassLoader;
-use unittest\TestCase;
 
 /**
- * Source that dynamically creates testcases
+ * Source that dynamically creates testcases. Uses XP annotations for PHP 7
+ * to retain maximum backwards compatibility!
  */
 class EvaluationSource extends AbstractSource {
-  private static $uniqId= 0;
+  private static $uniqId= 1;
   private static $annotation;
-  private $testClass;
+  private $class;
 
   static function __static() {
-
-    // Use XP annotations for PHP 7 to retain maximum backwards compatibility
     self::$annotation= PHP_VERSION_ID < 80000 ? '#[@test]' : '#[Test]';
   }
   
   /**
    * Constructor
    *
-   * @param  string $src method sourcecode
+   * @param  string $input method sourcecode
    */
   public function __construct($input) {
 
@@ -28,13 +26,13 @@ class EvaluationSource extends AbstractSource {
     if (0 === strncmp($input, '<?', 2)) {
       $input= substr($input, strcspn($input, "\r\n\t =") + 1);
     }
-    $fragment= trim($input, "\r\n\t ;").';';
 
-    $name= 'xp.unittest.DynamicallyGeneratedTestCase'.(self::$uniqId++);
-    $this->testClass= ClassLoader::defineClass($name, TestCase::class, [], '{
-      '.self::$annotation.'
-      public function run() { '.$fragment.' }
-    }');
+    $this->class= ClassLoader::defineClass(
+      'unittest.Evaluate'.(self::$uniqId++),
+      null,
+      [],
+      "{\n\n  ".self::$annotation."\n  public function run() {\n    ".trim($input, "\r\n\t ;").";\n  }\n}"
+    );
   }
 
   /**
@@ -45,7 +43,7 @@ class EvaluationSource extends AbstractSource {
    * @return void
    */
   public function provideTo($suite, $arguments) {
-    $suite->addTest($this->testClass->newInstance('run'));
+    $suite->addTestClass($this->class);
   }
 
   /**
@@ -54,6 +52,6 @@ class EvaluationSource extends AbstractSource {
    * @return string
    */
   public function toString() {
-    return nameof($this).'['.$this->testClass->toString().']';
+    return nameof($this).'['.$this->class->toString().']';
   }
 }
