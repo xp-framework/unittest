@@ -25,6 +25,10 @@ use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderS
  *   ```sh
  *   $ xp test com.example.unittest.VerifyItWorks
  *   ```
+ * - Run a single test method, here `verify()`.
+ *   ```sh
+ *   $ xp test com.example.unittest.VerifyItWorks::verify
+ *   ```
  * - Run a single test file
  *   ```sh
  *   $ xp test Test.class.php
@@ -38,9 +42,10 @@ use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderS
  *   $ xp -watch . test src/test/php
  *   ```
  *
- * The `-q` option suppresses all output, `-v` is more verbose. By default,
- * all test methods are run. To interrupt this, use `-s` *fail|ignore|skip*.
- * Arguments to tests can be passed by supplying on ore more `-a` *{value}*.
+ * The `-d` uses the default output, `-q` option suppresses all output, `-v`
+ * is more verbose. By default, all test methods are run. To interrupt this,
+ * use `-s` *fail|ignore|skip*. Arguments to tests can be passed by supplying
+ * one or more `-a` *{value}*.
  *
  * The exit code is **0** when all tests succeed, nonzero otherwise.
  */
