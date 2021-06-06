@@ -3,6 +3,13 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 11.3.0 / 2021-06-07
+
+* Improve readability of generated code for `xp test -e [code]`. This
+  is important for our *verbose* output mode, which will show this
+  code in its failure messages.
+  (@thekid)
+
 ## 11.2.0 / 2021-06-07
 
 * Merged PR #46: Use unicode characters to improve test status bar
