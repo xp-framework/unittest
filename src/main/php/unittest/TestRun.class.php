@@ -84,7 +84,7 @@ class TestRun {
     $expected= $test->expected();
     $timeLimit= $test->timeLimit();
 
-    Errors::clear();
+    Warnings::clear();
     foreach ($test->variations() as $t) {
       $timer->start();
 
@@ -145,9 +145,9 @@ class TestRun {
       }
 
       // Success so far, check for warnings
-      if ($errors= Errors::raised()) {
+      if ($errors= Warnings::raised()) {
         $this->record(new TestWarning($t, $errors, $time));
-        Errors::clear();
+        Warnings::clear();
         continue;
       } else {
         $this->record(new TestExpectationMet($t, $time));
