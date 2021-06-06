@@ -53,7 +53,7 @@ class ColoredBarListener implements Listener {
   
     // Create status bar
     $done= floor($this->cur / $this->sum * self::PROGRESS_WIDTH);
-    $status= sprintf('Running %-3d of %d ▐%s▌ %01dF %01dE %01dW %01dS %01dN',
+    $status= sprintf('Running %-3d of %d ▐%s▌ %01d 📛▕ %01d ❌▕ %01d ⚡▕ %01d ⏩▕ %01d ⌛',
       $this->cur,
       $this->sum,
       str_repeat('█', $done).str_repeat(' ', self::PROGRESS_WIDTH - $done),
@@ -122,8 +122,9 @@ class ColoredBarListener implements Listener {
    * @param   unittest.TestWarning warning
    */
   public function testWarning(\unittest\TestWarning $warning) {
-    $this->writeFailure($warning);
+    $this->status= false;
     $this->stats['warned']++;
+    $this->writeFailure($warning);
   }
 
   /**
