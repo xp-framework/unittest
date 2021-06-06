@@ -41,17 +41,19 @@ class ColoredBarListener implements Listener {
    * @return void
    */
   private function writeStatus(Test $test= null) {
-    if (null === $test) {
-      $this->cur= $this->sum;
-      $done= self::PROGRESS_WIDTH;
-      $color= $this->status ? self::CODE_GREEN : self::CODE_RED;
-    } else {
+    if ($test) {
       $this->cur++;
-      $done= floor($this->cur / $this->sum * self::PROGRESS_WIDTH);
       $color= self::CODE_BLUE;
+    } else if ($this->status) {
+      $this->cur= $this->sum;
+      $color= self::CODE_GREEN;
+    } else {
+      $color= self::CODE_RED;
     }
   
-    $out= sprintf('Running %-3d of %d ▐%s▌ %01dF %01dE %01dW %01dS %01dN',
+    // Create status bar
+    $done= floor($this->cur / $this->sum * self::PROGRESS_WIDTH);
+    $status= sprintf('Running %-3d of %d ▐%s▌ %01dF %01dE %01dW %01dS %01dN',
       $this->cur,
       $this->sum,
       str_repeat('█', $done).str_repeat(' ', self::PROGRESS_WIDTH - $done),
@@ -66,8 +68,8 @@ class ColoredBarListener implements Listener {
     $this->out->writef(
       "\r\033[%sm  %s%s▌ %s  \033[0m",
       $color,
-      $out,
-      str_repeat(' ', 60 - iconv_strlen($out, 'utf-8')),
+      $status,
+      str_repeat(' ', 60 - iconv_strlen($status, 'utf-8')),
       $this->status ? 'PASSING' : 'FAILURE!'
     );
   }
@@ -81,17 +83,6 @@ class ColoredBarListener implements Listener {
     $this->out->write("\r");
     $this->out->writeLine($result);
     $this->out->writeLine();
-  }
-
-  /**
-   * Write colored line
-   *
-   * @param   string line
-   * @param   string code
-   */
-  private function writeColoredLine($line, $code) {
-    $this->len= strlen($line);
-    $this->out->write($code.$line.self::$CODE_RESET);
   }
 
   /**
