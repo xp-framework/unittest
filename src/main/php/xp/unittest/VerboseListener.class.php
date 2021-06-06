@@ -252,8 +252,8 @@ class VerboseListener implements Listener, ColorizingListener {
     // Show details for failed tests
     if ($result->failureCount() > 0) {
       foreach ($result->failed as $outcome) {
-        $this->out->writeLinef($this->colored ? "> \033[31m%s\033[0m" : '  %s', $outcome->test()->getName(true));
-        $this->out->writeLinef($this->colored ? "  \033[37m%s\033[0m" : '  %s', $outcome->reason->compoundMessage());
+        $this->out->writeLinef($this->colored ? "\033[31m⨯ %s\033[0m" : '⨯ %s', $outcome->test()->getName(true));
+        $this->out->writeLinef($this->colored ? "\033[37m  %s\033[0m" : '  %s', $outcome->reason->compoundMessage());
 
         // If any warnings have occurred, add them to the output, they may
         // help identify the cause.
