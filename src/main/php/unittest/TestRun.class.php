@@ -84,8 +84,8 @@ class TestRun {
     $expected= $test->expected();
     $timeLimit= $test->timeLimit();
 
-    Warnings::clear();
     foreach ($test->variations() as $t) {
+      Warnings::clear();
       $timer->start();
 
       $tearDown= function($test, $error) { return $error; };
