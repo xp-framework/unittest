@@ -42,7 +42,7 @@ use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderS
  *   $ xp -watch . test src/test/php
  *   ```
  *
- * The `-q` option suppresses all output, `-o` *default|quiet|verbose|bar*
+ * The `-q` option suppresses all output, `-o` *compact|quiet|verbose|bar*
  * selects output. By default, all test methods are run. To interrupt this,
  * use `-s` *fail|ignore|skip*. Arguments to tests can be passed by supplying
  * one or more `-a` *{value}*.
@@ -51,7 +51,7 @@ use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderS
  * (~/.xp or $XDG_CONFIG_DIR/xp on Un*x, %APPDATA%\Xp on Windows), which
  * may contain the following configuration options and values:
  * `
- *   output=default|verbose|quiet|bar
+ *   output=compact|verbose|quiet|bar
  *   colors=on|off|auto
  *   stop=never|fail[,skip[,ignore]]
  * `
@@ -366,6 +366,7 @@ class TestRunner {
     if ($stop) {
       $events= 0;
       foreach (explode(',', $stop) as $event) {
+        $event= trim($event);
         if (isset(self::$stop[$event])) {
           $events |= self::$stop[$event];
         } else {
