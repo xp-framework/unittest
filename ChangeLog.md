@@ -3,6 +3,14 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 11.2.0 / 2021-06-07
+
+* Merged PR #46: Use unicode characters to improve test status bar
+  (@thekid
+* Merged PR #45: Add support for user preferences via `test.ini` in
+  environment config dir (`~/.xp` or `$XDG_CONFIG_HOME/xp` on Un\*x,
+  `%APPDATA%\Xp` on Windows)
+  (@thekid)
 * Merged PR #44: Show source code location where test errors were
   raised in verbose listener
   (@thekid)
