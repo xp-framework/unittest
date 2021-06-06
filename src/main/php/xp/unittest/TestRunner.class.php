@@ -196,7 +196,7 @@ class TestRunner {
    * @return  io.streams.OutputStreamWriter
    */
   protected function streamWriter($in) {
-    if ('-' == $in) {
+    if ('-' === $in) {
       return Console::$out;
     } else {
       return new StringWriter(new FileOutputStream($in));
@@ -206,11 +206,11 @@ class TestRunner {
   /**
    * Runs suite
    *
-   * @param   string[] args
-   * @return  int exitcode
+   * @param  string[] $args
+   * @return int exitcode
    */
   public function run(array $args) {
-    if (!$args) return $this->usage();
+    if (empty($args)) return $this->usage();
 
     // Setup suite
     $suite= new TestSuite();
@@ -224,7 +224,9 @@ class TestRunner {
 
     try {
       for ($i= 0, $s= sizeof($args); $i < $s; $i++) {
-        if ('-v' === $args[$i]) {
+        if ('-?' === $args[$i] || '--help' === $args[$i]) {
+          return $this->usage();
+        } else if ('-v' === $args[$i]) {
           $listener= TestListeners::$VERBOSE;
         } else if ('-q' === $args[$i]) {
           $listener= TestListeners::$QUIET;
@@ -241,9 +243,8 @@ class TestRunner {
           $arg= $this->arg($args, ++$i, 'l');
           $class= XPClass::forName(strstr($arg, '.') ? $arg : 'xp.unittest.'.ucfirst($arg).'Listener');
           $arg= $this->arg($args, ++$i, 'l');
-          if ('-?' == $arg || '--help' == $arg) {
-            return $this->listenerUsage($class);
-          }
+          if ('-?' === $arg || '--help' === $arg) return $this->listenerUsage($class);
+
           $output= $this->streamWriter($arg);
           $instance= $suite->addListener($class->newInstance($output));
 
@@ -286,8 +287,6 @@ class TestRunner {
             $this->err->writeLine('*** Error for argument '.$name.' to '.nameof($instance).': '.$e->getCause()->toString());
             return 2;
           }
-        } else if ('-?' === $args[$i] || '--help' === $args[$i]) {
-          return $this->usage();
         } else if ('-a' === $args[$i]) {
           $arguments[]= $this->arg($args, ++$i, 'a');
         } else if ('-w' === $args[$i]) {
