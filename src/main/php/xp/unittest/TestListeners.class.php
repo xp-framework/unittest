@@ -3,14 +3,13 @@
 use io\streams\OutputStreamWriter;
 use lang\Enum;
 
-/**
- * Listeners enumeration
- */
+/** Listeners enumeration */
 abstract class TestListeners extends Enum {
-  public static $DEFAULT, $VERBOSE, $QUIET;
+  public static $COMPACT, $VERBOSE, $QUIET, $BAR;
+  public static $DEFAULT;
   
   static function __static() {
-    self::$DEFAULT= newinstance(__CLASS__, [0, 'DEFAULT'], '{
+    self::$COMPACT= newinstance(__CLASS__, [0, 'COMPACT'], '{
       static function __static() { }
       public function getImplementation() {
         return \lang\XPClass::forName("xp.unittest.DefaultListener");
@@ -28,6 +27,24 @@ abstract class TestListeners extends Enum {
         return \lang\XPClass::forName("xp.unittest.QuietListener");
       }
     }');
+    self::$BAR= newinstance(__CLASS__, [3, 'BAR'], '{
+      static function __static() { }
+      public function getImplementation() {
+        return \lang\XPClass::forName("xp.unittest.ColoredBarListener");
+      }
+    }');
+
+    self::$DEFAULT= self::$COMPACT;
+  }
+
+  /**
+   * Creates a listener from a given name
+   *
+   * @param  string $name
+   * @return self
+   */
+  public static function named($name) {
+    return Enum::valueOf(self::class, strtoupper($name));
   }
 
   /**

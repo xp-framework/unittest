@@ -3,7 +3,7 @@
 use io\streams\{FileOutputStream, InputStream, OutputStream, Streams, StringReader, StringWriter};
 use io\{File, Folder};
 use lang\reflect\{Package, TargetInvocationException};
-use lang\{ClassLoader, IllegalArgumentException, MethodNotImplementedException, Throwable, XPClass};
+use lang\{Environment, IllegalArgumentException, MethodNotImplementedException, Throwable, XPClass};
 use unittest\{ColorizingListener, TestSuite};
 use util\cmd\Console;
 use util\{NoSuchElementException, Properties};
@@ -42,24 +42,35 @@ use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderS
  *   $ xp -watch . test src/test/php
  *   ```
  *
- * The `-d` uses the default output, `-q` option suppresses all output, `-v`
- * is more verbose. By default, all test methods are run. To interrupt this,
+ * The `-q` option suppresses all output, `-o` *compact|quiet|verbose|bar*
+ * selects output. By default, all test methods are run. To interrupt this,
  * use `-s` *fail|ignore|skip*. Arguments to tests can be passed by supplying
  * one or more `-a` *{value}*.
+ *
+ * Supports user preferences in **test.ini** in the environment's config dir,
+ * (~/.xp or $XDG_CONFIG_DIR/xp on Un*x, %APPDATA%\Xp on Windows), which
+ * may contain the following configuration options and values:
+ * `
+ *   output=compact|verbose|quiet|bar
+ *   colors=on|off|auto
+ *   stop=never|fail[,skip[,ignore]]
+ * `
+ * Preferences are overidden by their respective command line options.
  *
  * The exit code is **0** when all tests succeed, nonzero otherwise.
  */
 class TestRunner {
   protected $in, $out, $err;
 
-  private static $cmap= [
-    ''      => null,
-    '=on'   => true,
-    '=off'  => false,
-    '=auto' => null
+  private static $colors= [
+    ''     => null,
+    'on'   => true,
+    'off'  => false,
+    'auto' => null
   ];
 
   private static $stop= [
+    'never'  => 0,
     'fail'   => StopListener::FAIL,
     'skip'   => StopListener::SKIP,
     'ignore' => StopListener::IGNORE
@@ -123,12 +134,23 @@ class TestRunner {
   }
 
   /**
-   * Displays usage
+   * Displays usage and preferences
    *
    * @return  int exitcode
    */
   protected function usage() {
     $this->err->writeLine('Runs unittests: `xp test [tests]`. xp help test has the details!');
+
+    $ini= new File(Environment::configDir('xp'), 'test.ini');
+    if ($ini->exists()) {
+      $this->err->writeLine();
+      $this->err->writeLine('Preferences via ', $ini);
+      foreach ($this->preferences() as $key => $value) {
+        $this->err->writeLine('* ', $key, '=', $value);
+      }
+    } else {
+      $this->err->writeLine('No user preferences (searched for ', $ini->getURI(), ')');
+    }
     return 2;
   }
 
@@ -202,7 +224,21 @@ class TestRunner {
       return new StringWriter(new FileOutputStream($in));
     }
   }
-  
+
+  /**
+   * Returns user preferences stored in `~/.xp/test.ini`
+   *
+   * @return [:var]
+   */
+  protected function preferences() {
+    $ini= new File(Environment::configDir('xp'), 'test.ini');
+    if (!$ini->exists()) return [];
+
+    $p= new Properties();
+    $p->load($ini);
+    return $p->readSection(null);
+  }
+
   /**
    * Runs suite
    *
@@ -212,26 +248,23 @@ class TestRunner {
   public function run(array $args) {
     if (empty($args)) return $this->usage();
 
-    // Setup suite
-    $suite= new TestSuite();
+    $preferences= $this->preferences();
+    $output= TestListeners::named($preferences['output'] ?? 'default');
+    $colors= self::$colors[$preferences['colors'] ?? 'auto'];
+    $stop= $preferences['stop'] ?? null;
 
     // Parse arguments
+    $suite= new TestSuite();
     $sources= [];
-    $listener= TestListeners::$DEFAULT;
     $arguments= [];
-    $colors= null;
-    $stop= 0;
-
     try {
       for ($i= 0, $s= sizeof($args); $i < $s; $i++) {
         if ('-?' === $args[$i] || '--help' === $args[$i]) {
           return $this->usage();
-        } else if ('-v' === $args[$i]) {
-          $listener= TestListeners::$VERBOSE;
         } else if ('-q' === $args[$i]) {
-          $listener= TestListeners::$QUIET;
-        } else if ('-c' === $args[$i]) {
-          $listener= TestListeners::$DEFAULT;
+          $output= TestListeners::$QUIET;
+        } else if ('-o' === $args[$i]) {
+          $output= TestListeners::named($this->arg($args, ++$i, 'o'));
         } else if ('-e' === $args[$i]) {
           $arg= ++$i < $s ? $args[$i] : '-';
           if ('-' === $arg) {
@@ -245,8 +278,7 @@ class TestRunner {
           $arg= $this->arg($args, ++$i, 'l');
           if ('-?' === $arg || '--help' === $arg) return $this->listenerUsage($class);
 
-          $output= $this->streamWriter($arg);
-          $instance= $suite->addListener($class->newInstance($output));
+          $instance= $suite->addListener($class->newInstance($this->streamWriter($arg)));
 
           // Get all @arg-annotated methods
           $options= [];
@@ -262,49 +294,41 @@ class TestRunner {
               }
             }
           }
+
+          // ...and pass arguments to them
           $option= 0;
-        } else if ('-o' === $args[$i]) {
-          if (isset($options[$option])) {
-            $name= '#'.($option+ 1);
-            $method= $options[$option];
-          } else {
-            $name= $this->arg($args, ++$i, 'o');
-            if (!isset($options[$name])) {
-              $this->err->writeLine('*** Unknown listener argument '.$name.' to '.nameof($instance));
+          while ('-o' === ($args[++$i] ?? null)) {
+            if (isset($options[$option])) {
+              $method= $options[$option++];
+            } else {
+              $name= $this->arg($args, ++$i, 'o');
+              if (!isset($options[$name])) {
+                $this->err->writeLine('*** Unknown listener argument '.$name.' to '.nameof($instance));
+                return 2;
+              }
+              $method= $options[$name];
+            }
+            $pass= $method->numParameters() ? $this->arg($args, ++$i, 'o') : [];
+            try {
+              $method->invoke($instance, $pass);
+            } catch (TargetInvocationException $e) {
+              $this->err->writeLine('*** Error for argument '.$name.' to '.nameof($instance).': '.$e->getCause()->toString());
               return 2;
             }
-            $method= $options[$name];
           }
-          $option++;
-          if (0 === $method->numParameters()) {
-            $pass= [];
-          } else {
-            $pass= $this->arg($args, ++$i, 'o '.$name);
-          }
-          try {
-            $method->invoke($instance, $pass);
-          } catch (TargetInvocationException $e) {
-            $this->err->writeLine('*** Error for argument '.$name.' to '.nameof($instance).': '.$e->getCause()->toString());
-            return 2;
-          }
+          $i--;
         } else if ('-a' === $args[$i]) {
           $arguments[]= $this->arg($args, ++$i, 'a');
-        } else if ('-w' === $args[$i]) {
-          $this->arg($args, ++$i, 'w');
         } else if ('-s' === $args[$i]) {
-          $argument= $this->arg($args, ++$i, 's');
-          if (isset(self::$stop[$argument])) {
-            $stop |= self::$stop[$argument];
-          } else {
-            $this->err->writeLine('*** Unknown value for -s (must be one of '.implode(', ', array_keys(self::$stop)).')');
-            return 2;
-          }
+          $stop= $this->arg($args, ++$i, 's');
+        } else if ('-v' === $args[$i]) {
+          $output= TestListeners::$VERBOSE;
         } else if ('--color' === substr($args[$i], 0, 7)) {
-          $remainder= (string)substr($args[$i], 7);
-          if (!array_key_exists($remainder, self::$cmap)) {
+          $remainder= (string)substr($args[$i], 8);
+          if (!array_key_exists($remainder, self::$colors)) {
             throw new IllegalArgumentException('Unsupported argument for --color (must be <empty>, "on", "off", "auto" (default))');
           }
-          $colors= self::$cmap[$remainder];
+          $colors= self::$colors[$remainder];
         } else if (strstr($args[$i], '.ini')) {
           $sources[]= new PropertySource(new Properties($args[$i]));
         } else if (strstr($args[$i], '.**')) {
@@ -331,17 +355,29 @@ class TestRunner {
       $this->err->writeLine('*** No tests specified');
       return 2;
     }
-    
-    // Set up suite
-    $l= $suite->addListener($listener->newInstance($this->out));
+
+    // Setup output
+    $l= $suite->addListener($output->newInstance($this->out));
     if ($l instanceof ColorizingListener) {
       $l->setColor($colors);
     }
 
+    // Check on which events to stop
     if ($stop) {
-      $suite->addListener(new StopListener($stop));
+      $events= 0;
+      foreach (explode(',', $stop) as $event) {
+        $event= trim($event);
+        if (isset(self::$stop[$event])) {
+          $events |= self::$stop[$event];
+        } else {
+          $this->err->writeLine('*** Unknown value for -s (must be one of '.implode(', ', array_keys(self::$stop)).')');
+          return 2;
+        }
+      }
+      $events && $suite->addListener(new StopListener($events));
     }
 
+    // Gather tests from the provided sources
     foreach ($sources as $source) {
       try {
         $source->provideTo($suite, $arguments);
@@ -356,19 +392,17 @@ class TestRunner {
         return 2;
       }
     }
-    
+    if (0 === $suite->numTests()) return 3;
+
     // Run it!
-    if (0 == $suite->numTests()) {
-      return 3;
-    } else {
-      return $suite->run()->failureCount() > 0 ? 1 : 0;
-    }
+    return $suite->run()->failureCount() > 0 ? 1 : 0;
   }
 
   /**
    * Main runner method
    *
-   * @param   string[] args
+   * @param  string[] args
+   * @return int
    */
   public static function main(array $args) {
     return (new self())->run($args);
