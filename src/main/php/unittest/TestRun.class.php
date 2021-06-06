@@ -145,8 +145,8 @@ class TestRun {
       }
 
       // Success so far, check for warnings
-      if ($errors= Warnings::raised()) {
-        $this->record(new TestWarning($t, $errors, $time));
+      if ($warnings= Warnings::raised()) {
+        $this->record(new TestWarning($t, $warnings, $time));
         Warnings::clear();
         continue;
       } else {
