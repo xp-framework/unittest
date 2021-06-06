@@ -16,16 +16,14 @@ use unittest\{Test, Listener};
  *
  */
 class ColoredBarListener implements Listener {
-  const PROGRESS_WIDTH= 10;
+  const PROGRESS_WIDTH = 10;
+  const CODE_RED       = '41;1;37';
+  const CODE_GREEN     = '42;1;37';
+  const CODE_BLUE      = '44;1;37';
 
   private $out= null;
-  private $cur, $sum, $len, $status;
+  private $cur, $sum, $status;
   private $stats;
-
-  private static $CODE_RED    = "\033[41;1;37m";
-  private static $CODE_GREEN  = "\033[42;1;37m";
-  private static $CODE_BLUE   = "\033[44;1;37m";
-  private static $CODE_RESET  = "\033[0m";
 
   /**
    * Constructor
@@ -39,18 +37,26 @@ class ColoredBarListener implements Listener {
   /**
    * Write status of currently executing test case
    *
-   * @param   unittest.Test $test
+   * @param  unittest.Test $test
+   * @return void
    */
   private function writeStatus(Test $test= null) {
-    if (null !== $test) {
+    if ($test) {
       $this->cur++;
+      $color= self::CODE_BLUE;
+    } else if ($this->status) {
+      $this->cur= $this->sum;
+      $color= self::CODE_GREEN;
+    } else {
+      $color= self::CODE_RED;
     }
-
-    $perc= floor($this->cur / $this->sum * self::PROGRESS_WIDTH);
-    $out= sprintf(" Running %-3d of %d [%-10s] %01dF %01dE %01dW %01dS %01dN",
+  
+    // Create status bar
+    $done= floor($this->cur / $this->sum * self::PROGRESS_WIDTH);
+    $status= sprintf('Running %-3d of %d ▐%s▌ %01d 📛▕ %01d ❌▕ %01d ⚡▕ %01d ⏩▕ %01d ⌛',
       $this->cur,
       $this->sum,
-      str_repeat('.', $perc),
+      str_repeat('█', $done).str_repeat(' ', self::PROGRESS_WIDTH - $done),
       $this->stats['failed'],
       $this->stats['errored'],
       $this->stats['warned'],
@@ -58,44 +64,14 @@ class ColoredBarListener implements Listener {
       $this->stats['notrun']
     );
 
-    $out= sprintf('%50s %20s', 
-      $out,
-      '- '.($this->status ? 'PASSING' : 'FAILURE!').' '
+    // Format output so it's 72 characters wide (8 for status, 2 spaces padding)
+    $this->out->writef(
+      "\r\033[%sm  %s%s❯ %s  \033[0m",
+      $color,
+      $status,
+      str_repeat(' ', 60 - iconv_strlen($status, 'utf-8')),
+      $this->status ? 'PASSING' : 'FAILURE!'
     );
-
-    $this->recycleLine();
-    $this->writeColoredLine($out, $this->colorCodeFor($this->status, null === $test));
-  }
-
-  /**
-   * Retrieve color code for status
-   *
-   * @param   var status
-   * @param   bool final
-   * @return  string
-   */
-  private function colorCodeFor($status, $final) {
-    // If failure, code is always red.
-    if (!$status) {
-      return self::$CODE_RED;
-    }
-
-    // Final status uses green for success
-    if ($final) {
-      return self::$CODE_GREEN;
-    }
-
-    // Intermediate status is blue
-    return self::$CODE_BLUE;
-  }
-
-  /**
-   * Recyclce given line
-   *
-   */
-  private function recycleLine() {
-    $this->out->write(str_repeat("\x8", $this->len));
-    $this->len= 0;
   }
 
   /**
@@ -104,20 +80,9 @@ class ColoredBarListener implements Listener {
    * @param   unittest.TestOutcome result
    */
   private function writeFailure(\unittest\TestOutcome $result) {
-    $this->recycleLine();
+    $this->out->write("\r");
     $this->out->writeLine($result);
-    $this->out->writeLine('');
-  }
-
-  /**
-   * Write colored line
-   *
-   * @param   string line
-   * @param   string code
-   */
-  private function writeColoredLine($line, $code) {
-    $this->len= strlen($line);
-    $this->out->write($code.$line.self::$CODE_RESET);
+    $this->out->writeLine();
   }
 
   /**
@@ -157,8 +122,9 @@ class ColoredBarListener implements Listener {
    * @param   unittest.TestWarning warning
    */
   public function testWarning(\unittest\TestWarning $warning) {
-    $this->writeFailure($warning);
+    $this->status= false;
     $this->stats['warned']++;
+    $this->writeFailure($warning);
   }
 
   /**
