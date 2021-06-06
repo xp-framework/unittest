@@ -21,7 +21,11 @@ abstract class TestFailure extends TestOutcome {
    * @return var[]
    */
   protected function sourceOf($t) {
-    $trace= $t->getStackTrace()[0];
+
+    // Skip over all warnings that exist at the beginning of the stacktrace
+    foreach ($t->getStackTrace() as $trace) {
+      if ('' === $trace->message) break;
+    }
 
     // If invoked by reflection no file and line are present, however class and
     // method are - retrieve their declaration

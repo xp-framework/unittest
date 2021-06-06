@@ -2,7 +2,7 @@
 
 use io\File;
 use io\streams\{LinesIn, OutputStreamWriter};
-use unittest\{Listener, ColorizingListener, TestStart};
+use unittest\{Listener, ColorizingListener, TestStart, Warnings};
 
 /**
  * Verbose listener
@@ -12,6 +12,8 @@ use unittest\{Listener, ColorizingListener, TestStart};
  */
 class VerboseListener implements Listener, ColorizingListener {
   use Colors;
+
+  const CONTEXT = 4;
 
   public $out= null;
   private $container= null;
@@ -88,12 +90,13 @@ class VerboseListener implements Listener, ColorizingListener {
       $line
     );
 
+
     // Show code
     $n= 0;
     foreach (new LinesIn(new File(fopen($file, 'rb'))) as $l) {
       $n++;
-      if ($n < $line - 4) continue;
-      if ($n > $line + 4) break;
+      if ($n < $line - self::CONTEXT) continue;
+      if ($n > $line + self::CONTEXT) break;
       if ($n === $line) {
         $this->out->writeLinef(
           $this->colored ? "  \033[31m➜\033[0m \033[37m%4d\033[0m▕ \033[37m%s\033[0m" : '  ➜ %4d▕ %s',
@@ -218,6 +221,15 @@ class VerboseListener implements Listener, ColorizingListener {
       foreach ($result->failed as $outcome) {
         $this->out->writeLinef($this->colored ? "> \033[31m%s\033[0m" : '  %s', $outcome->test()->getName(true));
         $this->out->writeLinef($this->colored ? "  \033[37m%s\033[0m" : '  %s', $outcome->reason->compoundMessage());
+
+        // If any warnings have occurred, add them to the output, they may
+        // help identify the cause.
+        foreach (Warnings::raised() as $raised) {
+          $this->out->writeLine('  ', $raised[Warnings::MESSAGE]);
+        }
+
+        // Trace this error back to its origin and show the source code
+        // location plus a couple of lines of context.
         $this->out->writeLine();
         $this->trace(...$outcome->source());
       }
@@ -233,6 +245,9 @@ class VerboseListener implements Listener, ColorizingListener {
     }
     if ($result->skipCount() > 0) {
       $counts.= sprintf($this->colored ? ", \033[36m%d skipped\033[0m" : ', %d skipped', $result->skipCount());
+    }
+    if ($stopped) {
+      $counts.= sprintf($this->colored ? ", \033[33mstopped\033[0m" : ', stopped');
     }
     $this->out->writeLinef(
       $this->colored ? "\033[37mTests:\033[0m%s%s" : '  Tests:%s%s',

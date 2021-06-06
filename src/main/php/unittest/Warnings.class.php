@@ -1,6 +1,8 @@
 <?php namespace unittest;
 
 class Warnings extends \lang\XPException {
+  const MESSAGE = 2;
+
   private $list;
 
   /** @param string[] $lit */
@@ -22,7 +24,7 @@ class Warnings extends \lang\XPException {
 
     $s.= "@{\n";
     foreach ($this->list as $warning) {
-      $s.= '  '.$warning[2]."\n";
+      $s.= '  '.$warning[self::MESSAGE]."\n";
     }
     return $s.'}';
   }
