@@ -1,6 +1,7 @@
 <?php namespace xp\unittest;
 
-use io\streams\OutputStreamWriter;
+use io\File;
+use io\streams\{LinesIn, OutputStreamWriter};
 use unittest\{Listener, ColorizingListener, TestStart};
 
 /**
@@ -88,27 +89,24 @@ class VerboseListener implements Listener, ColorizingListener {
     );
 
     // Show code
-    if ($fd= fopen($origin->file, 'rb')) {
-      $n= 0;
-      while (false !== ($line= fgets($fd, 4096))) {
-        $n++;
-        if ($n < $origin->line - 4) continue;
-        if ($n > $origin->line + 4) break;
-        if ($n === $origin->line) {
-          $this->out->writeLinef(
-            $this->colored ? "  \033[31m➜\033[0m \033[37m%4d\033[0m▕ \033[37m%s\033[0m" : '  ➜ %4d▕ %s',
-            $n,
-            $this->highlight(rtrim($line))
-          );
-        } else {
-          $this->out->writeLinef(
-            $this->colored ? "    %4d▕ \033[37m%s\033[0m" : '    %4d▕ %s',
-            $n,
-            $this->highlight(rtrim($line))
-          );
-        }
+    $n= 0;
+    foreach (new LinesIn(new File(fopen($origin->file, 'rb'))) as $line) {
+      $n++;
+      if ($n < $origin->line - 4) continue;
+      if ($n > $origin->line + 4) break;
+      if ($n === $origin->line) {
+        $this->out->writeLinef(
+          $this->colored ? "  \033[31m➜\033[0m \033[37m%4d\033[0m▕ \033[37m%s\033[0m" : '  ➜ %4d▕ %s',
+          $n,
+          $this->highlight(rtrim($line))
+        );
+      } else {
+        $this->out->writeLinef(
+          $this->colored ? "    %4d▕ \033[37m%s\033[0m" : '    %4d▕ %s',
+          $n,
+          $this->highlight(rtrim($line))
+        );
       }
-      fclose($fd);
     }
     $this->out->writeLine();
   }
