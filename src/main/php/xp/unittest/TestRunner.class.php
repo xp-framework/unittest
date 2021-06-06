@@ -321,6 +321,8 @@ class TestRunner {
           $arguments[]= $this->arg($args, ++$i, 'a');
         } else if ('-s' === $args[$i]) {
           $stop= $this->arg($args, ++$i, 's');
+        } else if ('-v' === $args[$i]) {
+          $output= TestListeners::$VERBOSE;
         } else if ('--color' === substr($args[$i], 0, 7)) {
           $remainder= (string)substr($args[$i], 8);
           if (!array_key_exists($remainder, self::$colors)) {
