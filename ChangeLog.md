@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #44: Show source code location where test errors were
+  raised in verbose listener
+  (@thekid)
+
 ## 11.1.0 / 2020-09-20
 
 * Fixed issue #42: No constructor error for class::method - @thekid
