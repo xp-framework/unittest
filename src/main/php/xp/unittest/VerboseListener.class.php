@@ -80,16 +80,49 @@ class VerboseListener implements Listener, ColorizingListener {
     );
   }
 
+  /** Shortens path according to the current platform */
+  private function path($dir) {
+    $cwd= getcwd();
+    $replace= [$cwd => '.', dirname($cwd) => '..'];
+    $windows= 0 === strncasecmp('Win', PHP_OS, 3);
+
+    if (!$windows) {
+      $separator= '/';
+      $replace+= [getenv('HOME') => '~'];
+    } else if ($home= getenv('HOME')) {
+      $separator= '/';
+      $replace+= [getenv('HOME') => '~', getenv('APPDATA') => '$APPDATA', getenv('USERPROFILE') => '$USERPROFILE'];
+    } else {
+      $separator= '\\';
+      $replace+= [getenv('APPDATA') => '%APPDATA%', getenv('USERPROFILE') => '%USERPROFILE%'];
+    }
+
+    // Short-circuit paths without directory
+    if (strcspn($dir, '/\\') === strlen($dir)) return '.'.$separator.$dir;
+
+    // Compare expanded paths against replace using case-insensitivity on Windows
+    $prefix= $windows ? 'stripos' : 'strpos';
+    $expand= function($path) {
+      return realpath($path) ?: rtrim(strtr($path, '/\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR);
+    };
+
+    $path= $expand($dir);
+    foreach ($replace as $base => $with) {
+      if (0 === $prefix($path, $expand($base))) {
+        $path= $with.substr($path, strlen($base));
+        break;
+      }
+    }
+    return strtr($path, DIRECTORY_SEPARATOR, $separator);
+  }
+
   /** Writes traced origin for failed test */
   private function trace($file, $line) {
-    $cwd= realpath('.').DIRECTORY_SEPARATOR;
-
     $this->out->writeLinef(
       $this->colored ? "  @\033[32m%s\033[0m:%d" : '  @%s:%d',
-      strtr(str_replace($cwd, '', $file), DIRECTORY_SEPARATOR, '/'),
+      $this->path($file),
       $line
     );
-
 
     // Show code
     $n= 0;
