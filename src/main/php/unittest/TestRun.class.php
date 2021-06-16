@@ -140,7 +140,8 @@ class TestRun {
         $this->record(new TestError($t, $thrown, $time));
         continue;
       } else if ($expected) {
-        $this->record(new TestAssertionFailed($t, new DidNotCatch($expected[0]), $time));
+        $outcome= new TestAssertionFailed($t, new DidNotCatch($expected[0]), $time);
+        $this->record($outcome->at($test->declaration()));
         continue;
       }
 

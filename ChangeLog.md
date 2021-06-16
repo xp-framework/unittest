@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 11.3.1 / 2021-06-16
+
+* Fixed issue #47: Fix origin for `DidNotCatch` - @thekid
+
 ## 11.3.0 / 2021-06-07
 
 * Improve readability of generated code for `xp test -e [code]`. This

@@ -21,6 +21,17 @@ class TestAssertionFailed extends TestFailure {
   }
 
   /**
+   * Set this assertion failure's source back to the given source
+   *
+   * @param  var[] $source
+   * @return self
+   */
+  public function at($source) {
+    $this->source= $source;
+    return $this;
+  }
+
+  /**
    * Trace this assertion failure back to a given originating exception
    *
    * @param  lang.Throwable $exception
