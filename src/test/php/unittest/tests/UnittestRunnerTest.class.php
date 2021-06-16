@@ -198,14 +198,14 @@ class UnittestRunnerTest extends TestCase {
 
   #[Test, Values([[['-e']], [['-e', '-']]])]
   public function evaluateReadsCodeFromStdIn($args) {
-    $this->runner->setIn(new MemoryInputStream('$this->assertTrue(true);'));
+    $this->runner->setIn(new MemoryInputStream('Assert::true(true);'));
     $return= $this->runner->run($args);
     $this->assertEquals(0, $return);
     $this->assertEquals('', $this->err->getBytes());
     $this->assertOnStream($this->out, '1/1 run (0 skipped), 1 succeeded, 0 failed');
   }
 
-  #[Test, Values(['$this->assertTrue(true)', '$this->assertTrue(true);', '<?php $this->assertTrue(true);'])]
+  #[Test, Values(['Assert::true(true)', 'Assert::true(true);', '<?php Assert::true(true);'])]
   public function evaluateSucceedingTest($code) {
     $return= $this->runner->run(['-e', $code]);
     $this->assertEquals(0, $return);
@@ -215,7 +215,7 @@ class UnittestRunnerTest extends TestCase {
 
   #[Test]
   public function evaluateFailingTest() {
-    $return= $this->runner->run(['-e', '$this->assertTrue(false);']);
+    $return= $this->runner->run(['-e', 'Assert::true(false);']);
     $this->assertEquals(1, $return);
     $this->assertEquals('', $this->err->getBytes());
     $this->assertOnStream($this->out, '1/1 run (0 skipped), 0 succeeded, 1 failed');
