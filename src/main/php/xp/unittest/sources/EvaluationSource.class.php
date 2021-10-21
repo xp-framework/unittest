@@ -1,5 +1,6 @@
 <?php namespace xp\unittest\sources;
 
+use io\streams\StringReader;
 use lang\ClassLoader;
 
 /**
@@ -18,9 +19,17 @@ class EvaluationSource extends AbstractSource {
   /**
    * Constructor
    *
-   * @param  string $input method sourcecode
+   * @param  string|io.streams.StringReader $arg method sourcecode
    */
-  public function __construct($input) {
+  public function __construct($arg) {
+    if ($arg instanceof StringReader) {
+      $input= '';
+      while (null !== ($chunk= $arg->read())) {
+        $input.= $chunk;
+      }
+    } else {
+      $input= (string)$arg;
+    }
 
     // Support <?php
     if (0 === strncmp($input, '<?', 2)) {

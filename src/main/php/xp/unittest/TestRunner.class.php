@@ -1,6 +1,6 @@
 <?php namespace xp\unittest;
 
-use io\streams\{FileOutputStream, InputStream, OutputStream, Streams, StringReader, StringWriter};
+use io\streams\{FileOutputStream, InputStream, OutputStream, StringReader, StringWriter};
 use io\{File, Folder};
 use lang\reflect\{Package, TargetInvocationException};
 use lang\{Environment, IllegalArgumentException, MethodNotImplementedException, Throwable, XPClass};
@@ -268,7 +268,7 @@ class TestRunner {
         } else if ('-e' === $args[$i]) {
           $arg= ++$i < $s ? $args[$i] : '-';
           if ('-' === $arg) {
-            $sources[]= new EvaluationSource(Streams::readAll($this->in->getStream()));
+            $sources[]= new EvaluationSource($this->in);
           } else {
             $sources[]= new EvaluationSource($this->arg($args, $i, 'e'));
           }

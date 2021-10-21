@@ -3,6 +3,10 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 11.3.2 / 2021-10-21
+
+* Made compatible with XP 11 - @thekid
+
 ## 11.3.1 / 2021-06-16
 
 * Fixed issue #47: Fix origin for `DidNotCatch` - @thekid

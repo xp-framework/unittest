@@ -14,12 +14,17 @@ class UnittestRunnerTest extends TestCase {
   private $runner, $out, $err;
 
   /**
-   * Sets up test case
+   * Sets up test case. Uses `MemoryOutputStream` implementations with a
+   * `getBytes()` method to retain backward compatibility with XP < 9.8.
    */
   public function setUp() {
     $this->runner= new Runner();
-    $this->out= $this->runner->setOut(new MemoryOutputStream());
-    $this->err= $this->runner->setErr(new MemoryOutputStream());
+    $this->out= $this->runner->setOut(new class() extends MemoryOutputStream {
+      public function getBytes() { return $this->bytes(); }
+    });
+    $this->err= $this->runner->setErr(new class() extends MemoryOutputStream {
+      public function getBytes() { return $this->bytes(); }
+    });
   }
 
   /**

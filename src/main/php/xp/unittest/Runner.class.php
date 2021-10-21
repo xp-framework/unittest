@@ -1,12 +1,12 @@
 <?php namespace xp\unittest;
 
+use io\streams\{FileOutputStream, InputStream, OutputStream, StringReader, StringWriter};
 use io\{File, Folder};
-use io\streams\{FileOutputStream, InputStream, OutputStream, Streams, StringReader, StringWriter};
-use lang\{ClassLoader, IllegalArgumentException, MethodNotImplementedException, Throwable, XPClass};
 use lang\reflect\{Package, TargetInvocationException};
+use lang\{ClassLoader, IllegalArgumentException, MethodNotImplementedException, Throwable, XPClass};
 use unittest\{ColorizingListener, TestSuite};
-use util\{NoSuchElementException, Properties};
 use util\cmd\Console;
+use util\{NoSuchElementException, Properties};
 use xp\unittest\sources\{ClassFileSource, ClassSource, EvaluationSource, FolderSource, PackageSource, PropertySource};
 
 /**
@@ -238,7 +238,7 @@ class Runner {
         } else if ('-e' == $args[$i]) {
           $arg= ++$i < $s ? $args[$i] : '-';
           if ('-' === $arg) {
-            $sources[]= new EvaluationSource(Streams::readAll($this->in->getStream()));
+            $sources[]= new EvaluationSource($this->in);
           } else {
             $sources[]= new EvaluationSource($this->arg($args, $i, 'e'));
           }
