@@ -118,6 +118,8 @@ class VerboseListener implements Listener, ColorizingListener {
 
   /** Writes traced origin for failed test */
   private function trace($file, $line) {
+    if (null === $file) return;
+
     $this->out->writeLinef(
       $this->colored ? "  @\033[32m%s\033[0m:%d" : '  @%s:%d',
       $this->path($file),

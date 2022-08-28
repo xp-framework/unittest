@@ -1,7 +1,7 @@
 <?php namespace unittest;
 
-use lang\{IllegalStateException, XPClass};
 use lang\reflect\TargetInvocationException;
+use lang\{IllegalStateException, XPClass};
 
 abstract class TestGroup {
   protected static $base;
