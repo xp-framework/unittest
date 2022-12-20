@@ -3,6 +3,11 @@ Unittests change log
 
 ## ?.?.? / ????-??-??
 
+## 11.4.0 / 2022-12-20
+
+* Merged PR #49: Use PrerequisitesFailedError for unexpected exceptions
+  (@thekid)
+
 ## 11.3.2 / 2021-10-21
 
 * Made compatible with XP 11 - @thekid
