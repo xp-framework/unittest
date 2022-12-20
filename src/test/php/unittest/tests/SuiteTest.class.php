@@ -361,7 +361,7 @@ class SuiteTest extends TestCase {
     $t= newinstance(TestCase::class, ['irrelevant'], '{
       #[BeforeClass]
       public static function raise() {
-        throw new \lang\IllegalStateException("Skip");
+        throw new \unittest\PrerequisitesNotMetError("Skip");
       }
       
       #[Test]
@@ -374,7 +374,7 @@ class SuiteTest extends TestCase {
     $this->assertEquals(1, $r->skipCount(), 'skipCount');
     $this->assertInstanceOf(TestPrerequisitesNotMet::class, $r->outcomeOf($t));
     $this->assertInstanceOf(PrerequisitesNotMetError::class, $r->outcomeOf($t)->reason);
-    $this->assertEquals('Exception in beforeClass method raise', $r->outcomeOf($t)->reason->getMessage());
+    $this->assertEquals('Skip', $r->outcomeOf($t)->reason->getMessage());
   }    
 
   #[Test]

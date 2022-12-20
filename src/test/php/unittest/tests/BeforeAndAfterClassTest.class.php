@@ -43,7 +43,7 @@ abstract class BeforeAndAfterClassTest extends TestCase {
   }
 
   #[Test]
-  public function exceptionInBeforeClassSkipsTest() {
+  public function exceptionInBeforeClassFailsTest() {
     $t= newinstance(TestCase::class, ['fixture'], '{
 
       #[BeforeClass]
@@ -57,9 +57,9 @@ abstract class BeforeAndAfterClassTest extends TestCase {
       }
     }');
     $r= $this->suite->runTest($t)->outComeOf($t);
-    $this->assertInstanceOf(TestSkipped::class, $r);
-    $this->assertInstanceOf(PrerequisitesNotMetError::class, $r->reason);
-    $this->assertEquals('Exception in beforeClass method prepareTestData', $r->reason->getMessage());
+    $this->assertInstanceOf(TestFailure::class, $r);
+    $this->assertInstanceOf(PrerequisitesFailedError::class, $r->reason);
+    $this->assertEquals('Test data not available', $r->reason->getMessage());
   }
 
   #[Test]
