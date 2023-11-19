@@ -70,6 +70,7 @@ abstract class TestGroup {
     do {
       try {
         $it->current();
+        $it->next();
       } catch (TargetInvocationException $e) {
         $cause= $e->getCause();
         if ($cause instanceof PrerequisitesNotMetError) {
@@ -79,7 +80,6 @@ abstract class TestGroup {
           throw new PrerequisitesFailedError($cause->getMessage(), $cause, [$name]);
         }
       }
-      $it->next();
     } while ($it->valid());
 
     $class= $this->type();
