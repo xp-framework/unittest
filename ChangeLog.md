@@ -5,6 +5,7 @@ Unittests change log
 
 ## 11.4.1 / 2023-11-19
 
+* Added PHP 8.4 to the test matrix - @thekid
 * Fixed handling exceptions from `#[Before]` methods - @thekid
 
 ## 11.4.0 / 2022-12-20
